@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>פעילויות למידה עצמאית | אפקה</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap');
+
+  :root {
+    --bg: #0a0c12;
+    --glass: rgba(255,255,255,0.035);
+    --glass-border: rgba(255,255,255,0.08);
+    --text: #f0f4ff;
+    --muted: #8892a4;
+    --radius: 20px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Heebo', 'Segoe UI', Arial, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Animated background ── */
+  .bg-orbs {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+  }
+  .orb {
+    position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.18;
+    animation: drift 18s ease-in-out infinite alternate;
+  }
+  .orb1 { width:500px; height:500px; background:#6366f1; top:-120px; right:-100px; animation-delay:0s; }
+  .orb2 { width:400px; height:400px; background:#06b6d4; bottom:-100px; left:-80px; animation-delay:-6s; }
+  .orb3 { width:300px; height:300px; background:#8b5cf6; top:40%; left:40%; animation-delay:-12s; }
+  @keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(40px,30px) scale(1.12); } }
+
+  /* ── Page shell ── */
+  .page { position: relative; z-index: 1; padding: 52px 32px 64px; max-width: 1260px; margin: 0 auto; }
+
+  /* ── Header ── */
+  .header { text-align: center; margin-bottom: 56px; }
+  .header .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 0.78rem; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600;
+    color: #818cf8; background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.25);
+    border-radius: 40px; padding: 5px 16px; margin-bottom: 20px;
+  }
+  .header h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 900;
+    line-height: 1.12;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, #e0e7ff 0%, #818cf8 50%, #06b6d4 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .header p {
+    font-size: 1.05rem; color: var(--muted); max-width: 560px; margin: 0 auto; line-height: 1.7;
+  }
+
+  /* ── Stats row ── */
+  .stats-row {
+    display: flex; justify-content: center; gap: 32px; margin-bottom: 52px; flex-wrap: wrap;
+  }
+  .stat { text-align: center; }
+  .stat .num { font-size: 2rem; font-weight: 800; line-height: 1; }
+  .stat .lbl { font-size: 0.78rem; color: var(--muted); margin-top: 4px; letter-spacing: 0.04em; }
+
+  /* ── Grid ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  /* ── Card ── */
+  .card {
+    position: relative;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    padding: 28px 26px 24px;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--text);
+    display: flex; flex-direction: column;
+    transition: transform 0.32s cubic-bezier(.22,.68,0,1.4), box-shadow 0.28s ease, border-color 0.28s ease;
+    overflow: hidden;
+    backdrop-filter: blur(12px);
+  }
+
+  /* Glow border on hover */
+  .card::before {
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: var(--radius);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .card:hover { transform: translateY(-8px) scale(1.01); }
+  .card:hover::before { opacity: 1; }
+
+  /* Per-card accent colours */
+  .card-cs  { --c: #60a5fa; --c2: #3b82f6; }
+  .card-ee  { --c: #facc15; --c2: #f59e0b; }
+  .card-me  { --c: #a78bfa; --c2: #8b5cf6; }
+  .card-ie  { --c: #2dd4bf; --c2: #14b8a6; }
+  .card-ma  { --c: #f472b6; --c2: #ec4899; }
+  .card-bm  { --c: #4ade80; --c2: #22c55e; }
+
+  .card:hover { border-color: var(--c); box-shadow: 0 24px 60px -12px rgba(0,0,0,0.6), 0 0 0 1px var(--c), inset 0 1px 0 rgba(255,255,255,0.06); }
+  .card::before { box-shadow: inset 0 0 80px -20px var(--c); }
+
+  /* Gradient stripe top */
+  .card-stripe {
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--c), var(--c2));
+    border-radius: var(--radius) var(--radius) 0 0;
+    opacity: 0.8;
+  }
+
+  /* Card inner */
+  .card-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+  .card-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    background: linear-gradient(135deg, var(--c) 0%, var(--c2) 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.55rem;
+    box-shadow: 0 4px 20px -4px var(--c);
+    flex-shrink: 0;
+  }
+  .card-badge {
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    color: var(--c); border-radius: 20px; padding: 4px 11px;
+  }
+
+  .card-title { font-size: 1.1rem; font-weight: 800; line-height: 1.3; margin-bottom: 6px; }
+  .card-sub   { font-size: 0.78rem; color: var(--muted); font-weight: 500; margin-bottom: 14px; }
+
+  /* Divider */
+  .card hr { border: none; border-top: 1px solid rgba(255,255,255,0.07); margin: 14px 0; }
+
+  /* Outcomes */
+  .section-label {
+    font-size: 0.65rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+    font-weight: 700; margin-bottom: 8px;
+  }
+  .outcomes { list-style: none; flex: 1; }
+  .outcomes li {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: 0.82rem; color: #c8d0e0; line-height: 1.55; margin-bottom: 6px;
+  }
+  .outcomes li::before {
+    content: '✓'; color: var(--c); font-size: 0.72rem; font-weight: 800;
+    flex-shrink: 0; margin-top: 2px;
+  }
+
+  /* Tags */
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+  .tag {
+    font-size: 0.66rem; font-weight: 600; letter-spacing: 0.04em;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 20px; padding: 3px 10px; color: var(--muted);
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .card:hover .tag { color: var(--c); border-color: rgba(255,255,255,0.15); }
+
+  /* CTA arrow */
+  .card-cta {
+    display: flex; align-items: center; justify-content: flex-end; gap: 6px;
+    font-size: 0.78rem; font-weight: 600; color: var(--c);
+    margin-top: 18px; opacity: 0; transform: translateX(-6px);
+    transition: opacity 0.25s, transform 0.25s;
+  }
+  .card:hover .card-cta { opacity: 1; transform: translateX(0); }
+  .card-cta svg { width: 14px; height: 14px; }
+
+  /* Type indicator */
+  .type-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em;
+    padding: 3px 10px; border-radius: 20px; margin-bottom: 14px;
+  }
+  .type-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* ── Footer ── */
+  .footer { text-align: center; margin-top: 60px; color: var(--muted); font-size: 0.8rem; }
+  .footer span { color: #6366f1; }
+
+  /* ── Responsive ── */
+  @media (max-width: 960px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 620px)  { .grid { grid-template-columns: 1fr; } .page { padding: 32px 16px; } }
+</style>
+</head>
+<body>
+
+<div class="bg-orbs">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="eyebrow">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><circle cx="6" cy="6" r="5"/></svg>
+      אפקה — המכללה האקדמית להנדסה בתל-אביב
+    </div>
+    <h1>פעילויות למידה<br>עצמאית אינטראקטיביות</h1>
+    <p>כלים דיגיטליים לחקירה עצמאית, הבנה עמוקה ויישום מושגי ליבה בהנדסה</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat"><div class="num" style="color:#818cf8">6</div><div class="lbl">פעילויות</div></div>
+    <div class="stat"><div class="num" style="color:#06b6d4">6</div><div class="lbl">תחומי הנדסה</div></div>
+    <div class="stat"><div class="num" style="color:#4ade80">100%</div><div class="lbl">אינטראקטיבי</div></div>
+    <div class="stat"><div class="num" style="color:#f472b6">∞</div><div class="lbl">ניסויים אפשריים</div></div>
+  </div>
+
+  <!-- Cards Grid -->
+  <div class="grid">
+
+    <!-- 1. Software -->
+    <a class="card card-cs" href="01-software-sorting.html" target="_blank">
+      <div class="card-stripe"></div>
+      <div class="card-head">
+        <div class="card-icon">🔄</div>
+        <div class="card-badge">הנדסת תוכנה</div>
+      </div>
+      <div class="type-pill" style="background:rgba(96,165,250,0.1);color:#60a5fa;">
+        <span class="dot"></span>פעילות אינטראקטיבית — ויזואליזציה
+      </div>
+      <div class="card-title">ויזואליזציה של אלגוריתמי מיון</div>
+      <div class="card-sub">מבני נתונים | סיבוכיות זמן | Big-O Notation</div>
+      <hr>
+      <div class="section-label">תוצרי למידה</div>
+      <ul class="outcomes">
+        <li>הבנת ההבדל בין אלגוריתמי O(n²) ל-O(n log n)</li>
+        <li>זיהוי מצבים שבהם כל אלגוריתם עדיף</li>
+        <li>קריאת טבלת סיבוכיות ופרשנות מעשית</li>
+        <li>תצפית בפעולות השוואה והחלפה בזמן אמת</li>
+      </ul>
+      <div class="tags">
+        <span class="tag">Bubble Sort</span>
+        <span class="tag">Merge Sort</span>
+        <span class="tag">Quick Sort</span>
+        <span class="tag">אנימציה חיה</span>
+        <span class="tag">ספירת פעולות</span>
+      </div>
+      <div class="card-cta">
+        פתח פעילות
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 7h12M7 1l6 6-6 6"/></svg>
+      </div>
+    </a>
+
+    <!-- 2. Electrical -->
+    <a class="card card-ee" href="02-electrical-circuit.html" target="_blank">
+      <div class="card-stripe"></div>
+      <div class="card-head">
+        <div class="card-icon">⚡</div>
+        <div class="card-badge">הנדסת חשמל</div>
+      </div>
+      <div class="type-pill" style="background:rgba(250,204,21,0.1);color:#facc15;">
+        <span class="dot"></span>מעבדה וירטואלית — חישוב חי
+      </div>
+      <div class="card-title">מעבדת מעגלים חשמליים</div>
+      <div class="card-sub">חוק אוהם | חוקי קירכהוף | מעגלי טור ומקביל</div>
+      <hr>
+      <div class="section-label">תוצרי למידה</div>
+      <ul class="outcomes">
+        <li>יישום חוק אוהם V = I × R בתרחישים שונים</li>
+        <li>הבנת הקשר בין מתח, זרם, התנגדות והספק</li>
+        <li>חישוב התנגדות שקולה בטור ובמקביל</li>
+        <li>זיהוי השפעת שינוי פרמטר אחד על האחרים</li>
+      </ul>
+      <div class="tags">
+        <span class="tag">V=IR</span>
+        <span class="tag">טור ומקביל</span>
+        <span class="tag">הספק P=VI</span>
+        <span class="tag">נעילת משתנה</span>
+        <span class="tag">ויזואליזציה</span>
+      </div>
+      <div class="card-cta">
+        פתח פעילות
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 7h12M7 1l6 6-6 6"/></svg>
+      </div>
+    </a>
+
+    <!-- 3. Mechanical -->
+    <a class="card card-me" href="03-mechanical-stress-strain.html" target="_blank">
+      <div class="card-stripe"></div>
+      <div class="card-head">
+        <div class="card-icon">🔩</div>
+        <div class="card-badge">הנדסה מכנית</div>
+      </div>
+      <div class="type-pill" style="background:rgba(167,139,250,0.1);color:#a78bfa;">
+        <span class="dot"></span>סימולציה — חקירת חומרים
+      </div>
+      <div class="card-title">עקומת מאמץ-עיבור</div>
+      <div class="card-sub">מכניקת חומרים | Stress-Strain | מודול יאנג</div>
+      <hr>
+      <div class="section-label">תוצרי למידה</div>
+      <ul class="outcomes">
+        <li>קריאה ופרשנות של עקומת מאמץ-עיבור</li>
+        <li>זיהוי אזורים: אלסטי, פלסטי, צווארון ושבירה</li>
+        <li>השוואת מאפייני חומרים (E, UTS, ductility)</li>
+        <li>הבנת הקשר בין מבנה החומר להתנהגותו</li>
+      </ul>
+      <div class="tags">
+        <span class="tag">5 חומרים</span>
+        <span class="tag">אזור אלסטי</span>
+        <span class="tag">Necking</span>
+        <span class="tag">אנרגיית עיבור</span>
+        <span class="tag">שבירה</span>
+      </div>
+      <div class="card-cta">
+        פתח פעילות
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 7h12M7 1l6 6-6 6"/></svg>
+      </div>
+    </a>
+
+    <!-- 4. Industrial -->
+    <a class="card card-ie" href="04-industrial-production.html" target="_blank">
+      <div class="card-stripe"></div>
+      <div class="card-head">
+        <div class="card-icon">🏭</div>
+        <div class="card-badge">הנדסה תעשייתית</div>
+      </div>
+      <div class="type-pill" style="background:rgba(45,212,191,0.1);color:#2dd4bf;">
+        <span class="dot"></span>סימולציה — קו ייצור חי
+      </div>
+      <div class="card-title">סימולטור קו ייצור</div>
+      <div class="card-sub">תורת התורים | Little's Law | זיהוי צוואר בקבוק</div>
+      <hr>
+      <div class="section-label">תוצרי למידה</div>
+      <ul class="outcomes">
+        <li>זיהוי צוואר בקבוק ומשמעותו לתפוקת המערכת</li>
+        <li>יישום חוק ליטל: L = λ × W</li>
+        <li>הבנת מדדי ביצוע: WIP, Cycle Time, Throughput</li>
+        <li>ניסוי אסטרטגיות איזון קו ייצור</li>
+      </ul>
+      <div class="tags">
+        <span class="tag">Little's Law</span>
+        <span class="tag">גרף גנט</span>
+        <span class="tag">Bottleneck</span>
+        <span class="tag">KPIs</span>
+        <span class="tag">סימולציה חיה</span>
+      </div>
+      <div class="card-cta">
+        פתח פעילות
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 7h12M7 1l6 6-6 6"/></svg>
+      </div>
+    </a>
+
+    <!-- 5. Mathematics -->
+    <a class="card card-ma" href="05-math-calculus.html" target="_blank">
+      <div class="card-stripe"></div>
+      <div class="card-head">
+        <div class="card-icon">∫</div>
+        <div class="card-badge">מתמטיקה</div>
+      </div>
+      <div class="type-pill" style="background:rgba(244,114,182,0.1);color:#f472b6;">
+        <span class="dot"></span>חקירה — חשבון דיפרנציאלי
+      </div>
+      <div class="card-title">חשבון אינטגרלי ודיפרנציאלי</div>
+      <div class="card-sub">נגזרת | אינטגרל | נקודות קריטיות | חקירת פונקציות</div>
+      <hr>
+      <div class="section-label">תוצרי למידה</div>
+      <ul class="outcomes">
+        <li>הבנה גיאומטרית של נגזרת כשיפוע המשיק</li>
+        <li>קישור בין שיפוע הנגזרת ועלייה/ירידה של פונקציה</li>
+        <li>פרשנות ויזואלית של אינטגרל כשטח</li>
+        <li>זיהוי נקודות מקסימום, מינימום ונקודות פיתול</li>
+      </ul>
+      <div class="tags">
+        <span class="tag">8 פונקציות</span>
+        <span class="tag">משיק חי</span>
+        <span class="tag">שטח אינטגרל</span>
+        <span class="tag">f'(x) ו-f''(x)</span>
+        <span class="tag">נקודות קריטיות</span>
+      </div>
+      <div class="card-cta">
+        פתח פעילות
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 7h12M7 1l6 6-6 6"/></svg>
+      </div>
+    </a>
+
+    <!-- 6. Biomedical -->
+    <a class="card card-bm" href="06-biomedical-ecg.html" target="_blank">
+      <div class="card-stripe"></div>
+      <div class="card-head">
+        <div class="card-icon">🫀</div>
+        <div class="card-badge">הנדסה רפואית</div>
+      </div>
+      <div class="type-pill" style="background:rgba(74,222,128,0.1);color:#4ade80;">
+        <span class="dot"></span>מוניטור חי — אבחון קליני
+      </div>
+      <div class="card-title">סימולטור אק"ג | ECG Monitor</div>
+      <div class="card-sub">פענוח גלי PQRST | הפרעות קצב | ניטור סימנים חיוניים</div>
+      <hr>
+      <div class="section-label">תוצרי למידה</div>
+      <ul class="outcomes">
+        <li>זיהוי גלי P, QRS ו-T ומשמעותם הפיזיולוגית</li>
+        <li>אבחון הפרעות קצב: AFib, VFib, Brady, Tachy</li>
+        <li>הבנת הקשר בין האות החשמלי לפעילות הלב</li>
+        <li>פרשנות פרמטרי ניטור: HR, SpO₂, BP, RR</li>
+      </ul>
+      <div class="tags">
+        <span class="tag">7 קצבי לב</span>
+        <span class="tag">גלי PQRST</span>
+        <span class="tag">AFib & VFib</span>
+        <span class="tag">Gain & Speed</span>
+        <span class="tag">סימנים חיוניים</span>
+      </div>
+      <div class="card-cta">
+        פתח פעילות
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 7h12M7 1l6 6-6 6"/></svg>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <p>פותח עבור מרצי <span>אפקה — המכללה האקדמית להנדסה תל-אביב</span> | כל הפעילויות עצמאיות ואינן דורשות חיבור לרשת</p>
+  </div>
+
+</div>
+</body>
+</html>

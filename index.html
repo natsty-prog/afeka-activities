@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>פעילויות למידה | אפקה — הנדסה לתואר ראשון</title>
+<style>
+  :root { --bg:#0d1117; --surface:#161b22; --border:#30363d; --text:#e6edf3; --muted:#7d8590; --radius:14px; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,sans-serif; min-height:100vh; padding:40px 24px; }
+  header { text-align:center; margin-bottom:48px; }
+  header h1 { font-size:2.2rem; font-weight:800; margin-bottom:8px; }
+  header p { color:var(--muted); font-size:1rem; max-width:600px; margin:0 auto; }
+  .tag { display:inline-block; font-size:0.7rem; padding:2px 10px; border-radius:20px; margin-bottom:12px; font-weight:600; letter-spacing:0.06em; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:20px; max-width:1100px; margin:0 auto; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:24px; text-decoration:none; color:var(--text); transition:all 0.2s; display:block; }
+  .card:hover { transform:translateY(-3px); box-shadow:0 8px 30px rgba(0,0,0,0.4); }
+  .card .icon { font-size:2.4rem; margin-bottom:12px; }
+  .card h2 { font-size:1.05rem; font-weight:700; margin-bottom:6px; }
+  .card .subject { font-size:0.78rem; color:var(--muted); margin-bottom:10px; }
+  .card p { font-size:0.84rem; color:var(--muted); line-height:1.6; }
+  .card .features { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+  .feat { font-size:0.7rem; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:20px; padding:3px 9px; color:var(--muted); }
+  h2.section { text-align:center; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--muted); margin:0 auto 24px; max-width:1100px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🎓 פעילויות למידה עצמאית</h1>
+  <p>פעילויות אינטראקטיביות לסטודנטים להנדסה — אפקה — תואר ראשון<br>כל פעילות עצמאית, לא דורשת חיבור לאינטרנט</p>
+</header>
+
+<h2 class="section">בחר פעילות לפי תחום</h2>
+
+<div class="grid">
+
+  <a class="card" href="01-software-sorting.html" style="border-color:#58a6ff44">
+    <div class="tag" style="background:rgba(88,166,255,0.15);color:#58a6ff">💻 הנדסת תוכנה</div>
+    <div class="icon">🔄</div>
+    <h2>ויזואליזציה של אלגוריתמי מיון</h2>
+    <div class="subject">מבני נתונים | סיבוכיות זמן | Big-O Notation</div>
+    <p>השוו בין Bubble, Selection, Insertion, Merge ו-Quick Sort. צפו בכל שלב בזמן אמת עם ספירת השוואות והחלפות.</p>
+    <div class="features">
+      <span class="feat">אנימציה חיה</span><span class="feat">5 אלגוריתמים</span><span class="feat">טבלת סיבוכיות</span><span class="feat">גודל + מהירות</span>
+    </div>
+  </a>
+
+  <a class="card" href="02-electrical-circuit.html" style="border-color:#60a5fa44">
+    <div class="tag" style="background:rgba(96,165,250,0.15);color:#60a5fa">⚡ הנדסת חשמל</div>
+    <div class="icon">🔌</div>
+    <h2>מעבדת מעגלים חשמליים</h2>
+    <div class="subject">חוק אוהם | קירכהוף | מעגלי טור ומקביל</div>
+    <p>שנו מתח, זרם והתנגדות בסליידרים ותראו כיצד V=IR מתממש בזמן אמת. נעלו משתנה אחד ושינו את האחרים.</p>
+    <div class="features">
+      <span class="feat">V=IR אינטראקטיבי</span><span class="feat">טור ומקביל</span><span class="feat">הספק</span><span class="feat">ויזואליזציה מעגל</span>
+    </div>
+  </a>
+
+  <a class="card" href="03-mechanical-stress-strain.html" style="border-color:#a78bfa44">
+    <div class="tag" style="background:rgba(167,139,250,0.15);color:#a78bfa">🔩 הנדסה מכנית</div>
+    <div class="icon">📊</div>
+    <h2>עקומת מאמץ-עיבור</h2>
+    <div class="subject">מכניקת חומרים | Stress-Strain | מודול יאנג</div>
+    <p>בחרו חומר (פלדה, אלומיניום, גומי, עצם) והפעילו עומס עד שבירה. צפו באזור האלסטי, פלסטי, צווארון ושבירה.</p>
+    <div class="features">
+      <span class="feat">5 חומרים</span><span class="feat">אנימציה לשבירה</span><span class="feat">נקודות קריטיות</span><span class="feat">דגימה ויזואלית</span>
+    </div>
+  </a>
+
+  <a class="card" href="04-industrial-production.html" style="border-color:#2dd4bf44">
+    <div class="tag" style="background:rgba(45,212,191,0.15);color:#2dd4bf">🏭 הנדסה תעשייתית</div>
+    <div class="icon">⚙️</div>
+    <h2>סימולטור קו ייצור</h2>
+    <div class="subject">תורת התורים | Little's Law | צוואר בקבוק</div>
+    <p>הגדירו קצב עיבוד לכל תחנה, זהו צוואר בקבוק אוטומטית, והריצו סימולציה חיה עם גרף גנט ו-KPIs בזמן אמת.</p>
+    <div class="features">
+      <span class="feat">4 תחנות</span><span class="feat">גרף גנט</span><span class="feat">WIP ותפוקה</span><span class="feat">Little's Law</span>
+    </div>
+  </a>
+
+  <a class="card" href="05-math-calculus.html" style="border-color:#c084fc44">
+    <div class="tag" style="background:rgba(192,132,252,0.15);color:#c084fc">∫ מתמטיקה</div>
+    <div class="icon">📈</div>
+    <h2>חשבון דיפרנציאלי ואינטגרלי</h2>
+    <div class="subject">נגזרת | אינטגרל | נקודות קריטיות | חקירת פונקציות</div>
+    <p>בחרו פונקציה, הזזו נקודה לאורך הגרף — ראו את המשיק, שיפוע, שטח האינטגרל ונקודות המקסימום/מינימום.</p>
+    <div class="features">
+      <span class="feat">8 פונקציות</span><span class="feat">משיק חי</span><span class="feat">שטח אינטגרל</span><span class="feat">נקודות קריטיות</span>
+    </div>
+  </a>
+
+  <a class="card" href="06-biomedical-ecg.html" style="border-color:#00ff8844">
+    <div class="tag" style="background:rgba(0,255,136,0.1);color:#00ff88">♥ הנדסה רפואית</div>
+    <div class="icon">🫀</div>
+    <h2>סימולטור אק"ג</h2>
+    <div class="subject">ECG | הפרעות קצב | גלי PQRST | ניטור חיוני</div>
+    <p>הריצו מוניטור אק"ג חי עם 7 סוגי קצב (NSR, AFib, VFib, PVC ועוד). זהו גלי P, QRS, T ולמדו פענוח אק"ג.</p>
+    <div class="features">
+      <span class="feat">7 קצבי לב</span><span class="feat">מוניטור חי</span><span class="feat">פרמטרים מתכווננים</span><span class="feat">VFib & Asystole</span>
+    </div>
+  </a>
+
+</div>
+</body>
+</html>

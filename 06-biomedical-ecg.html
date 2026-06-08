@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>סימולטור אק"ג | הנדסה רפואית</title>
+<style>
+  :root {
+    --bg: #060c09;
+    --surface: #0c1510;
+    --surface2: #121f17;
+    --border: #1a3020;
+    --accent: #00ff88;
+    --accent2: #00cc6a;
+    --red: #ff4757;
+    --yellow: #ffd32a;
+    --blue: #2ed573;
+    --orange: #ff6b35;
+    --cyan: #1ee3cf;
+    --text: #d4edda;
+    --muted: #4a7a5a;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; min-height: 100vh; padding: 20px; }
+
+  header { text-align: center; margin-bottom: 20px; }
+  header h1 { font-size: 1.6rem; font-weight: 700; color: var(--accent); margin-bottom: 4px; letter-spacing: 0.05em; text-shadow: 0 0 20px rgba(0,255,136,0.5); }
+  header p { color: var(--muted); font-size: 0.85rem; font-family: 'Segoe UI', sans-serif; }
+
+  /* Monitor frame */
+  .monitor { max-width: 1200px; margin: 0 auto; background: #050a07; border: 2px solid #1a3020; border-radius: 16px; padding: 20px; box-shadow: 0 0 40px rgba(0,255,136,0.08); }
+
+  /* Top vitals bar */
+  .vitals-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 18px; }
+  .vital { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; text-align: center; }
+  .vital .vlabel { font-size: 0.65rem; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 4px; font-family: 'Segoe UI', sans-serif; }
+  .vital .vval { font-size: 1.5rem; font-weight: 700; }
+  .vital .vunit { font-size: 0.65rem; color: var(--muted); }
+
+  /* ECG Canvas */
+  #ecg-canvas { display: block; width: 100%; border-radius: 8px; background: #030806; border: 1px solid #0f2015; }
+
+  /* Bottom grid */
+  .bottom-grid { display: grid; grid-template-columns: 1fr 280px 280px; gap: 14px; margin-top: 16px; }
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+  .panel h3 { font-size: 0.7rem; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); font-family: 'Segoe UI', sans-serif; text-transform: uppercase; }
+
+  /* Rhythm selector */
+  .rhythm-btn {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; padding: 10px 12px; margin-bottom: 6px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; cursor: pointer; color: var(--text);
+    font-family: 'Segoe UI', sans-serif; font-size: 0.84rem;
+    transition: all 0.18s; text-align: right;
+  }
+  .rhythm-btn:hover { border-color: var(--accent2); }
+  .rhythm-btn.active { border-color: var(--accent); background: rgba(0,255,136,0.06); color: var(--accent); }
+  .rhythm-btn .rname { font-weight: 600; }
+  .rhythm-btn .rsub { font-size: 0.7rem; color: var(--muted); display: block; margin-top: 1px; font-family: monospace; }
+  .rhythm-btn.active .rsub { color: var(--accent2); }
+  .rhythm-btn .rdot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  /* Wave labels */
+  .wave-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; margin-bottom: 6px; }
+  .wave-card .wname { font-size: 0.8rem; font-weight: 700; margin-bottom: 3px; }
+  .wave-card .wdesc { font-size: 0.72rem; color: var(--muted); font-family: 'Segoe UI', sans-serif; line-height: 1.45; }
+  .wave-card .wval { font-size: 0.75rem; font-family: monospace; margin-top: 4px; }
+
+  /* Controls */
+  .ctrl-row { margin-bottom: 12px; }
+  .ctrl-label { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--muted); margin-bottom: 5px; font-family: 'Segoe UI', sans-serif; }
+  .ctrl-label span:last-child { color: var(--accent); font-weight: 700; }
+  input[type=range] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+
+  .alert-box { padding: 10px 12px; border-radius: 6px; margin-top: 10px; font-size: 0.8rem; font-family: 'Segoe UI', sans-serif; }
+  .alert-normal { background: rgba(0,255,136,0.08); border: 1px solid rgba(0,255,136,0.3); color: var(--accent); }
+  .alert-warn { background: rgba(255,215,42,0.08); border: 1px solid rgba(255,215,42,0.3); color: var(--yellow); }
+  .alert-danger { background: rgba(255,71,87,0.08); border: 1px solid rgba(255,71,87,0.3); color: var(--red); animation: pulse-border 1s ease-in-out infinite; }
+  @keyframes pulse-border { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+
+  .btn { padding: 9px 16px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); cursor: pointer; font-size: 0.82rem; font-family: 'Segoe UI', sans-serif; transition: all 0.18s; }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.active { background: rgba(0,255,136,0.12); border-color: var(--accent); color: var(--accent); }
+  .btn-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
+  @media (max-width: 800px) { .bottom-grid { grid-template-columns: 1fr; } .vitals-bar { grid-template-columns: repeat(3,1fr); } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>♥ סימולטור אק"ג | ECG Monitor</h1>
+  <p>זיהוי קצב לב | פענוח גלי ECG | אבחון הפרעות קצב | הנדסה רפואית</p>
+</header>
+
+<div class="monitor">
+  <!-- Vitals -->
+  <div class="vitals-bar">
+    <div class="vital">
+      <div class="vlabel">HR — דפקי לב</div>
+      <div class="vval" id="v-hr" style="color:#ff4757">72</div>
+      <div class="vunit">bpm</div>
+    </div>
+    <div class="vital">
+      <div class="vlabel">SpO₂ — רוויון חמצן</div>
+      <div class="vval" id="v-spo2" style="color:#2ed573">98</div>
+      <div class="vunit">%</div>
+    </div>
+    <div class="vital">
+      <div class="vlabel">BP — לחץ דם</div>
+      <div class="vval" id="v-bp" style="color:#ffd32a;font-size:1.1rem">120/80</div>
+      <div class="vunit">mmHg</div>
+    </div>
+    <div class="vital">
+      <div class="vlabel">RR — נשימה</div>
+      <div class="vval" id="v-rr" style="color:#1ee3cf">16</div>
+      <div class="vunit">נשימות/דקה</div>
+    </div>
+    <div class="vital">
+      <div class="vlabel">TEMP — טמפרטורה</div>
+      <div class="vval" id="v-temp" style="color:#ff6b35">36.7</div>
+      <div class="vunit">°C</div>
+    </div>
+  </div>
+
+  <!-- ECG Strip -->
+  <canvas id="ecg-canvas" height="220"></canvas>
+
+  <div class="bottom-grid">
+    <!-- Controls -->
+    <div class="panel">
+      <h3>בקרת מצגת</h3>
+      <div class="ctrl-row">
+        <div class="ctrl-label"><span>קצב לב (HR)</span><span id="hr-val">72 bpm</span></div>
+        <input type="range" id="hr-slider" min="30" max="200" value="72" oninput="setHR(this.value)">
+      </div>
+      <div class="ctrl-row">
+        <div class="ctrl-label"><span>מהירות נייר</span><span id="speed-val">25 mm/s</span></div>
+        <input type="range" id="speed-slider" min="1" max="3" value="2" step="1" oninput="setSpeed(this.value)">
+      </div>
+      <div class="ctrl-row">
+        <div class="ctrl-label"><span>עוצמת אות (Gain)</span><span id="gain-val">10 mm/mV</span></div>
+        <input type="range" id="gain-slider" min="5" max="20" value="10" oninput="setGain(this.value)">
+      </div>
+
+      <div class="btn-row">
+        <button class="btn active" id="btn-run" onclick="toggleRun()">⏸ עצור</button>
+        <button class="btn" onclick="freeze()">📸 הקפא</button>
+        <button class="btn" onclick="addNoise()">〰 רעש</button>
+      </div>
+
+      <div class="alert-box alert-normal" id="alert-box">
+        ✓ קצב סינוס תקין — Normal Sinus Rhythm
+      </div>
+    </div>
+
+    <!-- Rhythm selector -->
+    <div class="panel">
+      <h3>בחר הפרעת קצב</h3>
+      <button class="rhythm-btn active" onclick="setRhythm('nsr',this)">
+        <div class="rdot" style="background:#00ff88"></div>
+        <div><div class="rname">קצב סינוס תקין</div><div class="rsub">NSR — 60–100 bpm</div></div>
+      </button>
+      <button class="rhythm-btn" onclick="setRhythm('tachy',this)">
+        <div class="rdot" style="background:#ffd32a"></div>
+        <div><div class="rname">טכיקרדיה</div><div class="rsub">Tachycardia &gt;100 bpm</div></div>
+      </button>
+      <button class="rhythm-btn" onclick="setRhythm('brady',this)">
+        <div class="rdot" style="background:#2ed573"></div>
+        <div><div class="rname">ברדיקרדיה</div><div class="rsub">Bradycardia &lt;60 bpm</div></div>
+      </button>
+      <button class="rhythm-btn" onclick="setRhythm('afib',this)">
+        <div class="rdot" style="background:#ffd32a"></div>
+        <div><div class="rname">פרפור פרוזדורים</div><div class="rsub">AFib — א-סדיר</div></div>
+      </button>
+      <button class="rhythm-btn" onclick="setRhythm('vfib',this)">
+        <div class="rdot" style="background:#ff4757"></div>
+        <div><div class="rname">פרפור חדרים</div><div class="rsub">VFib — מסכן חיים!</div></div>
+      </button>
+      <button class="rhythm-btn" onclick="setRhythm('pvc',this)">
+        <div class="rdot" style="background:#ff6b35"></div>
+        <div><div class="rname">PVC</div><div class="rsub">פעימות חוץ-רחמיות</div></div>
+      </button>
+      <button class="rhythm-btn" onclick="setRhythm('flat',this)">
+        <div class="rdot" style="background:#ff4757"></div>
+        <div><div class="rname">קו איזו-אלקטרי</div><div class="rsub">Asystole — אין קצב</div></div>
+      </button>
+    </div>
+
+    <!-- Wave guide -->
+    <div class="panel">
+      <h3>מדריך גלי ECG</h3>
+      <div class="wave-card">
+        <div class="wname" style="color:#ffd32a">גל P</div>
+        <div class="wdesc">דפולריזציה פרוזדורים. גל חיובי עגול לפני QRS.</div>
+        <div class="wval">משך: 80–120 ms | גובה: &lt;2.5 mm</div>
+      </div>
+      <div class="wave-card">
+        <div class="wname" style="color:#00ff88">קומפלקס QRS</div>
+        <div class="wdesc">דפולריזציה חדרים. גל צר וחד — ציר החשמל הראשי.</div>
+        <div class="wval">משך: 60–100 ms | גובה: &gt;5 mm</div>
+      </div>
+      <div class="wave-card">
+        <div class="wname" style="color:#1ee3cf">גל T</div>
+        <div class="wdesc">ריפולריזציה חדרים. גל חיובי מעוגל אחרי QRS.</div>
+        <div class="wval">משך: 160 ms | בכיוון QRS</div>
+      </div>
+      <div class="wave-card">
+        <div class="wname" style="color:#ff6b35">מקטע PR</div>
+        <div class="wdesc">עיכוב ב-AV node. הזמן בין P ל-QRS.</div>
+        <div class="wval">תקין: 120–200 ms</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('ecg-canvas');
+const ctx = canvas.getContext('2d');
+
+let rhythm = 'nsr';
+let hr = 72;
+let gain = 10;
+let speed = 25;
+let running = true;
+let noiseLevel = 0;
+let frozen = false;
+let time = 0;
+let scrollX = 0;
+let ecgBuffer = [];
+const BUFFER_SIZE = 2000;
+
+function setHR(v) {
+  hr = parseInt(v);
+  document.getElementById('hr-val').textContent = hr + ' bpm';
+  document.getElementById('v-hr').textContent = hr;
+  updateAlert();
+}
+
+function setSpeed(v) {
+  const labels = {1:'12.5 mm/s', 2:'25 mm/s', 3:'50 mm/s'};
+  const vals = {1:12.5, 2:25, 3:50};
+  speed = vals[v];
+  document.getElementById('speed-val').textContent = labels[v];
+}
+
+function setGain(v) {
+  gain = parseInt(v);
+  document.getElementById('gain-val').textContent = gain + ' mm/mV';
+}
+
+function toggleRun() {
+  running = !running;
+  const btn = document.getElementById('btn-run');
+  btn.textContent = running ? '⏸ עצור' : '▶ הפעל';
+  btn.classList.toggle('active', running);
+}
+
+function freeze() { frozen = !frozen; }
+
+function addNoise() {
+  noiseLevel = noiseLevel > 0 ? 0 : 0.15;
+}
+
+function setRhythm(r, btn) {
+  rhythm = r;
+  document.querySelectorAll('.rhythm-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  if (r === 'tachy') { hr = 130; document.getElementById('hr-slider').value = 130; setHR(130); }
+  else if (r === 'brady') { hr = 42; document.getElementById('hr-slider').value = 42; setHR(42); }
+  else if (r === 'nsr') { hr = 72; document.getElementById('hr-slider').value = 72; setHR(72); }
+  else if (r === 'afib') { hr = 110; document.getElementById('hr-slider').value = 110; setHR(110); }
+  else if (r === 'pvc') { hr = 72; document.getElementById('hr-slider').value = 72; setHR(72); }
+  updateAlert();
+}
+
+function updateAlert() {
+  const box = document.getElementById('alert-box');
+  if (rhythm === 'vfib') {
+    box.className = 'alert-box alert-danger';
+    box.textContent = '🚨 פרפור חדרים! DEFIB מיידי!';
+  } else if (rhythm === 'flat') {
+    box.className = 'alert-box alert-danger';
+    box.textContent = '🚨 Asystole — CPR מיידי!';
+  } else if (rhythm === 'afib') {
+    box.className = 'alert-box alert-warn';
+    box.textContent = '⚠ פרפור פרוזדורים — א-סדיר';
+  } else if (rhythm === 'tachy' || hr > 100) {
+    box.className = 'alert-box alert-warn';
+    box.textContent = '⚠ טכיקרדיה — HR > 100 bpm';
+  } else if (rhythm === 'brady' || hr < 60) {
+    box.className = 'alert-box alert-warn';
+    box.textContent = '⚠ ברדיקרדיה — HR < 60 bpm';
+  } else {
+    box.className = 'alert-box alert-normal';
+    box.textContent = '✓ קצב סינוס תקין — Normal Sinus Rhythm';
+  }
+}
+
+// ECG waveform generator
+function ecgSample(t) {
+  const rr = 60 / hr; // seconds per beat
+  const phase = (t % rr) / rr; // 0..1
+
+  if (rhythm === 'flat') return (Math.random() - 0.5) * 0.05;
+  if (rhythm === 'vfib') return (Math.sin(t * 18 + Math.sin(t * 3.7)) * 0.6 + (Math.random()-0.5)*0.4) * 0.8;
+
+  let v = 0;
+
+  if (rhythm === 'afib') {
+    // No clear P wave, irregular baseline flutter
+    v += Math.sin(t * 350) * 0.04 * Math.random();
+    const rrVar = rr * (0.7 + Math.random() * 0.6);
+    const p2 = (t % rrVar) / rrVar;
+    v += qrs(p2 > 0.15 ? p2 - 0.15 : p2 + 0.85);
+    return v;
+  }
+
+  // PVC: every 4th beat is wide and bizarre
+  let effectivePhase = phase;
+  const beatNum = Math.floor(t / rr);
+  if (rhythm === 'pvc' && beatNum % 4 === 3) {
+    // Wide QRS, no P, opposite polarity T
+    v += pvcWave(effectivePhase);
+    return v;
+  }
+
+  // Normal beat components
+  v += pWave(effectivePhase);
+  v += qrs(effectivePhase);
+  v += tWave(effectivePhase);
+  return v;
+}
+
+function gaussian(x, mu, sigma, amp) {
+  return amp * Math.exp(-((x - mu) ** 2) / (2 * sigma ** 2));
+}
+
+function pWave(p) {
+  return gaussian(p, 0.12, 0.025, 0.15);
+}
+
+function qrs(p) {
+  let v = 0;
+  v += gaussian(p, 0.22, 0.007, -0.1);  // Q
+  v += gaussian(p, 0.25, 0.010, 1.0);   // R
+  v += gaussian(p, 0.28, 0.007, -0.15); // S
+  return v;
+}
+
+function tWave(p) {
+  return gaussian(p, 0.42, 0.04, 0.22);
+}
+
+function pvcWave(p) {
+  let v = 0;
+  v += gaussian(p, 0.25, 0.018, -0.8);  // wide negative QRS
+  v += gaussian(p, 0.35, 0.04, 0.4);    // wide T (opposite)
+  return v;
+}
+
+// Render loop
+function render() {
+  if (!frozen && running) {
+    time += 0.016;
+    // Generate samples
+    const samplesPerFrame = 8;
+    for (let i = 0; i < samplesPerFrame; i++) {
+      const t = time + i * 0.002;
+      let s = ecgSample(t);
+      s += (Math.random() - 0.5) * noiseLevel;
+      ecgBuffer.push(s);
+    }
+    if (ecgBuffer.length > BUFFER_SIZE) ecgBuffer.splice(0, ecgBuffer.length - BUFFER_SIZE);
+  }
+
+  drawECG();
+  requestAnimationFrame(render);
+}
+
+function drawECG() {
+  canvas.width = canvas.offsetWidth;
+  const W = canvas.width, H = 220;
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  ctx.fillStyle = '#030806';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid — small squares (1mm = ~3.8px at 25mm/s)
+  const gridSmall = speed === 50 ? 7.6 : speed === 12.5 ? 1.9 : 3.8;
+  const gridLarge = gridSmall * 5;
+
+  ctx.strokeStyle = '#0a2010';
+  ctx.lineWidth = 0.5;
+  for (let x = 0; x < W; x += gridSmall) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+  for (let y = 0; y < H; y += gridSmall) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+
+  ctx.strokeStyle = '#0f3018';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += gridLarge) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+  for (let y = 0; y < H; y += gridLarge) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+
+  // Baseline
+  const baseline = H * 0.6;
+  ctx.strokeStyle = '#0d2518';
+  ctx.lineWidth = 0.5;
+  ctx.beginPath(); ctx.moveTo(0, baseline); ctx.lineTo(W, baseline); ctx.stroke();
+
+  // ECG trace
+  const color = rhythm === 'vfib' || rhythm === 'flat' ? '#ff4757' : '#00ff88';
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = rhythm === 'vfib' ? 12 : 6;
+  ctx.lineJoin = 'round';
+
+  const amp = gain * 10; // pixels per mV
+  const visibleSamples = Math.min(ecgBuffer.length, W * 4);
+  const startIdx = ecgBuffer.length - visibleSamples;
+
+  ctx.beginPath();
+  let first = true;
+  for (let i = 0; i < visibleSamples; i++) {
+    const x = (i / visibleSamples) * W;
+    const y = baseline - ecgBuffer[startIdx + i] * amp;
+    const cy = Math.max(5, Math.min(H - 5, y));
+    if (first) { ctx.moveTo(x, cy); first = false; }
+    else ctx.lineTo(x, cy);
+  }
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Scan line (moving cursor)
+  if (running && !frozen) {
+    const scanX = W - 60;
+    ctx.fillStyle = 'rgba(0,255,136,0.15)';
+    ctx.fillRect(scanX, 0, 60, H);
+    ctx.strokeStyle = 'rgba(0,255,136,0.6)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(scanX, 0); ctx.lineTo(scanX, H); ctx.stroke();
+  }
+
+  // Wave labels (only for normal rhythms)
+  if (rhythm === 'nsr' || rhythm === 'tachy' || rhythm === 'brady') {
+    ctx.font = '10px monospace'; ctx.textAlign = 'center';
+    const labelY = baseline - amp * 0.25;
+    ctx.fillStyle = '#ffd32a88';
+    ctx.fillText('P', W * 0.15, labelY - 20);
+    ctx.fillStyle = '#00ff8888';
+    ctx.fillText('QRS', W * 0.27, labelY - 80);
+    ctx.fillStyle = '#1ee3cf88';
+    ctx.fillText('T', W * 0.42, labelY - 30);
+    ctx.fillStyle = '#4a7a5a';
+    ctx.font = '9px monospace';
+    ctx.fillText('PR', W * 0.21, baseline + 14);
+    ctx.fillText('QT', W * 0.33, baseline + 14);
+  }
+
+  // Speed/gain watermark
+  ctx.fillStyle = '#1a3020';
+  ctx.font = '10px monospace'; ctx.textAlign = 'right';
+  ctx.fillText(speed + 'mm/s  ' + gain + 'mm/mV  Lead II', W - 8, H - 6);
+
+  // Alert flash for VFib
+  if (rhythm === 'vfib' && Math.floor(time * 2) % 2 === 0) {
+    ctx.fillStyle = 'rgba(255,71,87,0.06)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#ff4757';
+    ctx.font = 'bold 14px monospace'; ctx.textAlign = 'center';
+    ctx.fillText('⚡ DEFIBRILLATION REQUIRED ⚡', W / 2, 22);
+  }
+}
+
+// Update displayed HR with slight variation for realism
+setInterval(() => {
+  if (!running || frozen) return;
+  if (rhythm === 'afib') {
+    const displayed = hr + Math.round((Math.random() - 0.5) * 12);
+    document.getElementById('v-hr').textContent = displayed;
+    document.getElementById('v-spo2').textContent = Math.round(94 + Math.random() * 3);
+  } else if (rhythm === 'vfib') {
+    document.getElementById('v-hr').textContent = '---';
+    document.getElementById('v-spo2').textContent = Math.round(70 + Math.random() * 10);
+  } else if (rhythm === 'flat') {
+    document.getElementById('v-hr').textContent = '0';
+    document.getElementById('v-spo2').textContent = '---';
+  } else {
+    document.getElementById('v-hr').textContent = hr + Math.round((Math.random()-0.5)*2);
+    document.getElementById('v-spo2').textContent = Math.round(96 + Math.random() * 3);
+  }
+}, 1000);
+
+// Init
+canvas.width = canvas.offsetWidth || 800;
+render();
+window.addEventListener('resize', () => { canvas.width = canvas.offsetWidth; });
+</script>
+</body>
+</html>

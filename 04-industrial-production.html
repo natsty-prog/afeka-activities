@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>סימולטור קו ייצור | תורת התורים ואופטימיזציה</title>
+<style>
+  :root {
+    --bg: #0b0f0e;
+    --surface: #111917;
+    --surface2: #182320;
+    --border: #243028;
+    --accent: #2dd4bf;
+    --green: #4ade80;
+    --red: #f87171;
+    --yellow: #fbbf24;
+    --orange: #fb923c;
+    --blue: #60a5fa;
+    --purple: #a78bfa;
+    --text: #e2e8f0;
+    --muted: #6b7280;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Arial, sans-serif; min-height: 100vh; padding: 20px; }
+
+  header { text-align: center; margin-bottom: 22px; }
+  header h1 { font-size: 1.8rem; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+  header p { color: var(--muted); font-size: 0.9rem; }
+
+  .top-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; max-width: 1280px; margin: 0 auto 18px; }
+  .kpi-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 14px 16px; text-align: center;
+  }
+  .kpi-card .kpi-val { font-size: 1.8rem; font-weight: 800; font-family: monospace; margin-bottom: 4px; }
+  .kpi-card .kpi-lbl { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+  .main-grid { display: grid; grid-template-columns: 260px 1fr; gap: 16px; max-width: 1280px; margin: 0 auto; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+  .card h3 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+  /* Conveyor */
+  #conveyor-canvas { display: block; width: 100%; border-radius: 10px; background: #060d0b; border: 1px solid var(--border); }
+
+  /* Controls */
+  .station-control { margin-bottom: 14px; padding: 12px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); }
+  .station-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .station-name { font-weight: 700; font-size: 0.88rem; display: flex; align-items: center; gap: 8px; }
+  .station-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .util-badge { font-size: 0.72rem; font-family: monospace; padding: 2px 8px; border-radius: 20px; background: var(--surface); }
+  input[type=range] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+  .rate-label { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+  .bottleneck-badge {
+    display: inline-block; background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.5);
+    color: var(--red); border-radius: 20px; font-size: 0.7rem; padding: 1px 8px; margin-right: 6px;
+  }
+
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.88rem; font-weight: 600; transition: all 0.18s; }
+  .btn-primary { background: var(--accent); color: #0b0f0e; }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-row { display: flex; gap: 8px; margin-top: 14px; }
+
+  /* Gantt */
+  #gantt-canvas { display: block; width: 100%; border-radius: 10px; background: #060d0b; border: 1px solid var(--border); margin-top: 14px; }
+
+  /* Theory box */
+  .theory-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+  .theory-card { background: var(--surface2); border-radius: 8px; padding: 10px; border: 1px solid var(--border); }
+  .theory-card .tc-label { font-size: 0.72rem; color: var(--muted); margin-bottom: 4px; }
+  .theory-card .tc-formula { font-family: monospace; font-size: 0.9rem; font-weight: 700; color: var(--accent); }
+  .theory-card .tc-val { font-size: 0.82rem; margin-top: 4px; color: var(--text); }
+
+  .utilization-bar-wrap { margin-top: 6px; }
+  .util-bar-bg { background: var(--surface); border-radius: 20px; height: 8px; overflow: hidden; }
+  .util-bar-fill { height: 100%; border-radius: 20px; transition: width 0.3s; }
+
+  @media (max-width: 800px) { .main-grid { grid-template-columns: 1fr; } .top-grid { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏭 סימולטור קו ייצור</h1>
+  <p>תורת התורים | זיהוי צוואר בקבוק | אופטימיזציה של קו ייצור | Little's Law</p>
+</header>
+
+<!-- KPIs -->
+<div class="top-grid">
+  <div class="kpi-card">
+    <div class="kpi-val" id="kpi-throughput" style="color:var(--green)">0</div>
+    <div class="kpi-lbl">תפוקה (יח'/דקה)</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-val" id="kpi-wip" style="color:var(--yellow)">0</div>
+    <div class="kpi-lbl">WIP (עבודה בתהליך)</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-val" id="kpi-cycle" style="color:var(--blue)">0s</div>
+    <div class="kpi-lbl">זמן מחזור (Cycle Time)</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-val" id="kpi-bottleneck" style="color:var(--red)">—</div>
+    <div class="kpi-lbl">צוואר בקבוק</div>
+  </div>
+</div>
+
+<div class="main-grid">
+  <!-- Left controls -->
+  <div>
+    <div class="card" style="margin-bottom:14px">
+      <h3>קצב עיבוד תחנות (יח'/דקה)</h3>
+
+      <div class="station-control" id="ctrl-0">
+        <div class="station-header">
+          <div class="station-name"><div class="station-dot" style="background:#2dd4bf"></div>תחנה 1 — חיתוך</div>
+          <span class="util-badge" id="util-0" style="color:var(--accent)">—</span>
+        </div>
+        <input type="range" id="rate-0" min="1" max="20" value="10" oninput="update()">
+        <div class="rate-label"><span>1</span><span id="rate-val-0">10</span><span>20</span></div>
+        <div class="utilization-bar-wrap"><div class="util-bar-bg"><div class="util-bar-fill" id="bar-0" style="background:#2dd4bf;width:50%"></div></div></div>
+      </div>
+
+      <div class="station-control" id="ctrl-1">
+        <div class="station-header">
+          <div class="station-name"><div class="station-dot" style="background:#60a5fa"></div>תחנה 2 — עיצוב</div>
+          <span class="util-badge" id="util-1" style="color:var(--blue)">—</span>
+        </div>
+        <input type="range" id="rate-1" min="1" max="20" value="6" oninput="update()">
+        <div class="rate-label"><span>1</span><span id="rate-val-1">6</span><span>20</span></div>
+        <div class="utilization-bar-wrap"><div class="util-bar-bg"><div class="util-bar-fill" id="bar-1" style="background:#60a5fa;width:30%"></div></div></div>
+      </div>
+
+      <div class="station-control" id="ctrl-2">
+        <div class="station-header">
+          <div class="station-name"><div class="station-dot" style="background:#a78bfa"></div>תחנה 3 — הרכבה</div>
+          <span class="util-badge" id="util-2" style="color:var(--purple)">—</span>
+        </div>
+        <input type="range" id="rate-2" min="1" max="20" value="14" oninput="update()">
+        <div class="rate-label"><span>1</span><span id="rate-val-2">14</span><span>20</span></div>
+        <div class="utilization-bar-wrap"><div class="util-bar-bg"><div class="util-bar-fill" id="bar-2" style="background:#a78bfa;width:70%"></div></div></div>
+      </div>
+
+      <div class="station-control" id="ctrl-3">
+        <div class="station-header">
+          <div class="station-name"><div class="station-dot" style="background:#4ade80"></div>תחנה 4 — בדיקות</div>
+          <span class="util-badge" id="util-3" style="color:var(--green)">—</span>
+        </div>
+        <input type="range" id="rate-3" min="1" max="20" value="8" oninput="update()">
+        <div class="rate-label"><span>1</span><span id="rate-val-3">8</span><span>20</span></div>
+        <div class="utilization-bar-wrap"><div class="util-bar-bg"><div class="util-bar-fill" id="bar-3" style="background:#4ade80;width:40%"></div></div></div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="toggleSim()">▶ הפעל</button>
+        <button class="btn btn-secondary" onclick="balance()">⚖ אזן</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>תורת התורים — Little's Law</h3>
+      <div class="theory-grid">
+        <div class="theory-card">
+          <div class="tc-label">חוק ליטל</div>
+          <div class="tc-formula">L = λ × W</div>
+          <div class="tc-val">WIP = תפוקה × זמן שהייה</div>
+        </div>
+        <div class="theory-card">
+          <div class="tc-label">ניצולת תחנה</div>
+          <div class="tc-formula">ρ = λ / μ</div>
+          <div class="tc-val">ρ &lt; 1 לייצוב המערכת</div>
+        </div>
+        <div class="theory-card">
+          <div class="tc-label">זמן מחזור</div>
+          <div class="tc-formula">CT = 1/min(μᵢ)</div>
+          <div class="tc-val" id="tc-ct-val">— שניות/יחידה</div>
+        </div>
+        <div class="theory-card">
+          <div class="tc-label">צוואר בקבוק</div>
+          <div class="tc-formula">min(μᵢ)</div>
+          <div class="tc-val" id="tc-bn-val">— יח'/דקה</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: visualization -->
+  <div>
+    <div class="card">
+      <h3>ויזואליזציה קו הייצור</h3>
+      <canvas id="conveyor-canvas" height="240"></canvas>
+      <canvas id="gantt-canvas" height="160"></canvas>
+    </div>
+  </div>
+</div>
+
+<script>
+const STATION_COLORS = ['#2dd4bf','#60a5fa','#a78bfa','#4ade80'];
+const STATION_NAMES  = ['חיתוך','עיצוב','הרכבה','בדיקות'];
+
+let simRunning = false;
+let animId = null;
+let time = 0;
+let products = [];
+let completedCount = 0;
+let ganttLog = []; // {station, start, end}
+let lastRates = [];
+
+function getRates() {
+  return [0,1,2,3].map(i => parseFloat(document.getElementById('rate-' + i).value));
+}
+
+function getBottleneck(rates) {
+  const min = Math.min(...rates);
+  return rates.indexOf(min);
+}
+
+function update() {
+  const rates = getRates();
+  [0,1,2,3].forEach(i => {
+    document.getElementById('rate-val-' + i).textContent = rates[i];
+  });
+  const bn = getBottleneck(rates);
+  const throughput = rates[bn];
+  const cycleTime = (60 / throughput).toFixed(1);
+
+  [0,1,2,3].forEach(i => {
+    const util = Math.min(1, throughput / rates[i]);
+    const pct = (util * 100).toFixed(0);
+    document.getElementById('util-' + i).textContent = pct + '%';
+    document.getElementById('bar-' + i).style.width = pct + '%';
+    document.getElementById('bar-' + i).style.background = util > 0.95 ? '#f87171' : util > 0.7 ? '#fbbf24' : STATION_COLORS[i];
+    document.getElementById('ctrl-' + i).style.borderColor = i === bn ? 'rgba(248,113,113,0.6)' : 'var(--border)';
+  });
+
+  document.getElementById('kpi-throughput').textContent = throughput.toFixed(1);
+  document.getElementById('kpi-cycle').textContent = cycleTime + 's';
+  document.getElementById('kpi-bottleneck').textContent = 'T' + (bn + 1) + ' ' + STATION_NAMES[bn];
+  document.getElementById('tc-ct-val').textContent = cycleTime + ' שניות/יחידה';
+  document.getElementById('tc-bn-val').textContent = throughput.toFixed(1) + ' יח\'/דקה';
+
+  lastRates = rates;
+  drawConveyor(rates, bn);
+}
+
+// Products on line
+let productTimer = 0;
+function toggleSim() {
+  simRunning = !simRunning;
+  const btn = document.querySelector('.btn-primary');
+  if (simRunning) {
+    btn.textContent = '⏸ עצור';
+    btn.style.background = '#f87171';
+    products = [];
+    completedCount = 0;
+    ganttLog = [];
+    time = 0;
+    simLoop();
+  } else {
+    btn.textContent = '▶ הפעל';
+    btn.style.background = 'var(--accent)';
+    if (animId) cancelAnimationFrame(animId);
+  }
+}
+
+function simLoop() {
+  if (!simRunning) return;
+  const rates = getRates();
+  const bn = getBottleneck(rates);
+  const throughput = rates[bn];
+
+  time += 0.016;
+  productTimer += 0.016;
+
+  const interval = 60 / throughput;
+  if (productTimer >= interval) {
+    productTimer = 0;
+    products.push({ x: 0, station: 0, progress: 0, id: completedCount + products.length });
+  }
+
+  // Move products
+  products.forEach(p => {
+    p.x += (throughput / 60) * 0.016 * 300;
+    p.station = Math.floor(p.x / 300 * 4);
+  });
+
+  // Remove completed
+  const before = products.length;
+  products = products.filter(p => p.x < 300);
+  completedCount += before - products.length;
+
+  document.getElementById('kpi-wip').textContent = products.length;
+  document.getElementById('kpi-throughput').textContent = (completedCount / Math.max(time / 60, 0.01)).toFixed(1);
+
+  // Gantt log
+  if (ganttLog.length < 500) {
+    products.forEach(p => {
+      if (p.station >= 0 && p.station < 4) {
+        const last = ganttLog[ganttLog.length - 1];
+        if (!last || last.station !== p.station || last.id !== p.id) {
+          ganttLog.push({ station: p.station, start: time, end: time + 60 / rates[p.station], id: p.id });
+        }
+      }
+    });
+  }
+
+  drawConveyorAnim(rates, bn);
+  drawGantt(rates);
+  animId = requestAnimationFrame(simLoop);
+}
+
+function balance() {
+  const rates = getRates();
+  const avg = Math.round(rates.reduce((a,b)=>a+b,0)/4);
+  [0,1,2,3].forEach(i => {
+    document.getElementById('rate-' + i).value = avg;
+  });
+  update();
+}
+
+// ---- Drawing ----
+function drawConveyor(rates, bn) {
+  if (simRunning) return;
+  const canvas = document.getElementById('conveyor-canvas');
+  canvas.width = canvas.offsetWidth;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = 240;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#060d0b'; ctx.fillRect(0, 0, W, H);
+  drawConveyorBase(ctx, W, H, rates, bn, []);
+}
+
+function drawConveyorAnim(rates, bn) {
+  const canvas = document.getElementById('conveyor-canvas');
+  canvas.width = canvas.offsetWidth;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = 240;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#060d0b'; ctx.fillRect(0, 0, W, H);
+  drawConveyorBase(ctx, W, H, rates, bn, products);
+}
+
+function drawConveyorBase(ctx, W, H, rates, bn, prods) {
+  const stW = W / 4;
+  const beltY = H * 0.55;
+
+  // Belt
+  ctx.fillStyle = '#1a2420';
+  ctx.fillRect(0, beltY - 18, W, 36);
+  ctx.strokeStyle = '#2a3a30'; ctx.lineWidth = 1;
+  for (let x = (time * 60) % 40; x < W; x += 40) {
+    ctx.beginPath(); ctx.moveTo(x, beltY - 18); ctx.lineTo(x, beltY + 18); ctx.stroke();
+  }
+
+  // Stations
+  [0,1,2,3].forEach(i => {
+    const cx = stW * i + stW / 2;
+    const isBottle = i === bn;
+    const util = Math.min(1, rates[bn] / rates[i]);
+
+    // Station box
+    ctx.fillStyle = isBottle ? 'rgba(248,113,113,0.1)' : 'rgba(255,255,255,0.03)';
+    ctx.strokeStyle = isBottle ? '#f87171' : STATION_COLORS[i];
+    ctx.lineWidth = isBottle ? 2 : 1.5;
+    if (isBottle) { ctx.shadowColor = '#f87171'; ctx.shadowBlur = 12; }
+    ctx.beginPath(); ctx.roundRect(cx - 55, H * 0.1, 110, H * 0.38, 8); ctx.fill(); ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Icon
+    const icons = ['✂', '🔧', '⚙', '🔍'];
+    ctx.font = '22px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(icons[i], cx, H * 0.23);
+
+    // Name & rate
+    ctx.fillStyle = STATION_COLORS[i];
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillText(STATION_NAMES[i], cx, H * 0.32);
+    ctx.fillStyle = '#9ca3af'; ctx.font = '10px monospace';
+    ctx.fillText(rates[i] + ' יח\'/ד', cx, H * 0.38);
+
+    if (isBottle) {
+      ctx.fillStyle = '#f87171'; ctx.font = 'bold 9px sans-serif';
+      ctx.fillText('⚠ צוואר בקבוק', cx, H * 0.44);
+    }
+
+    // Utilization bar
+    const barY = H * 0.72;
+    ctx.fillStyle = '#1a2420';
+    ctx.fillRect(cx - 45, barY, 90, 10);
+    ctx.fillStyle = util > 0.9 ? '#f87171' : util > 0.7 ? '#fbbf24' : STATION_COLORS[i];
+    ctx.fillRect(cx - 45, barY, 90 * util, 10);
+    ctx.strokeStyle = '#2a3a30'; ctx.lineWidth = 1;
+    ctx.strokeRect(cx - 45, barY, 90, 10);
+    ctx.fillStyle = '#9ca3af'; ctx.font = '9px monospace'; ctx.textAlign = 'center';
+    ctx.fillText((util * 100).toFixed(0) + '%', cx, barY + 22);
+  });
+
+  // Arrow connectors
+  [0,1,2].forEach(i => {
+    const x = stW * (i + 1);
+    ctx.fillStyle = '#2dd4bf88';
+    ctx.font = '16px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('→', x, beltY + 6);
+  });
+
+  // Products on belt
+  prods.forEach(p => {
+    const px = (p.x / 300) * W;
+    const py = beltY;
+    const si = Math.min(3, Math.floor(p.x / 300 * 4));
+    ctx.fillStyle = STATION_COLORS[si];
+    ctx.shadowColor = STATION_COLORS[si]; ctx.shadowBlur = 8;
+    ctx.beginPath(); ctx.roundRect(px - 12, py - 10, 24, 20, 4); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#0b0f0e'; ctx.font = 'bold 8px monospace'; ctx.textAlign = 'center';
+    ctx.fillText('#' + (p.id % 99 + 1), px, py + 3);
+  });
+
+  // Flow arrow top
+  ctx.fillStyle = '#2dd4bf44'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('→→→ זרימת הייצור →→→', W / 2, H - 10);
+}
+
+function drawGantt(rates) {
+  const canvas = document.getElementById('gantt-canvas');
+  canvas.width = canvas.offsetWidth;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = 160;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#060d0b'; ctx.fillRect(0, 0, W, H);
+
+  const rowH = 28, padLeft = 60, padTop = 20;
+  const timeWindow = 30;
+  const startT = Math.max(0, time - timeWindow);
+  const toX = t => padLeft + ((t - startT) / timeWindow) * (W - padLeft - 10);
+
+  // Grid lines
+  ctx.strokeStyle = '#182320'; ctx.lineWidth = 1;
+  for (let i = 0; i <= 6; i++) {
+    const x = padLeft + (i / 6) * (W - padLeft - 10);
+    ctx.beginPath(); ctx.moveTo(x, padTop); ctx.lineTo(x, padTop + 4 * rowH); ctx.stroke();
+  }
+
+  // Station labels
+  [0,1,2,3].forEach(i => {
+    const y = padTop + i * rowH + rowH / 2;
+    ctx.fillStyle = STATION_COLORS[i]; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText('T' + (i+1), padLeft - 6, y + 4);
+    ctx.strokeStyle = '#182320'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(padLeft, padTop + i * rowH); ctx.lineTo(W - 10, padTop + i * rowH); ctx.stroke();
+  });
+
+  // Gantt bars
+  const recent = ganttLog.slice(-200);
+  recent.forEach(entry => {
+    const x1 = toX(entry.start), x2 = toX(entry.end);
+    if (x2 < padLeft || x1 > W) return;
+    const y = padTop + entry.station * rowH + 4;
+    ctx.fillStyle = STATION_COLORS[entry.station] + 'cc';
+    ctx.fillRect(Math.max(padLeft, x1), y, Math.min(W - 10, x2) - Math.max(padLeft, x1), rowH - 8);
+    ctx.strokeStyle = STATION_COLORS[entry.station];
+    ctx.lineWidth = 1;
+    ctx.strokeRect(Math.max(padLeft, x1), y, Math.min(W - 10, x2) - Math.max(padLeft, x1), rowH - 8);
+  });
+
+  // Time axis label
+  ctx.fillStyle = '#4b5563'; ctx.font = '9px monospace'; ctx.textAlign = 'center';
+  ctx.fillText('זמן (שניות) — ' + timeWindow + 's חלון', padLeft + (W - padLeft) / 2, H - 2);
+}
+
+// Init
+update();
+document.getElementById('conveyor-canvas').width = document.getElementById('conveyor-canvas').offsetWidth;
+drawConveyor(getRates(), getBottleneck(getRates()));
+</script>
+</body>
+</html>

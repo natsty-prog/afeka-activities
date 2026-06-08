@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>עקומת מאמץ-עיבור | מכניקת חומרים</title>
+<style>
+  :root {
+    --bg: #0f0f13;
+    --surface: #17171f;
+    --surface2: #1f1f2e;
+    --border: #2e2e42;
+    --accent: #818cf8;
+    --green: #4ade80;
+    --red: #f87171;
+    --yellow: #facc15;
+    --orange: #fb923c;
+    --cyan: #22d3ee;
+    --text: #e2e8f0;
+    --muted: #6b7280;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Arial, sans-serif; min-height: 100vh; padding: 20px; }
+
+  header { text-align: center; margin-bottom: 24px; }
+  header h1 { font-size: 1.8rem; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+  header p { color: var(--muted); font-size: 0.9rem; }
+
+  .layout { display: grid; grid-template-columns: 260px 1fr 260px; gap: 16px; max-width: 1280px; margin: 0 auto; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+  .card h3 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+  /* Material buttons */
+  .mat-btn {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; padding: 11px 12px; margin-bottom: 8px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; cursor: pointer; transition: all 0.18s;
+    text-align: right; color: var(--text);
+  }
+  .mat-btn:hover { border-color: var(--accent); }
+  .mat-btn.active { border-color: var(--accent); background: rgba(129,140,248,0.12); }
+  .mat-btn .dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .mat-btn .mat-name { font-weight: 600; font-size: 0.88rem; }
+  .mat-btn .mat-sub { font-size: 0.72rem; color: var(--muted); margin-top: 1px; }
+
+  /* Chart canvas */
+  #chart-wrap { position: relative; background: #0a0a10; border-radius: 10px; overflow: hidden; }
+  canvas#chart { display: block; }
+
+  /* Load slider */
+  .load-control { margin-top: 14px; }
+  .load-label { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 8px; }
+  .load-label .load-val { font-family: monospace; font-weight: 700; font-size: 1.0rem; }
+  input[type=range] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.88rem; font-weight: 600; transition: all 0.18s; margin-top: 10px; }
+  .btn-primary { background: var(--accent); color: #0f0f13; }
+  .btn-danger { background: var(--red); color: #0f0f13; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* Region cards */
+  .region-card { border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; border: 1px solid transparent; }
+  .region-card.elastic { background: rgba(74,222,128,0.07); border-color: rgba(74,222,128,0.25); }
+  .region-card.plastic { background: rgba(251,191,36,0.07); border-color: rgba(251,191,36,0.25); }
+  .region-card.necking  { background: rgba(248,113,113,0.07); border-color: rgba(248,113,113,0.25); }
+  .region-card h4 { font-size: 0.8rem; font-weight: 700; margin-bottom: 3px; }
+  .region-card.elastic h4 { color: var(--green); }
+  .region-card.plastic h4 { color: var(--yellow); }
+  .region-card.necking  h4 { color: var(--red); }
+  .region-card p { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
+
+  /* Point stats */
+  .point-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 0.83rem; }
+  .point-row:last-child { border: none; }
+  .point-row .pname { color: var(--muted); }
+  .point-row .pval { font-family: monospace; font-weight: 700; }
+
+  .current-state {
+    margin-top: 14px;
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+  .current-state .state-label { font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+  .current-state .state-name { font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; }
+  .current-state .state-detail { font-size: 0.8rem; color: var(--muted); }
+
+  .specimen-wrap { text-align: center; margin-top: 14px; }
+  canvas#specimen { border-radius: 8px; }
+
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📊 עקומת מאמץ-עיבור</h1>
+  <p>מכניקת חומרים | Stress-Strain Curve | בחר חומר והפעל עומס כדי לחקור את תחומי ההתנהגות</p>
+</header>
+
+<div class="layout">
+  <!-- Left: Materials & specimen -->
+  <div>
+    <div class="card" style="margin-bottom:14px">
+      <h3>בחר חומר</h3>
+      <button class="mat-btn active" onclick="selectMat('steel',this)">
+        <div class="dot" style="background:#60a5fa"></div>
+        <div><div class="mat-name">פלדה (Steel)</div><div class="mat-sub">E = 200 GPa</div></div>
+      </button>
+      <button class="mat-btn" onclick="selectMat('aluminum',this)">
+        <div class="dot" style="background:#a78bfa"></div>
+        <div><div class="mat-name">אלומיניום</div><div class="mat-sub">E = 69 GPa</div></div>
+      </button>
+      <button class="mat-btn" onclick="selectMat('copper',this)">
+        <div class="dot" style="background:#fb923c"></div>
+        <div><div class="mat-name">נחושת (Copper)</div><div class="mat-sub">E = 110 GPa</div></div>
+      </button>
+      <button class="mat-btn" onclick="selectMat('rubber',this)">
+        <div class="dot" style="background:#4ade80"></div>
+        <div><div class="mat-name">גומי (Rubber)</div><div class="mat-sub">E = 0.01 GPa</div></div>
+      </button>
+      <button class="mat-btn" onclick="selectMat('bone',this)">
+        <div class="dot" style="background:#facc15"></div>
+        <div><div class="mat-name">עצם (Bone)</div><div class="mat-sub">E = 17 GPa</div></div>
+      </button>
+    </div>
+
+    <div class="card">
+      <h3>דגימת החומר</h3>
+      <div class="specimen-wrap">
+        <canvas id="specimen" width="220" height="140"></canvas>
+      </div>
+      <div class="current-state">
+        <div class="state-label">מצב נוכחי</div>
+        <div class="state-name" id="state-name" style="color:var(--green)">אלסטי</div>
+        <div class="state-detail" id="state-detail">החומר יחזור לצורתו המקורית</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Center: Chart -->
+  <div>
+    <div class="card">
+      <h3>עקומת מאמץ (σ) מול עיבור (ε)</h3>
+      <div id="chart-wrap">
+        <canvas id="chart" width="600" height="400"></canvas>
+      </div>
+      <div class="load-control">
+        <div class="load-label">
+          <span>עומס מופעל:</span>
+          <span class="load-val" id="load-display">0 MPa</span>
+        </div>
+        <input type="range" id="load-slider" min="0" max="100" value="0" step="0.5" oninput="setLoad(this.value)">
+      </div>
+      <div class="btn-row" style="margin-top:12px">
+        <button class="btn btn-primary" onclick="animate()">▶ טען לשבירה</button>
+        <button class="btn btn-danger" onclick="reset()">↺ אפס</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Info -->
+  <div>
+    <div class="card" style="margin-bottom:14px">
+      <h3>נקודות מפתח</h3>
+      <div class="point-row"><span class="pname">🟢 גבול אלסטיות</span><span class="pval" id="pt-elastic">—</span></div>
+      <div class="point-row"><span class="pname">🟡 נקודת כניעה</span><span class="pval" id="pt-yield">—</span></div>
+      <div class="point-row"><span class="pval" id="pt-uts" style="font-size:0.78rem"></span><span class="pname">⬆ מאמץ מקסימלי</span></div>
+      <div class="point-row"><span class="pname">🔴 שבירה</span><span class="pval" id="pt-fracture">—</span></div>
+      <div class="point-row"><span class="pname">מודול E</span><span class="pval" id="pt-modulus">—</span></div>
+    </div>
+
+    <div class="card" style="margin-bottom:14px">
+      <h3>תחומי התנהגות</h3>
+      <div class="region-card elastic">
+        <h4>אזור אלסטי</h4>
+        <p>החומר חוזר לצורה המקורית לאחר הסרת העומס. קיים יחס לינארי בין מאמץ לעיבור (חוק הוק).</p>
+      </div>
+      <div class="region-card plastic">
+        <h4>אזור פלסטי</h4>
+        <p>נוצרת עיבורית קבועה. החומר לא יחזור לצורתו המקורית גם לאחר הסרת העומס.</p>
+      </div>
+      <div class="region-card necking">
+        <h4>צווארון ושבירה</h4>
+        <p>נוצר צווארון (necking) — הצטמצמות מקומית. המאמץ האמיתי עולה עד לשבירה.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>ערכים נוכחיים</h3>
+      <div class="point-row"><span class="pname">מאמץ σ</span><span class="pval" id="cur-stress" style="color:var(--accent)">0 MPa</span></div>
+      <div class="point-row"><span class="pname">עיבור ε</span><span class="pval" id="cur-strain" style="color:var(--cyan)">0.000</span></div>
+      <div class="point-row"><span class="pname">אנרגיה אלסטית</span><span class="pval" id="cur-energy" style="color:var(--green)">0 J/m³</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const materials = {
+  steel:    { name:'פלדה', color:'#60a5fa', E:200, yield:250, uts:400, fracture:0.25, neckStart:0.20 },
+  aluminum: { name:'אלומיניום', color:'#a78bfa', E:69, yield:270, uts:310, fracture:0.18, neckStart:0.14 },
+  copper:   { name:'נחושת', color:'#fb923c', E:110, yield:200, uts:350, fracture:0.40, neckStart:0.30 },
+  rubber:   { name:'גומי', color:'#4ade80', E:0.05, yield:5, uts:20, fracture:2.5, neckStart:2.0 },
+  bone:     { name:'עצם', color:'#facc15', E:17, yield:100, uts:120, fracture:0.03, neckStart:0.025 },
+};
+
+let currentMat = 'steel';
+let loadPct = 0;
+let animRunning = false;
+
+function selectMat(key, btn) {
+  currentMat = key;
+  document.querySelectorAll('.mat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('load-slider').value = 0;
+  loadPct = 0;
+  updateAll();
+}
+
+function setLoad(v) {
+  loadPct = parseFloat(v) / 100;
+  updateAll();
+}
+
+function updateAll() {
+  const mat = materials[currentMat];
+  const strain = getStrain(loadPct, mat);
+  const stress = getStress(loadPct, mat);
+
+  document.getElementById('pt-elastic').textContent = (mat.yield * 0.7).toFixed(0) + ' MPa';
+  document.getElementById('pt-yield').textContent = mat.yield + ' MPa';
+  document.getElementById('pt-uts').textContent = 'UTS: ' + mat.uts + ' MPa';
+  document.getElementById('pt-fracture').textContent = mat.fracture.toFixed(3) + ' ε';
+  document.getElementById('pt-modulus').textContent = mat.E + ' GPa';
+
+  document.getElementById('cur-stress').textContent = stress.toFixed(1) + ' MPa';
+  document.getElementById('cur-strain').textContent = strain.toFixed(4);
+  const energy = 0.5 * stress * strain * 1e6;
+  document.getElementById('cur-energy').textContent = energy.toFixed(0) + ' J/m³';
+
+  updateState(loadPct, mat);
+  drawChart(mat, loadPct);
+  drawSpecimen(loadPct, mat);
+}
+
+function getStrain(pct, mat) {
+  const yieldStrain = mat.yield / (mat.E * 1000);
+  if (pct <= 0.35) return pct / 0.35 * yieldStrain;
+  if (pct <= 0.7) {
+    const t = (pct - 0.35) / 0.35;
+    return yieldStrain + t * (mat.neckStart - yieldStrain) * 0.8;
+  }
+  const t = (pct - 0.7) / 0.3;
+  return yieldStrain + (mat.neckStart - yieldStrain) * 0.8 + t * (mat.fracture - mat.neckStart) * 0.5;
+}
+
+function getStress(pct, mat) {
+  if (pct <= 0.35) return pct / 0.35 * mat.yield;
+  if (pct <= 0.45) {
+    const t = (pct - 0.35) / 0.1;
+    return mat.yield + t * (mat.uts - mat.yield) * 0.3;
+  }
+  if (pct <= 0.7) {
+    const t = (pct - 0.45) / 0.25;
+    return mat.yield + (mat.uts - mat.yield) * 0.3 + t * (mat.uts - mat.yield) * 0.7;
+  }
+  if (pct <= 1.0) {
+    const t = (pct - 0.7) / 0.3;
+    return mat.uts - t * (mat.uts - mat.yield * 0.6);
+  }
+  return 0;
+}
+
+function updateState(pct, mat) {
+  const name = document.getElementById('state-name');
+  const detail = document.getElementById('state-detail');
+  if (pct >= 1.0) {
+    name.textContent = '💥 שבירה'; name.style.color = 'var(--red)';
+    detail.textContent = 'החומר נשבר — כשל מבני';
+  } else if (pct > 0.7) {
+    name.textContent = 'צווארון (Necking)'; name.style.color = 'var(--red)';
+    detail.textContent = 'מתחיל להיווצר צווארון מקומי';
+  } else if (pct > 0.35) {
+    name.textContent = 'עיבור פלסטי'; name.style.color = 'var(--yellow)';
+    detail.textContent = 'נוצרת עיבורית קבועה ובלתי הפיכה';
+  } else {
+    name.textContent = 'אלסטי'; name.style.color = 'var(--green)';
+    detail.textContent = 'החומר יחזור לצורתו המקורית';
+  }
+}
+
+function drawChart(mat, curPct) {
+  const canvas = document.getElementById('chart');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const pad = { top: 30, right: 20, bottom: 50, left: 70 };
+  const plotW = W - pad.left - pad.right;
+  const plotH = H - pad.top - pad.bottom;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  ctx.fillStyle = '#0a0a10';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid
+  ctx.strokeStyle = '#1e1e2e';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 5; i++) {
+    const y = pad.top + (i / 5) * plotH;
+    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
+    const x = pad.left + (i / 5) * plotW;
+    ctx.beginPath(); ctx.moveTo(x, pad.top); ctx.lineTo(x, H - pad.bottom); ctx.stroke();
+  }
+
+  // Axes
+  ctx.strokeStyle = '#4b5563'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(pad.left, pad.top); ctx.lineTo(pad.left, H - pad.bottom); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(pad.left, H - pad.bottom); ctx.lineTo(W - pad.right, H - pad.bottom); ctx.stroke();
+
+  // Axis labels
+  ctx.fillStyle = '#9ca3af'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('עיבור ε', pad.left + plotW / 2, H - 8);
+  ctx.save(); ctx.translate(16, pad.top + plotH / 2); ctx.rotate(-Math.PI / 2);
+  ctx.fillText('מאמץ σ [MPa]', 0, 0); ctx.restore();
+
+  // Axis values
+  ctx.font = '10px monospace'; ctx.textAlign = 'right';
+  for (let i = 0; i <= 5; i++) {
+    const y = pad.top + ((5 - i) / 5) * plotH;
+    ctx.fillText(Math.round(mat.uts * i / 5), pad.left - 6, y + 4);
+    ctx.textAlign = 'center';
+    const x = pad.left + (i / 5) * plotW;
+    ctx.fillText((mat.fracture * i / 5).toFixed(3), x, H - pad.bottom + 16);
+    ctx.textAlign = 'right';
+  }
+
+  const toX = (strain) => pad.left + (strain / mat.fracture) * plotW;
+  const toY = (stress) => H - pad.bottom - (stress / mat.uts) * plotH;
+
+  // Region shading
+  const yieldX = toX(mat.yield / (mat.E * 1000));
+  const neckX = toX(mat.neckStart);
+  ctx.globalAlpha = 0.07;
+  ctx.fillStyle = '#4ade80';
+  ctx.fillRect(pad.left, pad.top, yieldX - pad.left, plotH);
+  ctx.fillStyle = '#facc15';
+  ctx.fillRect(yieldX, pad.top, neckX - yieldX, plotH);
+  ctx.fillStyle = '#f87171';
+  ctx.fillRect(neckX, pad.top, W - pad.right - neckX, plotH);
+  ctx.globalAlpha = 1;
+
+  // Full curve (faded)
+  ctx.strokeStyle = mat.color + '55';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([]);
+  ctx.beginPath();
+  for (let i = 0; i <= 200; i++) {
+    const p = i / 200;
+    const s = getStrain(p, mat);
+    const st = getStress(p, mat);
+    if (i === 0) ctx.moveTo(toX(s), toY(st));
+    else ctx.lineTo(toX(s), toY(st));
+  }
+  ctx.stroke();
+
+  // Drawn curve (up to current load)
+  ctx.strokeStyle = mat.color;
+  ctx.lineWidth = 3;
+  ctx.shadowColor = mat.color;
+  ctx.shadowBlur = 8;
+  ctx.beginPath();
+  for (let i = 0; i <= 200; i++) {
+    const p = i / 200 * curPct;
+    const s = getStrain(p, mat);
+    const st = getStress(p, mat);
+    if (i === 0) ctx.moveTo(toX(s), toY(st));
+    else ctx.lineTo(toX(s), toY(st));
+  }
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Current point
+  if (curPct > 0 && curPct < 1.0) {
+    const cs = getStrain(curPct, mat);
+    const cst = getStress(curPct, mat);
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(toX(cs), toY(cst), 6, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = mat.color;
+    ctx.beginPath(); ctx.arc(toX(cs), toY(cst), 4, 0, Math.PI * 2); ctx.fill();
+  }
+
+  // Key point labels
+  const labelPoints = [
+    { label: 'גבול אלסטיות', pct: 0.35, color: '#4ade80' },
+    { label: 'UTS', pct: 0.70, color: '#facc15' },
+    { label: 'שבירה', pct: 1.0, color: '#f87171' },
+  ];
+  ctx.font = 'bold 10px sans-serif';
+  labelPoints.forEach(lp => {
+    if (lp.pct > 1.0) return;
+    const s = getStrain(lp.pct, mat);
+    const st = getStress(lp.pct, mat);
+    const px = toX(s), py = toY(st);
+    ctx.strokeStyle = lp.color + '88'; ctx.lineWidth = 1; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px, H - pad.bottom); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = lp.color;
+    ctx.textAlign = 'center';
+    ctx.fillText(lp.label, px, py - 10);
+  });
+}
+
+function drawSpecimen(pct, mat) {
+  const c = document.getElementById('specimen');
+  const ctx = c.getContext('2d');
+  ctx.clearRect(0, 0, c.width, c.height);
+
+  const W = c.width, H = c.height;
+  ctx.fillStyle = '#0a0a10';
+  ctx.fillRect(0, 0, W, H);
+
+  const baseW = 60, baseH = 100;
+  const elongation = 1 + pct * 0.6;
+  const narrowing = pct > 0.7 ? 1 - (pct - 0.7) / 0.3 * 0.55 : 1 - pct * 0.08;
+
+  const cx = W / 2, cy = H / 2;
+  const sh = baseH * elongation;
+  const sw = baseW * narrowing;
+
+  let color = mat.color;
+  if (pct >= 1.0) color = '#f87171';
+  else if (pct > 0.7) color = '#fb923c';
+  else if (pct > 0.35) color = '#facc15';
+
+  // Shadow
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 15;
+
+  // Specimen body
+  const grad = ctx.createLinearGradient(cx - sw / 2, 0, cx + sw / 2, 0);
+  grad.addColorStop(0, '#1a1a2e');
+  grad.addColorStop(0.3, color + 'cc');
+  grad.addColorStop(0.7, color + 'cc');
+  grad.addColorStop(1, '#1a1a2e');
+
+  ctx.fillStyle = grad;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.5;
+
+  if (pct >= 1.0) {
+    // Fractured
+    ctx.beginPath();
+    ctx.roundRect(cx - sw / 2, cy - sh / 2, sw, sh * 0.45, 4);
+    ctx.fill(); ctx.stroke();
+    ctx.beginPath();
+    ctx.roundRect(cx - sw / 2 + 5, cy + sh * 0.08, sw - 10, sh * 0.45, 4);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#f87171'; ctx.font = 'bold 13px sans-serif';
+    ctx.textAlign = 'center'; ctx.fillText('💥 שבירה', cx, cy + 3);
+  } else {
+    // Necking
+    if (pct > 0.7) {
+      ctx.beginPath();
+      ctx.moveTo(cx - baseW / 2 * 0.7, cy - sh / 2);
+      ctx.lineTo(cx + baseW / 2 * 0.7, cy - sh / 2);
+      ctx.lineTo(cx + sw / 2, cy);
+      ctx.lineTo(cx + baseW / 2 * 0.7, cy + sh / 2);
+      ctx.lineTo(cx - baseW / 2 * 0.7, cy + sh / 2);
+      ctx.lineTo(cx - sw / 2, cy);
+      ctx.closePath();
+      ctx.fill(); ctx.stroke();
+    } else {
+      ctx.beginPath();
+      ctx.roundRect(cx - sw / 2, cy - sh / 2, sw, sh, 4);
+      ctx.fill(); ctx.stroke();
+    }
+  }
+
+  ctx.shadowBlur = 0;
+
+  // Arrows showing force
+  if (pct > 0 && pct < 1.0) {
+    ctx.fillStyle = '#f87171'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('↑', cx, cy - sh / 2 - 8);
+    ctx.fillText('↓', cx, cy + sh / 2 + 20);
+  }
+
+  // Dimensions
+  ctx.fillStyle = '#6b7280'; ctx.font = '9px monospace'; ctx.textAlign = 'left';
+  ctx.fillText('L=' + (baseH * elongation).toFixed(0) + 'mm', 4, H - 6);
+}
+
+function animate() {
+  if (animRunning) return;
+  animRunning = true;
+  const slider = document.getElementById('load-slider');
+  let v = parseFloat(slider.value);
+  const step = () => {
+    if (v >= 100) { animRunning = false; return; }
+    v = Math.min(100, v + 0.8);
+    slider.value = v;
+    loadPct = v / 100;
+    updateAll();
+    if (v < 100) requestAnimationFrame(step);
+    else animRunning = false;
+  };
+  requestAnimationFrame(step);
+}
+
+function reset() {
+  animRunning = false;
+  document.getElementById('load-slider').value = 0;
+  loadPct = 0;
+  updateAll();
+}
+
+// Init
+const mat0 = materials[currentMat];
+document.getElementById('chart').width = document.getElementById('chart-wrap').offsetWidth || 580;
+updateAll();
+</script>
+</body>
+</html>

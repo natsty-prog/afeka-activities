@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מעבדת מעגלים חשמליים | חוק אוהם וקירכהוף</title>
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2234;
+    --border: #2d3748;
+    --accent: #60a5fa;
+    --green: #34d399;
+    --red: #f87171;
+    --yellow: #fbbf24;
+    --orange: #fb923c;
+    --purple: #a78bfa;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Arial, sans-serif; min-height: 100vh; padding: 20px; }
+
+  header { text-align: center; margin-bottom: 24px; }
+  header h1 { font-size: 1.8rem; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+  header p { color: var(--muted); font-size: 0.9rem; }
+
+  .main-grid { display: grid; grid-template-columns: 1fr 400px; gap: 20px; max-width: 1200px; margin: 0 auto; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+  .card h3 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+  /* Mode tabs */
+  .mode-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+  .tab { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--muted); cursor: pointer; text-align: center; font-size: 0.88rem; font-weight: 500; transition: all 0.2s; }
+  .tab.active { background: rgba(96,165,250,0.15); border-color: var(--accent); color: var(--accent); }
+
+  /* Circuit canvas */
+  #circuit-canvas { width: 100%; height: 360px; border-radius: 10px; background: #0d1526; border: 1px solid var(--border); display: block; }
+
+  /* Controls */
+  .control-group { margin-bottom: 20px; }
+  .control-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 0.88rem; }
+  .control-label .name { font-weight: 600; }
+  .control-label .value-badge {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-family: monospace;
+    font-size: 0.95rem;
+    font-weight: 700;
+    min-width: 80px;
+    text-align: center;
+  }
+  .control-label .locked-badge {
+    background: rgba(251,191,36,0.15);
+    border-color: var(--yellow);
+    color: var(--yellow);
+    cursor: pointer;
+    user-select: none;
+  }
+  input[type=range] { width: 100%; accent-color: var(--accent); cursor: pointer; margin-bottom: 4px; }
+  .range-labels { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--muted); }
+
+  .lock-hint { font-size: 0.75rem; color: var(--muted); margin-top: 4px; text-align: center; }
+
+  /* Result cards */
+  .result-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 16px; }
+  .result-card {
+    border-radius: 10px;
+    padding: 14px 10px;
+    text-align: center;
+    border: 1px solid transparent;
+  }
+  .result-card.voltage { background: rgba(251,191,36,0.08); border-color: rgba(251,191,36,0.3); }
+  .result-card.current { background: rgba(52,211,153,0.08); border-color: rgba(52,211,153,0.3); }
+  .result-card.resist  { background: rgba(96,165,250,0.08); border-color: rgba(96,165,250,0.3); }
+  .result-card .sym { font-size: 1.5rem; font-weight: 800; margin-bottom: 4px; }
+  .result-card.voltage .sym { color: var(--yellow); }
+  .result-card.current .sym { color: var(--green); }
+  .result-card.resist  .sym { color: var(--accent); }
+  .result-card .big-val { font-size: 1.3rem; font-weight: 700; font-family: monospace; margin-bottom: 2px; }
+  .result-card .unit { font-size: 0.75rem; color: var(--muted); }
+
+  .formula-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+    margin-top: 16px;
+  }
+  .formula-box .formula { font-size: 1.4rem; font-family: monospace; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+  .formula-box p { font-size: 0.8rem; color: var(--muted); }
+
+  .kirchhoff-box {
+    margin-top: 14px;
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 14px;
+    border: 1px solid var(--border);
+  }
+  .kirchhoff-box h4 { font-size: 0.82rem; color: var(--muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .kv-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+  .kv-row:last-child { border-bottom: none; }
+  .kv-row .kv-val { font-family: monospace; font-weight: 700; }
+
+  .power-meter {
+    margin-top: 14px;
+    background: linear-gradient(135deg, rgba(251,146,60,0.1), rgba(248,113,113,0.1));
+    border: 1px solid rgba(251,146,60,0.3);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+  .power-meter .pw-label { font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+  .power-meter .pw-val { font-size: 1.8rem; font-weight: 800; color: var(--orange); font-family: monospace; }
+
+  @media (max-width: 750px) { .main-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⚡ מעבדת מעגלים חשמליים</h1>
+  <p>חוק אוהם, חוקי קירכהוף, מעגלי טור וסתול | V = I × R</p>
+</header>
+
+<div class="main-grid">
+  <!-- Left: Circuit Visualization -->
+  <div>
+    <div class="card" style="margin-bottom:16px">
+      <h3>סוג מעגל</h3>
+      <div class="mode-tabs">
+        <div class="tab active" onclick="setMode('single',this)">מעגל בסיסי</div>
+        <div class="tab" onclick="setMode('series',this)">טור (Series)</div>
+        <div class="tab" onclick="setMode('parallel',this)">מקביל (Parallel)</div>
+      </div>
+      <canvas id="circuit-canvas"></canvas>
+    </div>
+
+    <div class="card">
+      <h3>תוצאות חישוב</h3>
+      <div class="result-grid">
+        <div class="result-card voltage">
+          <div class="sym">V</div>
+          <div class="big-val" id="r-voltage">—</div>
+          <div class="unit">וולט [V]</div>
+        </div>
+        <div class="result-card current">
+          <div class="sym">I</div>
+          <div class="big-val" id="r-current">—</div>
+          <div class="unit">אמפר [A]</div>
+        </div>
+        <div class="result-card resist">
+          <div class="sym">R</div>
+          <div class="big-val" id="r-resist">—</div>
+          <div class="unit">אוהם [Ω]</div>
+        </div>
+      </div>
+
+      <div class="power-meter">
+        <div class="pw-label">הספק חשמלי — P = V × I = I² × R</div>
+        <div class="pw-val" id="r-power">— W</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Controls -->
+  <div>
+    <div class="card" style="margin-bottom:16px">
+      <h3>שליטה בפרמטרים</h3>
+      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:14px">לחץ על הערך המחושב כדי לנעול אותו — שני הערכים האחרים ישתנו בהתאם</p>
+
+      <!-- Voltage -->
+      <div class="control-group">
+        <div class="control-label">
+          <span class="name" style="color:var(--yellow)">⚡ מתח (V)</span>
+          <span class="value-badge" id="v-badge" onclick="toggleLock('V')" title="לחץ לנעילה">12.0 V</span>
+        </div>
+        <input type="range" id="v-slider" min="1" max="100" value="12" step="0.5" oninput="onSlider('V')">
+        <div class="range-labels"><span>1 V</span><span>100 V</span></div>
+      </div>
+
+      <!-- Current -->
+      <div class="control-group">
+        <div class="control-label">
+          <span class="name" style="color:var(--green)">➡ זרם (I)</span>
+          <span class="value-badge" id="i-badge" onclick="toggleLock('I')" title="לחץ לנעילה">0.4 A</span>
+        </div>
+        <input type="range" id="i-slider" min="0.1" max="20" value="0.4" step="0.1" oninput="onSlider('I')">
+        <div class="range-labels"><span>0.1 A</span><span>20 A</span></div>
+      </div>
+
+      <!-- Resistance -->
+      <div class="control-group">
+        <div class="control-label">
+          <span class="name" style="color:var(--accent)">〰 התנגדות (R)</span>
+          <span class="value-badge" id="r-badge" onclick="toggleLock('R')" title="לחץ לנעילה">30 Ω</span>
+        </div>
+        <input type="range" id="r-slider" min="1" max="1000" value="30" step="1" oninput="onSlider('R')">
+        <div class="range-labels"><span>1 Ω</span><span>1000 Ω</span></div>
+      </div>
+
+      <div class="lock-hint">🔒 ערך נעול = <span style="color:var(--yellow)">מסגרת צהובה</span> — לחץ שוב לשחרור</div>
+
+      <div class="formula-box">
+        <div class="formula" id="formula-display">V = I × R</div>
+        <p>חוק אוהם — הנוסחה הבסיסית</p>
+      </div>
+    </div>
+
+    <!-- Series/Parallel specific -->
+    <div class="card" id="kirchhoff-panel">
+      <h3>ניתוח מעגל</h3>
+      <div class="kirchhoff-box" id="kirchhoff-content">
+        <h4>מעגל בסיסי — ערכים</h4>
+        <div class="kv-row"><span>מתח המקור</span><span class="kv-val" id="kv-source" style="color:var(--yellow)">12.0 V</span></div>
+        <div class="kv-row"><span>זרם במעגל</span><span class="kv-val" id="kv-current" style="color:var(--green)">0.40 A</span></div>
+        <div class="kv-row"><span>התנגדות</span><span class="kv-val" id="kv-resist" style="color:var(--accent)">30 Ω</span></div>
+        <div class="kv-row"><span>הספק</span><span class="kv-val" id="kv-power" style="color:var(--orange)">4.80 W</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('circuit-canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = canvas.offsetWidth * window.devicePixelRatio || 600;
+canvas.height = 360;
+
+let mode = 'single';
+let locked = null; // 'V', 'I', or 'R'
+let V = 12, I = 0.4, R = 30;
+
+function setMode(m, btn) {
+  mode = m;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  if (m === 'series') {
+    R = 30; V = 12; I = V / R;
+  } else if (m === 'parallel') {
+    R = 30; V = 12; I = V / (R / 2);
+  }
+  updateAll();
+  drawCircuit();
+}
+
+function toggleLock(param) {
+  locked = locked === param ? null : param;
+  ['V','I','R'].forEach(p => {
+    const badge = document.getElementById(p.toLowerCase() + '-badge');
+    badge.classList.toggle('locked-badge', locked === p);
+  });
+  updateFormula();
+}
+
+function updateFormula() {
+  const formulas = {
+    V: 'V = I × R  →  נועל V',
+    I: 'I = V / R  →  נועל I',
+    R: 'R = V / I  →  נועל R',
+    null: 'V = I × R'
+  };
+  document.getElementById('formula-display').textContent = formulas[locked];
+}
+
+function onSlider(changed) {
+  if (changed === 'V') V = parseFloat(document.getElementById('v-slider').value);
+  if (changed === 'I') I = parseFloat(document.getElementById('i-slider').value);
+  if (changed === 'R') R = parseFloat(document.getElementById('r-slider').value);
+
+  if (locked === 'V' || (!locked && changed !== 'V')) {
+    if (changed === 'I' && locked !== 'I') { R = V / I; }
+    else if (changed === 'R' && locked !== 'R') { I = V / R; }
+    else if (changed === 'V') { if (locked === 'R') I = V / R; else if (locked === 'I') R = V / I; else I = V / R; }
+  } else if (locked === 'I') {
+    if (changed === 'V') R = V / I;
+    else if (changed === 'R') V = I * R;
+  } else if (locked === 'R') {
+    if (changed === 'V') I = V / R;
+    else if (changed === 'I') V = I * R;
+  } else {
+    if (changed === 'V') I = V / R;
+    else if (changed === 'I') V = I * R;
+    else if (changed === 'R') I = V / R;
+  }
+
+  V = Math.max(0.01, Math.min(100, V));
+  I = Math.max(0.01, Math.min(20, I));
+  R = Math.max(0.5, Math.min(1000, R));
+  updateAll();
+}
+
+function updateAll() {
+  document.getElementById('v-slider').value = V;
+  document.getElementById('i-slider').value = I;
+  document.getElementById('r-slider').value = R;
+
+  const P = V * I;
+  document.getElementById('v-badge').textContent = V.toFixed(1) + ' V';
+  document.getElementById('i-badge').textContent = I.toFixed(2) + ' A';
+  document.getElementById('r-badge').textContent = Math.round(R) + ' Ω';
+
+  document.getElementById('r-voltage').textContent = V.toFixed(1) + ' V';
+  document.getElementById('r-current').textContent = I.toFixed(2) + ' A';
+
+  let Rdisp = R;
+  if (mode === 'series') Rdisp = R * 2;
+  if (mode === 'parallel') Rdisp = R / 2;
+  document.getElementById('r-resist').textContent = Rdisp.toFixed(0) + ' Ω';
+  document.getElementById('r-power').textContent = P.toFixed(2) + ' W';
+
+  document.getElementById('kv-source').textContent = V.toFixed(1) + ' V';
+  document.getElementById('kv-current').textContent = I.toFixed(2) + ' A';
+  document.getElementById('kv-resist').textContent = Rdisp.toFixed(0) + ' Ω';
+  document.getElementById('kv-power').textContent = P.toFixed(2) + ' W';
+
+  drawCircuit();
+}
+
+// ---- Drawing ----
+function drawCircuit() {
+  const w = canvas.width, h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  if (mode === 'single') drawSingleCircuit(w, h);
+  else if (mode === 'series') drawSeriesCircuit(w, h);
+  else drawParallelCircuit(w, h);
+}
+
+function drawWire(x1, y1, x2, y2, brightness) {
+  const alpha = 0.4 + brightness * 0.6;
+  ctx.strokeStyle = `rgba(52, 211, 153, ${alpha})`;
+  ctx.lineWidth = 3;
+  ctx.shadowColor = '#34d399';
+  ctx.shadowBlur = brightness * 12;
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  ctx.shadowBlur = 0;
+}
+
+function drawBattery(cx, cy, voltage) {
+  ctx.fillStyle = '#1a2234';
+  ctx.strokeStyle = '#fbbf24';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(cx - 24, cy - 40, 48, 80, 6);
+  ctx.fill(); ctx.stroke();
+
+  // plates
+  for (let i = 0; i < 3; i++) {
+    const fy = cy - 20 + i * 14;
+    ctx.strokeStyle = i % 2 === 0 ? '#fbbf24' : '#94a3b8';
+    ctx.lineWidth = i % 2 === 0 ? 4 : 2;
+    ctx.beginPath(); ctx.moveTo(cx - 14, fy); ctx.lineTo(cx + 14, fy); ctx.stroke();
+  }
+
+  ctx.fillStyle = '#fbbf24';
+  ctx.font = 'bold 11px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(voltage.toFixed(0) + 'V', cx, cy + 32);
+  ctx.fillText('+', cx, cy - 44);
+}
+
+function drawResistor(cx, cy, label, horizontal) {
+  ctx.fillStyle = '#1e293b';
+  ctx.strokeStyle = '#60a5fa';
+  ctx.lineWidth = 2;
+  if (horizontal) {
+    ctx.beginPath(); ctx.roundRect(cx - 35, cy - 14, 70, 28, 5); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#f87171';
+    ctx.font = 'bold 10px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('~~~', cx, cy + 4);
+    ctx.fillStyle = '#60a5fa';
+    ctx.font = '11px sans-serif';
+    ctx.fillText(label, cx, cy + 20);
+  } else {
+    ctx.beginPath(); ctx.roundRect(cx - 14, cy - 35, 28, 70, 5); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#f87171';
+    ctx.font = 'bold 10px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('~', cx, cy - 10);
+    ctx.fillText('~', cx, cy + 4);
+    ctx.fillStyle = '#60a5fa';
+    ctx.font = '11px sans-serif';
+    ctx.fillText(label, cx + 26, cy + 4);
+  }
+}
+
+function drawAmmeter(cx, cy) {
+  ctx.fillStyle = '#0d1526';
+  ctx.strokeStyle = '#34d399';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(cx, cy, 18, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#34d399';
+  ctx.font = 'bold 12px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('A', cx, cy + 4);
+}
+
+function brightness() { return Math.min(1, I / 5); }
+
+function drawSingleCircuit(w, h) {
+  const mx = w / 2, my = h / 2;
+  const b = brightness();
+
+  // Wires
+  drawWire(mx - 120, my - 80, mx + 120, my - 80, b); // top
+  drawWire(mx + 120, my - 80, mx + 120, my + 80, b); // right
+  drawWire(mx - 120, my - 80, mx - 120, my + 80, b); // left
+  drawWire(mx - 120, my + 80, mx + 40, my + 80, b);  // bottom-left
+  drawWire(mx + 40, my + 80, mx + 120, my + 80, b);  // bottom-right
+
+  drawBattery(mx - 120, my, V);
+  drawResistor(mx + 120, my, Math.round(R) + 'Ω', false);
+  drawAmmeter(mx - 30, my + 80);
+
+  // Current direction arrow
+  ctx.fillStyle = `rgba(52,211,153,${0.3 + b * 0.7})`;
+  ctx.font = '18px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('→', mx + 80, my - 72);
+  ctx.fillText('↓', mx + 128, my - 20);
+  ctx.fillText('←', mx - 30, my + 68);
+  ctx.fillText('↑', mx - 128, my + 20);
+
+  // Labels
+  ctx.fillStyle = '#fbbf24';
+  ctx.font = '11px sans-serif';
+  ctx.fillText('I = ' + I.toFixed(2) + ' A', mx + 60, my - 95);
+}
+
+function drawSeriesCircuit(w, h) {
+  const my = h / 2, b = brightness();
+  const left = w * 0.12, right = w * 0.88;
+
+  drawWire(left, my - 90, right, my - 90, b);
+  drawWire(right, my - 90, right, my + 90, b);
+  drawWire(left, my - 90, left, my + 90, b);
+  drawWire(left, my + 90, right, my + 90, b);
+
+  drawBattery(left, my, V);
+  drawResistor(w * 0.38, my - 90, 'R₁=' + Math.round(R) + 'Ω', true);
+  drawResistor(w * 0.65, my - 90, 'R₂=' + Math.round(R) + 'Ω', true);
+  drawAmmeter(right * 0.6, my + 90);
+
+  ctx.fillStyle = '#e2e8f0';
+  ctx.font = '12px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('R_כולל = R₁ + R₂ = ' + Math.round(R * 2) + 'Ω', w / 2, h - 14);
+  ctx.fillStyle = '#34d399';
+  ctx.fillText('I זהה בכל המעגל = ' + I.toFixed(2) + 'A', w / 2, h - 2);
+}
+
+function drawParallelCircuit(w, h) {
+  const mx = w / 2, b = brightness();
+
+  drawWire(w * 0.1, h * 0.2, w * 0.9, h * 0.2, b);
+  drawWire(w * 0.9, h * 0.2, w * 0.9, h * 0.8, b);
+  drawWire(w * 0.1, h * 0.2, w * 0.1, h * 0.8, b);
+  drawWire(w * 0.1, h * 0.8, w * 0.9, h * 0.8, b);
+
+  drawWire(w * 0.45, h * 0.2, w * 0.45, h * 0.5 - 40, b);
+  drawWire(w * 0.45, h * 0.5 + 40, w * 0.45, h * 0.8, b);
+  drawWire(w * 0.65, h * 0.2, w * 0.65, h * 0.5 - 40, b);
+  drawWire(w * 0.65, h * 0.5 + 40, w * 0.65, h * 0.8, b);
+
+  drawBattery(w * 0.1, h * 0.5, V);
+  drawResistor(w * 0.45, h * 0.5, 'R₁=' + Math.round(R) + 'Ω', false);
+  drawResistor(w * 0.65, h * 0.5, 'R₂=' + Math.round(R) + 'Ω', false);
+
+  ctx.fillStyle = '#e2e8f0';
+  ctx.font = '12px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('R_כולל = R/2 = ' + (R/2).toFixed(0) + 'Ω', mx, h - 14);
+  ctx.fillStyle = '#60a5fa';
+  ctx.fillText('I_כולל = ' + I.toFixed(2) + 'A  |  I₁ = I₂ = ' + (I/2).toFixed(2) + 'A', mx, h - 2);
+}
+
+// Init
+window.addEventListener('resize', () => {
+  canvas.width = canvas.offsetWidth * (window.devicePixelRatio || 1);
+  drawCircuit();
+});
+updateAll();
+</script>
+</body>
+</html>

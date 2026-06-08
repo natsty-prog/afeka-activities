@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ויזואליזציה של אלגוריתמי מיון | סיבוכיות זמן</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #21262d;
+    --border: #30363d;
+    --accent: #58a6ff;
+    --accent2: #3fb950;
+    --warn: #f78166;
+    --yellow: #e3b341;
+    --purple: #bc8cff;
+    --text: #e6edf3;
+    --text-muted: #7d8590;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', Arial, sans-serif;
+    min-height: 100vh;
+    padding: 24px;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  header h1 {
+    font-size: 1.9rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 6px;
+  }
+  header p { color: var(--text-muted); font-size: 0.95rem; }
+
+  .layout { display: grid; grid-template-columns: 280px 1fr; gap: 20px; max-width: 1200px; margin: 0 auto; }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .panel h3 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .algo-btn {
+    display: block;
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    text-align: right;
+    transition: all 0.18s;
+    font-size: 0.92rem;
+  }
+  .algo-btn:hover { border-color: var(--accent); background: #1c2333; }
+  .algo-btn.active {
+    border-color: var(--accent);
+    background: rgba(88,166,255,0.12);
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .algo-btn .complexity {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    display: block;
+    margin-top: 2px;
+    font-family: monospace;
+  }
+  .algo-btn.active .complexity { color: var(--accent); opacity: 0.8; }
+
+  label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; margin-top: 14px; }
+  input[type=range] {
+    width: 100%;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+  .range-row { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); margin-top: 3px; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.18s;
+  }
+  .btn-primary { background: var(--accent); color: #0d1117; }
+  .btn-primary:hover { background: #79b8ff; }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--accent); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn-row { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+
+  /* Stats */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .stat-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+  }
+  .stat-card .val { font-size: 1.6rem; font-weight: 700; font-family: monospace; }
+  .stat-card .lbl { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+  .stat-card.comp .val { color: var(--accent); }
+  .stat-card.swap .val { color: var(--warn); }
+
+  /* Canvas area */
+  #canvas-wrap {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    position: relative;
+    height: 320px;
+  }
+  canvas { display: block; width: 100%; height: 100%; }
+
+  /* Complexity table */
+  .complexity-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    margin-top: 12px;
+  }
+  .complexity-table th {
+    background: var(--surface2);
+    padding: 8px 10px;
+    text-align: center;
+    color: var(--text-muted);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+  }
+  .complexity-table td {
+    padding: 8px 10px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    font-family: monospace;
+  }
+  .complexity-table tr.highlight td { background: rgba(88,166,255,0.08); color: var(--accent); }
+  .good { color: var(--accent2); }
+  .medium { color: var(--yellow); }
+  .bad { color: var(--warn); }
+
+  .status-bar {
+    margin-top: 10px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    font-size: 0.88rem;
+    min-height: 42px;
+    color: var(--text-muted);
+  }
+  .status-bar span { color: var(--text); font-weight: 500; }
+
+  .legend-row { display: flex; gap: 16px; font-size: 0.78rem; color: var(--text-muted); margin-top: 10px; flex-wrap: wrap; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-left: 5px; }
+
+  @media (max-width: 700px) {
+    .layout { grid-template-columns: 1fr; }
+    header h1 { font-size: 1.4rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>ויזואליזציה של אלגוריתמי מיון</h1>
+  <p>השוו בין אלגוריתמים שונים וראו כיצד סיבוכיות הזמן משפיעה על הביצועים</p>
+</header>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <div>
+    <div class="panel" style="margin-bottom:16px">
+      <h3>בחר אלגוריתם</h3>
+      <button class="algo-btn active" data-algo="bubble" onclick="selectAlgo('bubble',this)">
+        Bubble Sort
+        <span class="complexity">O(n²) | O(1) space</span>
+      </button>
+      <button class="algo-btn" data-algo="selection" onclick="selectAlgo('selection',this)">
+        Selection Sort
+        <span class="complexity">O(n²) | O(1) space</span>
+      </button>
+      <button class="algo-btn" data-algo="insertion" onclick="selectAlgo('insertion',this)">
+        Insertion Sort
+        <span class="complexity">O(n²) | O(1) space</span>
+      </button>
+      <button class="algo-btn" data-algo="merge" onclick="selectAlgo('merge',this)">
+        Merge Sort
+        <span class="complexity">O(n log n) | O(n) space</span>
+      </button>
+      <button class="algo-btn" data-algo="quick" onclick="selectAlgo('quick',this)">
+        Quick Sort
+        <span class="complexity">O(n log n) avg | O(log n)</span>
+      </button>
+
+      <label>גודל מערך: <strong id="size-val">40</strong></label>
+      <input type="range" id="size-slider" min="10" max="100" value="40" oninput="document.getElementById('size-val').textContent=this.value">
+      <div class="range-row"><span>10</span><span>100</span></div>
+
+      <label>מהירות: <strong id="speed-val">בינונית</strong></label>
+      <input type="range" id="speed-slider" min="1" max="3" value="2" step="1" oninput="updateSpeedLabel(this.value)">
+      <div class="range-row"><span>איטי</span><span>מהיר</span></div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" id="start-btn" onclick="startSort()">▶ הפעל</button>
+        <button class="btn btn-secondary" id="reset-btn" onclick="resetArray()">↺ איפוס</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>השוואת סיבוכיות</h3>
+      <table class="complexity-table">
+        <thead>
+          <tr><th>אלגוריתם</th><th>ממוצע</th><th>גרוע</th></tr>
+        </thead>
+        <tbody>
+          <tr id="row-bubble"><td>Bubble</td><td class="bad">O(n²)</td><td class="bad">O(n²)</td></tr>
+          <tr id="row-selection"><td>Selection</td><td class="bad">O(n²)</td><td class="bad">O(n²)</td></tr>
+          <tr id="row-insertion"><td>Insertion</td><td class="bad">O(n²)</td><td class="bad">O(n²)</td></tr>
+          <tr id="row-merge"><td>Merge</td><td class="good">O(n log n)</td><td class="good">O(n log n)</td></tr>
+          <tr id="row-quick"><td>Quick</td><td class="good">O(n log n)</td><td class="bad">O(n²)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Main area -->
+  <div>
+    <div class="stats-grid">
+      <div class="stat-card comp">
+        <div class="val" id="comp-count">0</div>
+        <div class="lbl">השוואות</div>
+      </div>
+      <div class="stat-card swap">
+        <div class="val" id="swap-count">0</div>
+        <div class="lbl">החלפות / פעולות</div>
+      </div>
+    </div>
+
+    <div id="canvas-wrap">
+      <canvas id="vis-canvas"></canvas>
+    </div>
+
+    <div class="legend-row" style="margin-top:10px">
+      <span><span class="legend-dot" style="background:#58a6ff"></span>ערך רגיל</span>
+      <span><span class="legend-dot" style="background:#f78166"></span>משווים</span>
+      <span><span class="legend-dot" style="background:#3fb950"></span>ממוקם סופית</span>
+      <span><span class="legend-dot" style="background:#e3b341"></span>pivot / נוכחי</span>
+    </div>
+
+    <div class="status-bar" id="status-bar">בחר אלגוריתם ולחץ <span>הפעל</span> כדי להתחיל את הויזואליזציה.</div>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('vis-canvas');
+const ctx = canvas.getContext('2d');
+
+let array = [];
+let steps = [];
+let currentAlgo = 'bubble';
+let comparisons = 0, swaps = 0;
+let running = false;
+let animFrame = null;
+let stepIdx = 0;
+let delay = 30;
+let highlights = {};
+let done = new Set();
+
+const COLORS = {
+  normal: '#58a6ff',
+  compare: '#f78166',
+  sorted: '#3fb950',
+  pivot: '#e3b341',
+  current: '#bc8cff',
+};
+
+function resizeCanvas() {
+  const wrap = document.getElementById('canvas-wrap');
+  canvas.width = wrap.offsetWidth;
+  canvas.height = wrap.offsetHeight;
+  drawArray();
+}
+window.addEventListener('resize', resizeCanvas);
+
+function selectAlgo(algo, btn) {
+  currentAlgo = algo;
+  document.querySelectorAll('.algo-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.complexity-table tr').forEach(r => r.classList.remove('highlight'));
+  document.getElementById('row-' + algo).classList.add('highlight');
+  resetArray();
+}
+
+function updateSpeedLabel(v) {
+  const labels = { 1:'איטית', 2:'בינונית', 3:'מהירה' };
+  document.getElementById('speed-val').textContent = labels[v];
+  delay = v == 1 ? 120 : v == 2 ? 30 : 5;
+}
+
+function resetArray() {
+  if (animFrame) cancelAnimationFrame(animFrame);
+  running = false;
+  steps = []; stepIdx = 0; highlights = {}; done = new Set();
+  comparisons = 0; swaps = 0;
+  updateStats();
+  const n = parseInt(document.getElementById('size-slider').value);
+  array = Array.from({length: n}, () => Math.floor(Math.random() * 95) + 5);
+  document.getElementById('start-btn').disabled = false;
+  document.getElementById('status-bar').innerHTML = 'בחר אלגוריתם ולחץ <span>הפעל</span> כדי להתחיל.';
+  resizeCanvas();
+}
+
+function drawArray() {
+  if (!canvas.width) return;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const n = array.length;
+  const barW = canvas.width / n;
+  const maxH = canvas.height - 20;
+
+  for (let i = 0; i < n; i++) {
+    const h = (array[i] / 100) * maxH;
+    const x = i * barW;
+    const y = canvas.height - h;
+
+    let color = COLORS.normal;
+    if (done.has(i)) color = COLORS.sorted;
+    if (highlights.compare && highlights.compare.includes(i)) color = COLORS.compare;
+    if (highlights.pivot !== undefined && highlights.pivot === i) color = COLORS.pivot;
+    if (highlights.current !== undefined && highlights.current === i) color = COLORS.current;
+
+    ctx.fillStyle = color;
+    const gap = n > 60 ? 0 : 1;
+    ctx.fillRect(x + gap, y, barW - gap * 2, h);
+
+    // Value label for small arrays
+    if (n <= 25) {
+      ctx.fillStyle = '#0d1117';
+      ctx.font = `bold ${Math.min(barW - 4, 11)}px monospace`;
+      ctx.textAlign = 'center';
+      ctx.fillText(array[i], x + barW / 2, canvas.height - 4);
+    }
+  }
+}
+
+function updateStats() {
+  document.getElementById('comp-count').textContent = comparisons.toLocaleString();
+  document.getElementById('swap-count').textContent = swaps.toLocaleString();
+}
+
+// Generate all steps for chosen algorithm
+function generateSteps() {
+  const arr = [...array];
+  steps = [];
+  const n = arr.length;
+
+  if (currentAlgo === 'bubble') {
+    for (let i = 0; i < n - 1; i++) {
+      for (let j = 0; j < n - i - 1; j++) {
+        steps.push({ type: 'compare', indices: [j, j+1] });
+        if (arr[j] > arr[j+1]) {
+          [arr[j], arr[j+1]] = [arr[j+1], arr[j]];
+          steps.push({ type: 'swap', indices: [j, j+1], arr: [...arr] });
+        }
+      }
+      steps.push({ type: 'sorted', index: n - 1 - i });
+    }
+    steps.push({ type: 'sorted', index: 0 });
+
+  } else if (currentAlgo === 'selection') {
+    for (let i = 0; i < n - 1; i++) {
+      let minIdx = i;
+      for (let j = i + 1; j < n; j++) {
+        steps.push({ type: 'compare', indices: [minIdx, j], pivot: i });
+        if (arr[j] < arr[minIdx]) minIdx = j;
+      }
+      if (minIdx !== i) {
+        [arr[i], arr[minIdx]] = [arr[minIdx], arr[i]];
+        steps.push({ type: 'swap', indices: [i, minIdx], arr: [...arr] });
+      }
+      steps.push({ type: 'sorted', index: i });
+    }
+    steps.push({ type: 'sorted', index: n - 1 });
+
+  } else if (currentAlgo === 'insertion') {
+    for (let i = 1; i < n; i++) {
+      let j = i;
+      while (j > 0) {
+        steps.push({ type: 'compare', indices: [j-1, j] });
+        if (arr[j] < arr[j-1]) {
+          [arr[j], arr[j-1]] = [arr[j-1], arr[j]];
+          steps.push({ type: 'swap', indices: [j, j-1], arr: [...arr] });
+          j--;
+        } else break;
+      }
+    }
+    for (let i = 0; i < n; i++) steps.push({ type: 'sorted', index: i });
+
+  } else if (currentAlgo === 'merge') {
+    mergeSort(arr, 0, n - 1);
+  } else if (currentAlgo === 'quick') {
+    quickSort(arr, 0, n - 1);
+  }
+}
+
+function mergeSort(arr, l, r) {
+  if (l >= r) return;
+  const m = Math.floor((l + r) / 2);
+  mergeSort(arr, l, m);
+  mergeSort(arr, m + 1, r);
+  merge(arr, l, m, r);
+}
+
+function merge(arr, l, m, r) {
+  const left = arr.slice(l, m + 1);
+  const right = arr.slice(m + 1, r + 1);
+  let i = 0, j = 0, k = l;
+  while (i < left.length && j < right.length) {
+    steps.push({ type: 'compare', indices: [l + i, m + 1 + j] });
+    if (left[i] <= right[j]) { arr[k++] = left[i++]; }
+    else { arr[k++] = right[j++]; }
+    steps.push({ type: 'swap', indices: [k-1], arr: [...arr] });
+  }
+  while (i < left.length) { arr[k++] = left[i++]; steps.push({ type: 'swap', indices: [k-1], arr: [...arr] }); }
+  while (j < right.length) { arr[k++] = right[j++]; steps.push({ type: 'swap', indices: [k-1], arr: [...arr] }); }
+}
+
+function quickSort(arr, low, high) {
+  if (low < high) {
+    const pi = partition(arr, low, high);
+    quickSort(arr, low, pi - 1);
+    quickSort(arr, pi + 1, high);
+  }
+}
+function partition(arr, low, high) {
+  const pivot = arr[high];
+  steps.push({ type: 'pivot', index: high });
+  let i = low - 1;
+  for (let j = low; j < high; j++) {
+    steps.push({ type: 'compare', indices: [j, high] });
+    if (arr[j] < pivot) {
+      i++;
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+      steps.push({ type: 'swap', indices: [i, j], arr: [...arr] });
+    }
+  }
+  [arr[i+1], arr[high]] = [arr[high], arr[i+1]];
+  steps.push({ type: 'swap', indices: [i+1, high], arr: [...arr] });
+  steps.push({ type: 'sorted', index: i + 1 });
+  return i + 1;
+}
+
+function startSort() {
+  if (running) return;
+  running = true;
+  document.getElementById('start-btn').disabled = true;
+  generateSteps();
+  stepIdx = 0;
+  comparisons = 0; swaps = 0;
+  updateStats();
+  const algoNames = { bubble:'Bubble Sort', selection:'Selection Sort', insertion:'Insertion Sort', merge:'Merge Sort', quick:'Quick Sort' };
+  document.getElementById('status-bar').innerHTML = `מריץ <span>${algoNames[currentAlgo]}</span> על מערך בגודל <span>${array.length}</span>...`;
+  scheduleStep();
+}
+
+function scheduleStep() {
+  if (!running || stepIdx >= steps.length) {
+    running = false;
+    highlights = {};
+    done = new Set(array.map((_, i) => i));
+    drawArray();
+    document.getElementById('status-bar').innerHTML = `✓ <span>המיון הסתיים!</span> בוצעו ${comparisons.toLocaleString()} השוואות ו-${swaps.toLocaleString()} פעולות.`;
+    document.getElementById('start-btn').disabled = false;
+    return;
+  }
+
+  const step = steps[stepIdx++];
+  highlights = {};
+
+  if (step.type === 'compare') {
+    highlights.compare = step.indices;
+    if (step.pivot !== undefined) highlights.pivot = step.pivot;
+    comparisons++;
+  } else if (step.type === 'swap') {
+    if (step.arr) array = step.arr;
+    highlights.compare = step.indices;
+    swaps++;
+  } else if (step.type === 'sorted') {
+    done.add(step.index);
+  } else if (step.type === 'pivot') {
+    highlights.pivot = step.index;
+  }
+
+  updateStats();
+  drawArray();
+  setTimeout(scheduleStep, delay);
+}
+
+// Init
+document.getElementById('row-bubble').classList.add('highlight');
+delay = 30;
+resetArray();
+</script>
+</body>
+</html>

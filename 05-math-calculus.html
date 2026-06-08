@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>חשבון אינטגרלי ודיפרנציאלי | חקירת פונקציות</title>
+<style>
+  :root {
+    --bg: #0c0a14;
+    --surface: #13101e;
+    --surface2: #1a1628;
+    --border: #2a2440;
+    --accent: #c084fc;
+    --green: #4ade80;
+    --red: #f87171;
+    --yellow: #fbbf24;
+    --cyan: #22d3ee;
+    --orange: #fb923c;
+    --text: #e2e8f0;
+    --muted: #6b7280;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Arial, sans-serif; min-height: 100vh; padding: 20px; }
+
+  header { text-align: center; margin-bottom: 22px; }
+  header h1 { font-size: 1.8rem; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+  header p { color: var(--muted); font-size: 0.9rem; }
+
+  .layout { display: grid; grid-template-columns: 1fr 300px; gap: 16px; max-width: 1200px; margin: 0 auto; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+  .card h3 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+  /* Function selector */
+  .func-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .func-tab { padding: 7px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface2); color: var(--muted); cursor: pointer; font-size: 0.82rem; font-family: monospace; transition: all 0.18s; }
+  .func-tab:hover { border-color: var(--accent); }
+  .func-tab.active { background: rgba(192,132,252,0.15); border-color: var(--accent); color: var(--accent); font-weight: 700; }
+
+  /* Canvas */
+  #plot-canvas { display: block; border-radius: 10px; background: #07060f; border: 1px solid var(--border); width: 100%; }
+
+  /* X slider */
+  .x-control { margin-top: 14px; }
+  .x-label { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px; }
+  input[type=range] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+
+  /* Mode buttons */
+  .mode-row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .mode-btn { padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--muted); cursor: pointer; font-size: 0.82rem; transition: all 0.18s; }
+  .mode-btn:hover { border-color: var(--accent); }
+  .mode-btn.active { border-color: var(--accent); background: rgba(192,132,252,0.12); color: var(--accent); font-weight: 600; }
+
+  /* Info cards */
+  .info-card { border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; border: 1px solid transparent; }
+  .info-card.deriv { background: rgba(34,211,238,0.07); border-color: rgba(34,211,238,0.25); }
+  .info-card.integ { background: rgba(74,222,128,0.07); border-color: rgba(74,222,128,0.25); }
+  .info-card.critic { background: rgba(251,191,36,0.07); border-color: rgba(251,191,36,0.25); }
+  .info-card h4 { font-size: 0.8rem; font-weight: 700; margin-bottom: 6px; }
+  .info-card.deriv h4 { color: var(--cyan); }
+  .info-card.integ h4 { color: var(--green); }
+  .info-card.critic h4 { color: var(--yellow); }
+  .info-card .val { font-family: monospace; font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+  .info-card p { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
+
+  .formula-display { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; text-align: center; margin-bottom: 12px; }
+  .formula-display .fn-main { font-size: 1.1rem; font-family: monospace; font-weight: 700; color: var(--accent); }
+  .formula-display .fn-deriv { font-size: 0.85rem; font-family: monospace; color: var(--cyan); margin-top: 4px; }
+
+  .critical-list { margin-top: 8px; }
+  .crit-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 0.82rem; }
+  .crit-item:last-child { border: none; }
+  .crit-item .ctype { color: var(--muted); }
+  .crit-item .cval { font-family: monospace; font-weight: 700; color: var(--yellow); }
+
+  @media (max-width: 750px) { .layout { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>∫ חשבון אינטגרלי ודיפרנציאלי</h1>
+  <p>חקירת פונקציות | נגזרת | אינטגרל | נקודות קריטיות | משיק</p>
+</header>
+
+<div class="layout">
+  <div>
+    <div class="card" style="margin-bottom:14px">
+      <h3>בחר פונקציה</h3>
+      <div class="func-tabs">
+        <div class="func-tab active" onclick="selectFunc(0,this)">x²</div>
+        <div class="func-tab" onclick="selectFunc(1,this)">x³ - 3x</div>
+        <div class="func-tab" onclick="selectFunc(2,this)">sin(x)</div>
+        <div class="func-tab" onclick="selectFunc(3,this)">cos(x)</div>
+        <div class="func-tab" onclick="selectFunc(4,this)">eˣ</div>
+        <div class="func-tab" onclick="selectFunc(5,this)">x⁴ - 4x²</div>
+        <div class="func-tab" onclick="selectFunc(6,this)">ln(x)</div>
+        <div class="func-tab" onclick="selectFunc(7,this)">1/x</div>
+      </div>
+
+      <canvas id="plot-canvas" height="380"></canvas>
+
+      <div class="x-control">
+        <div class="x-label">
+          <span>נקודה x = <strong id="x-display">1.0</strong></span>
+          <span style="color:var(--muted);font-size:0.8rem">גרור לאורך הגרף</span>
+        </div>
+        <input type="range" id="x-slider" min="-4" max="4" value="1" step="0.05" oninput="setX(this.value)">
+      </div>
+
+      <div class="mode-row">
+        <div class="mode-btn active" onclick="setMode('tangent',this)">📐 משיק</div>
+        <div class="mode-btn" onclick="setMode('integral',this)">∫ שטח</div>
+        <div class="mode-btn" onclick="setMode('both',this)">✦ הכל</div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="formula-display" id="formula-box">
+      <div class="fn-main" id="fn-main">f(x) = x²</div>
+      <div class="fn-deriv" id="fn-deriv">f'(x) = 2x</div>
+    </div>
+
+    <div class="info-card deriv">
+      <h4>📐 נגזרת בנקודה</h4>
+      <div class="val" id="info-deriv">f'(1) = 2.00</div>
+      <p>שיפוע המשיק לגרף בנקודה x. מייצג את <strong>קצב השינוי</strong> של הפונקציה.</p>
+    </div>
+
+    <div class="info-card integ">
+      <h4>∫ שטח תחת הגרף</h4>
+      <div class="val" id="info-integ">∫₀¹ = 0.333</div>
+      <p>השטח המצטבר בין הגרף לציר x מ-0 עד x. חיובי מעל הציר, שלילי מתחתיו.</p>
+    </div>
+
+    <div class="info-card critic">
+      <h4>⭐ נקודות קריטיות</h4>
+      <div class="critical-list" id="crit-list"></div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <h3>ערכים בנקודה</h3>
+      <div class="crit-item"><span class="ctype">f(x)</span><span class="cval" id="val-fx">—</span></div>
+      <div class="crit-item"><span class="ctype">f'(x)</span><span class="cval" id="val-fpx" style="color:var(--cyan)">—</span></div>
+      <div class="crit-item"><span class="ctype">f''(x)</span><span class="cval" id="val-fppx" style="color:var(--orange)">—</span></div>
+      <div class="crit-item"><span class="ctype">∫f(x)dx</span><span class="cval" id="val-int" style="color:var(--green)">—</span></div>
+      <div class="crit-item"><span class="ctype">מצב</span><span class="cval" id="val-state" style="color:var(--yellow)">—</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const funcs = [
+  { label:'x²',        f: x => x*x,              fp: x => 2*x,          fpp: x => 2,              Fi: x => x*x*x/3,    fStr:'f(x) = x²',           fpStr:"f'(x) = 2x",           crits:[{x:0,type:'מינימום'}] },
+  { label:'x³-3x',     f: x => x*x*x-3*x,        fp: x => 3*x*x-3,      fpp: x => 6*x,            Fi: x => x*x*x*x/4-3*x*x/2, fStr:'f(x) = x³ - 3x', fpStr:"f'(x) = 3x² - 3",   crits:[{x:-1,type:'מקסימום'},{x:1,type:'מינימום'}] },
+  { label:'sin(x)',     f: x => Math.sin(x),       fp: x => Math.cos(x),  fpp: x => -Math.sin(x),  Fi: x => -Math.cos(x), fStr:'f(x) = sin(x)',       fpStr:"f'(x) = cos(x)",       crits:[{x:Math.PI/2,type:'מקסימום'},{x:-Math.PI/2,type:'מינימום'}] },
+  { label:'cos(x)',     f: x => Math.cos(x),       fp: x => -Math.sin(x), fpp: x => -Math.cos(x),  Fi: x => Math.sin(x), fStr:'f(x) = cos(x)',        fpStr:"f'(x) = -sin(x)",      crits:[{x:0,type:'מקסימום'},{x:Math.PI,type:'מינימום'}] },
+  { label:'eˣ',         f: x => Math.exp(x),       fp: x => Math.exp(x),  fpp: x => Math.exp(x),   Fi: x => Math.exp(x), fStr:'f(x) = eˣ',           fpStr:"f'(x) = eˣ",           crits:[] },
+  { label:'x⁴-4x²',    f: x => x*x*x*x-4*x*x,    fp: x => 4*x*x*x-8*x, fpp: x => 12*x*x-8,      Fi: x => x*x*x*x*x/5-4*x*x*x/3, fStr:'f(x) = x⁴ - 4x²', fpStr:"f'(x) = 4x³ - 8x", crits:[{x:0,type:'מקסימום מקומי'},{x:-Math.sqrt(2),type:'מינימום'},{x:Math.sqrt(2),type:'מינימום'}] },
+  { label:'ln(x)',      f: x => x>0?Math.log(x):NaN, fp: x => x>0?1/x:NaN, fpp: x => x>0?-1/(x*x):NaN, Fi: x => x>0?x*Math.log(x)-x:NaN, fStr:'f(x) = ln(x)', fpStr:"f'(x) = 1/x", crits:[] },
+  { label:'1/x',        f: x => x!==0?1/x:NaN,    fp: x => x!==0?-1/(x*x):NaN, fpp: x => x!==0?2/(x*x*x):NaN, Fi: x => x!==0?Math.log(Math.abs(x)):NaN, fStr:'f(x) = 1/x', fpStr:"f'(x) = -1/x²", crits:[] },
+];
+
+let curFunc = 0, curX = 1.0, curMode = 'tangent';
+const canvas = document.getElementById('plot-canvas');
+const ctx = canvas.getContext('2d');
+
+function selectFunc(i, btn) {
+  curFunc = i;
+  document.querySelectorAll('.func-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('fn-main').textContent = funcs[i].fStr;
+  document.getElementById('fn-deriv').textContent = funcs[i].fpStr;
+  updateAll();
+}
+
+function setX(v) {
+  curX = parseFloat(v);
+  document.getElementById('x-display').textContent = curX.toFixed(2);
+  updateAll();
+}
+
+function setMode(m, btn) {
+  curMode = m;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateAll();
+}
+
+function updateAll() {
+  const fn = funcs[curFunc];
+  const x = curX;
+  const fx = fn.f(x), fpx = fn.fp(x), fppx = fn.fpp(x), Fix = fn.Fi(x);
+  const Fix0 = fn.Fi(0);
+
+  document.getElementById('val-fx').textContent = isNaN(fx) ? 'לא מוגדר' : fx.toFixed(4);
+  document.getElementById('val-fpx').textContent = isNaN(fpx) ? 'לא מוגדר' : fpx.toFixed(4);
+  document.getElementById('val-fppx').textContent = isNaN(fppx) ? 'לא מוגדר' : fppx.toFixed(4);
+  const intVal = isNaN(Fix) || isNaN(Fix0) ? 'לא מוגדר' : (Fix - Fix0).toFixed(4);
+  document.getElementById('val-int').textContent = intVal;
+  document.getElementById('info-deriv').textContent = `f'(${x.toFixed(1)}) = ${isNaN(fpx)?'—':fpx.toFixed(3)}`;
+  document.getElementById('info-integ').textContent = `∫₀${x.toFixed(1)} = ${intVal}`;
+
+  let state = '—';
+  if (!isNaN(fpx)) {
+    if (Math.abs(fpx) < 0.05) state = '⭐ נקודה קריטית';
+    else if (fpx > 0) state = '↗ עולה';
+    else state = '↘ יורדת';
+    if (!isNaN(fppx) && Math.abs(fpx) < 0.05) {
+      if (fppx > 0) state = '📉 מינימום מקומי';
+      else if (fppx < 0) state = '📈 מקסימום מקומי';
+    }
+  }
+  document.getElementById('val-state').textContent = state;
+
+  // Critical points list
+  const cl = document.getElementById('crit-list');
+  cl.innerHTML = '';
+  fn.crits.forEach(c => {
+    const fcv = fn.f(c.x);
+    cl.innerHTML += `<div class="crit-item"><span class="ctype">x = ${c.x.toFixed(2)}</span><span class="cval">${c.type} | f=${isNaN(fcv)?'—':fcv.toFixed(2)}</span></div>`;
+  });
+  if (!fn.crits.length) cl.innerHTML = '<div style="font-size:0.8rem;color:var(--muted)">אין נקודות קריטיות בתחום</div>';
+
+  drawPlot();
+}
+
+function drawPlot() {
+  canvas.width = canvas.offsetWidth;
+  const W = canvas.width, H = 380;
+  const pad = { top: 20, right: 20, bottom: 30, left: 50 };
+  const pw = W - pad.left - pad.right, ph = H - pad.top - pad.bottom;
+  const fn = funcs[curFunc];
+  const xMin = -4.5, xMax = 4.5;
+
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#07060f'; ctx.fillRect(0, 0, W, H);
+
+  const toX = x => pad.left + ((x - xMin) / (xMax - xMin)) * pw;
+  const toY = y => pad.top + ph / 2 - y * (ph / 10);
+
+  // Integral shading
+  if (curMode === 'integral' || curMode === 'both') {
+    const steps = 200;
+    const x0 = 0, x1 = curX;
+    ctx.beginPath();
+    ctx.moveTo(toX(x0), toY(0));
+    for (let i = 0; i <= steps; i++) {
+      const xi = x0 + (x1 - x0) * i / steps;
+      const yi = fn.f(xi);
+      if (!isNaN(yi) && Math.abs(yi) < 20) ctx.lineTo(toX(xi), toY(yi));
+    }
+    ctx.lineTo(toX(x1), toY(0));
+    ctx.closePath();
+    ctx.fillStyle = curX >= 0 ? 'rgba(74,222,128,0.15)' : 'rgba(248,113,113,0.15)';
+    ctx.fill();
+  }
+
+  // Grid
+  ctx.strokeStyle = '#1a1628'; ctx.lineWidth = 1;
+  for (let xi = Math.ceil(xMin); xi <= Math.floor(xMax); xi++) {
+    ctx.beginPath(); ctx.moveTo(toX(xi), pad.top); ctx.lineTo(toX(xi), H - pad.bottom); ctx.stroke();
+  }
+  for (let yi = -4; yi <= 4; yi++) {
+    ctx.beginPath(); ctx.moveTo(pad.left, toY(yi)); ctx.lineTo(W - pad.right, toY(yi)); ctx.stroke();
+  }
+
+  // Axes
+  ctx.strokeStyle = '#3a3450'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(pad.left, toY(0)); ctx.lineTo(W - pad.right, toY(0)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(toX(0), pad.top); ctx.lineTo(toX(0), H - pad.bottom); ctx.stroke();
+
+  // Axis labels
+  ctx.fillStyle = '#4b5563'; ctx.font = '10px monospace'; ctx.textAlign = 'center';
+  for (let xi = -4; xi <= 4; xi += 2) {
+    ctx.fillText(xi, toX(xi), H - pad.bottom + 14);
+  }
+  ctx.textAlign = 'right';
+  for (let yi = -4; yi <= 4; yi += 2) {
+    ctx.fillText(yi, pad.left - 4, toY(yi) + 4);
+  }
+
+  // Function curve
+  ctx.strokeStyle = '#c084fc'; ctx.lineWidth = 2.5;
+  ctx.shadowColor = '#c084fc'; ctx.shadowBlur = 6;
+  ctx.beginPath();
+  let first = true;
+  for (let i = 0; i <= pw * 2; i++) {
+    const xi = xMin + (i / (pw * 2)) * (xMax - xMin);
+    const yi = fn.f(xi);
+    if (isNaN(yi) || Math.abs(yi) > 15) { first = true; continue; }
+    if (first) { ctx.moveTo(toX(xi), toY(yi)); first = false; }
+    else ctx.lineTo(toX(xi), toY(yi));
+  }
+  ctx.stroke(); ctx.shadowBlur = 0;
+
+  // Tangent line
+  if (curMode === 'tangent' || curMode === 'both') {
+    const fx = fn.f(curX), fpx = fn.fp(curX);
+    if (!isNaN(fx) && !isNaN(fpx) && Math.abs(fx) < 15) {
+      const x1 = curX - 2, x2 = curX + 2;
+      const y1 = fx + fpx * (x1 - curX), y2 = fx + fpx * (x2 - curX);
+      ctx.strokeStyle = '#22d3ee'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 4]);
+      ctx.beginPath();
+      ctx.moveTo(toX(x1), toY(Math.max(-15, Math.min(15, y1))));
+      ctx.lineTo(toX(x2), toY(Math.max(-15, Math.min(15, y2))));
+      ctx.stroke(); ctx.setLineDash([]);
+
+      // Point on curve
+      ctx.fillStyle = '#22d3ee';
+      ctx.shadowColor = '#22d3ee'; ctx.shadowBlur = 10;
+      ctx.beginPath(); ctx.arc(toX(curX), toY(fx), 6, 0, Math.PI * 2); ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Slope label
+      ctx.fillStyle = '#22d3ee'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left';
+      ctx.fillText(`m = ${fpx.toFixed(2)}`, toX(curX) + 10, toY(fx) - 10);
+
+      // Vertical dashed line
+      ctx.strokeStyle = '#c084fc44'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
+      ctx.beginPath(); ctx.moveTo(toX(curX), toY(fx)); ctx.lineTo(toX(curX), toY(0)); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+  }
+
+  // Critical points markers
+  funcs[curFunc].crits.forEach(c => {
+    const fcv = fn.f(c.x);
+    if (isNaN(fcv) || Math.abs(fcv) > 15) return;
+    ctx.fillStyle = '#fbbf24';
+    ctx.shadowColor = '#fbbf24'; ctx.shadowBlur = 8;
+    ctx.beginPath(); ctx.arc(toX(c.x), toY(fcv), 5, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#fbbf24'; ctx.font = '9px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(c.type, toX(c.x), toY(fcv) - 12);
+  });
+
+  // f(x) label
+  ctx.fillStyle = '#c084fc'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'left';
+  ctx.fillText(funcs[curFunc].fStr, pad.left + 6, pad.top + 14);
+}
+
+// Init
+canvas.width = canvas.offsetWidth || 600;
+updateAll();
+window.addEventListener('resize', () => { canvas.width = canvas.offsetWidth; drawPlot(); });
+</script>
+</body>
+</html>
