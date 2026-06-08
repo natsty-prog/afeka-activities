@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>רמות מעורבות הסטודנט בלמידה עצמאית</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Heebo', sans-serif;
+    background: #f0f2f8;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .page {
+    width: 900px;
+    max-width: 100%;
+    background: white;
+    border-radius: 24px;
+    padding: 48px 48px 40px;
+    box-shadow: 0 20px 80px rgba(0,0,0,0.10);
+  }
+
+  /* ── Header ── */
+  .header { text-align: center; margin-bottom: 44px; }
+  .header .label {
+    display: inline-block;
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: #7c6fcd;
+    background: #f0edff; border-radius: 20px;
+    padding: 5px 16px; margin-bottom: 14px;
+  }
+  .header h1 {
+    font-size: 1.85rem; font-weight: 900; color: #1a1a2e;
+    line-height: 1.2; margin-bottom: 10px;
+  }
+  .header p { font-size: 0.92rem; color: #6b7280; max-width: 520px; margin: 0 auto; line-height: 1.7; }
+
+  /* ── Pyramid container ── */
+  .pyramid { position: relative; margin-bottom: 36px; }
+
+  /* ── Each level ── */
+  .level {
+    display: flex;
+    align-items: stretch;
+    margin-bottom: 6px;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: default;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .level:hover { transform: translateX(-4px); box-shadow: 6px 0 0 0 currentColor; }
+
+  /* Trapezoid effect via padding */
+  .level-1 { margin-left: 0;   margin-right: 0; }
+  .level-2 { margin-left: 14px; margin-right: 14px; }
+  .level-3 { margin-left: 28px; margin-right: 28px; }
+  .level-4 { margin-left: 44px; margin-right: 44px; }
+  .level-5 { margin-left: 60px; margin-right: 60px; }
+  .level-6 { margin-left: 76px; margin-right: 76px; }
+
+  /* Color band */
+  .band {
+    width: 8px;
+    flex-shrink: 0;
+  }
+
+  /* Content */
+  .content {
+    flex: 1;
+    padding: 16px 20px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .icon-wrap {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+
+  .text-wrap { flex: 1; }
+  .level-name {
+    font-size: 1.0rem; font-weight: 800; line-height: 1.2;
+    margin-bottom: 3px;
+  }
+  .level-sub {
+    font-size: 0.78rem; color: #6b7280; line-height: 1.5;
+  }
+  .level-sub strong { color: #374151; }
+
+  .right-col { text-align: left; flex-shrink: 0; }
+  .bloom-tag {
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; border-radius: 20px;
+    padding: 3px 10px; white-space: nowrap;
+  }
+  .engagement-bar-wrap { margin-top: 5px; display: flex; justify-content: flex-end; gap: 3px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .dot.filled { opacity: 1; }
+  .dot.empty { opacity: 0.18; }
+
+  /* Level number badge */
+  .num-badge {
+    position: absolute;
+    right: -14px;
+    top: 50%; transform: translateY(-50%);
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 800;
+    color: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    z-index: 2;
+  }
+
+  /* Colours per level */
+  /* L1 — passive */
+  .l1 { background: #f8f9fb; }
+  .l1 .band { background: #cbd5e1; }
+  .l1 .icon-wrap { background: #f1f5f9; }
+  .l1 .level-name { color: #64748b; }
+  .l1 .bloom-tag { background: #f1f5f9; color: #64748b; }
+  .l1 .dot.filled { background: #cbd5e1; }
+  .l1 .num-badge { background: #94a3b8; }
+  .l1:hover { box-shadow: 6px 0 0 0 #cbd5e1; }
+
+  /* L2 */
+  .l2 { background: #fefaf0; }
+  .l2 .band { background: #fcd34d; }
+  .l2 .icon-wrap { background: #fef3c7; }
+  .l2 .level-name { color: #92400e; }
+  .l2 .bloom-tag { background: #fef3c7; color: #92400e; }
+  .l2 .dot.filled { background: #fcd34d; }
+  .l2 .num-badge { background: #f59e0b; }
+  .l2:hover { box-shadow: 6px 0 0 0 #fcd34d; }
+
+  /* L3 */
+  .l3 { background: #fff7ed; }
+  .l3 .band { background: #fb923c; }
+  .l3 .icon-wrap { background: #ffedd5; }
+  .l3 .level-name { color: #9a3412; }
+  .l3 .bloom-tag { background: #ffedd5; color: #9a3412; }
+  .l3 .dot.filled { background: #fb923c; }
+  .l3 .num-badge { background: #ea580c; }
+  .l3:hover { box-shadow: 6px 0 0 0 #fb923c; }
+
+  /* L4 */
+  .l4 { background: #f0fdf4; }
+  .l4 .band { background: #4ade80; }
+  .l4 .icon-wrap { background: #dcfce7; }
+  .l4 .level-name { color: #14532d; }
+  .l4 .bloom-tag { background: #dcfce7; color: #14532d; }
+  .l4 .dot.filled { background: #4ade80; }
+  .l4 .num-badge { background: #16a34a; }
+  .l4:hover { box-shadow: 6px 0 0 0 #4ade80; }
+
+  /* L5 */
+  .l5 { background: #eff6ff; }
+  .l5 .band { background: #60a5fa; }
+  .l5 .icon-wrap { background: #dbeafe; }
+  .l5 .level-name { color: #1e3a8a; }
+  .l5 .bloom-tag { background: #dbeafe; color: #1e3a8a; }
+  .l5 .dot.filled { background: #60a5fa; }
+  .l5 .num-badge { background: #2563eb; }
+  .l5:hover { box-shadow: 6px 0 0 0 #60a5fa; }
+
+  /* L6 — top */
+  .l6 {
+    background: linear-gradient(135deg, #faf5ff 0%, #ede9fe 100%);
+    border: 2px solid #a78bfa;
+  }
+  .l6 .band { background: linear-gradient(180deg, #a78bfa, #7c3aed); }
+  .l6 .icon-wrap { background: linear-gradient(135deg, #a78bfa, #7c3aed); }
+  .l6 .level-name { color: #4c1d95; }
+  .l6 .bloom-tag { background: #ede9fe; color: #4c1d95; }
+  .l6 .dot.filled { background: #7c3aed; }
+  .l6 .num-badge { background: linear-gradient(135deg, #a78bfa, #6d28d9); }
+  .l6:hover { box-shadow: 6px 0 0 0 #a78bfa; transform: translateX(-6px); }
+
+  /* Star badge for top level */
+  .top-badge {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: -16px;
+    background: linear-gradient(135deg, #7c3aed, #a78bfa);
+    color: white;
+    font-size: 0.65rem; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 20px;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(124,58,237,0.35);
+  }
+
+  /* ── Arrow axis ── */
+  .axis-wrap {
+    position: absolute;
+    left: -42px; top: 0; bottom: 0;
+    display: flex; flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+  }
+  .axis-line {
+    flex: 1;
+    width: 2px;
+    background: linear-gradient(180deg, #7c3aed 0%, #e2e8f0 100%);
+    position: relative;
+  }
+  .axis-arrow {
+    width: 0; height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 10px solid #7c3aed;
+    margin-bottom: 2px;
+  }
+  .axis-label {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    font-size: 0.65rem; font-weight: 800; letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #7c3aed;
+    margin-top: 8px;
+  }
+
+  /* ── Legend / footer ── */
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    padding-top: 20px;
+    border-top: 1px solid #f1f5f9;
+    flex-wrap: wrap;
+  }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 0.75rem; color: #6b7280; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  .framework-note {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.75rem;
+    color: #9ca3af;
+  }
+  .framework-note strong { color: #6b7280; }
+
+  /* Track A/B pills */
+  .track-pill {
+    display: inline-block;
+    font-size: 0.6rem; font-weight: 800; letter-spacing: 0.06em;
+    border-radius: 20px; padding: 2px 8px;
+    margin-right: 5px; vertical-align: middle;
+  }
+  .track-a { background: #dbeafe; color: #1d4ed8; }
+  .track-b { background: #ede9fe; color: #5b21b6; }
+
+  @media print {
+    body { background: white; padding: 0; }
+    .page { box-shadow: none; border-radius: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="label">מודל מעורבות בלמידה עצמאית</div>
+    <h1>רמות מעורבות הסטודנט במשימה</h1>
+    <p>מצריכה פסיבית של תוכן ועד ליצירה עצמאית לאחרים — ככל שעולים ברמה, כך גדלה ההפנמה, העמקה והעברה</p>
+  </div>
+
+  <!-- Pyramid -->
+  <div class="pyramid" style="position:relative; padding-right: 20px;">
+
+    <!-- Axis -->
+    <div class="axis-wrap">
+      <div class="axis-arrow"></div>
+      <div class="axis-line"></div>
+      <div class="axis-label">רמת מעורבות ועיבוד קוגניטיבי</div>
+    </div>
+
+    <!-- LEVEL 1 — lowest -->
+    <div class="level level-1 l1">
+      <div class="band"></div>
+      <div class="content">
+        <div class="icon-wrap">📄</div>
+        <div class="text-wrap">
+          <div class="level-name">צריכה פסיבית</div>
+          <div class="level-sub">
+            קריאת מאמר, צפייה בסרטון, האזנה להרצאה — ללא עצירה, עיבוד או תגובה.
+            <br><strong>דוגמה:</strong> "קראתי את הפרק"
+          </div>
+        </div>
+        <div class="right-col">
+          <div class="bloom-tag">זכירה</div>
+          <div class="engagement-bar-wrap">
+            <div class="dot filled"></div>
+            <div class="dot empty"></div>
+            <div class="dot empty"></div>
+            <div class="dot empty"></div>
+            <div class="dot empty"></div>
+            <div class="dot empty"></div>
+          </div>
+        </div>
+      </div>
+      <div class="num-badge" style="background:#94a3b8">1</div>
+    </div>
+
+    <!-- LEVEL 2 -->
+    <div class="level level-2 l2">
+      <div class="band"></div>
+      <div class="content">
+        <div class="icon-wrap">📝</div>
+        <div class="text-wrap">
+          <div class="level-name">עיבוד ותיעוד</div>
+          <div class="level-sub">
+            כתיבת תקציר, רשימת נקודות, מפה מושגית — הסטודנט מארגן מחדש מידע קיים.
+            <br><strong>דוגמה:</strong> "סיכמתי את ההרצאה"
+          </div>
+        </div>
+        <div class="right-col">
+          <div class="bloom-tag">הבנה</div>
+          <div class="engagement-bar-wrap">
+            <div class="dot filled"></div>
+            <div class="dot filled"></div>
+            <div class="dot empty"></div>
+            <div class="dot empty"></div>
+            <div class="dot empty"></div>
+            <div class="dot empty"></div>
+          </div>
+        </div>
+      </div>
+      <div class="num-badge" style="background:#f59e0b">2</div>
+    </div>
+
+    <!-- LEVEL 3 -->
+    <div class="level level-3 l3">
+      <div class="band"></div>
+      <div class="content">
+        <div class="icon-wrap">❓</div>
+        <div class="text-wrap">
+          <div class="level-name">מענה ורפלקציה</div>
+          <div class="level-sub">
+            ענייה על שאלות, חידון עצמי, בדיקת הבנה — הסטודנט מאמת את הידע שלו.
+            <br><strong>דוגמה:</strong> "עניתי על שאלות הבדיקה" | כנבס שלב <strong>תכנון</strong>
+          </div>
+        </div>
+        <div class="right-col">
+          <div class="bloom-tag">יישום</div>
+          <div class="engagement-bar-wrap">
+            <div class="dot filled"></div>
+            <div class="dot filled"></div>
+            <div class="dot filled"></div>
+            <div class="dot empty"></div>
+            <div class="dot empty"></div>
+            <div class="dot empty"></div>
+          </div>
+        </div>
+      </div>
+      <div class="num-badge" style="background:#ea580c">3</div>
+    </div>
+
+    <!-- LEVEL 4 -->
+    <div class="level level-4 l4">
+      <div class="band"></div>
+      <div class="content">
+        <div class="icon-wrap">🔬</div>
+        <div class="text-wrap">
+          <div class="level-name">חקירה וניסוי</div>
+          <div class="level-sub">
+            שימוש בכלי אינטראקטיבי, סימולציה, ניסוי פרמטרים — הסטודנט לומד דרך גילוי.
+            <br>
+            <span class="track-pill track-a">מסלול א׳</span>
+            <strong>דוגמה:</strong> "שיחקתי עם סימולטור עקומת המאמץ"
+          </div>
+        </div>
+        <div class="right-col">
+          <div class="bloom-tag">ניתוח</div>
+          <div class="engagement-bar-wrap">
+            <div class="dot filled"></div>
+            <div class="dot filled"></div>
+            <div class="dot filled"></div>
+            <div class="dot filled"></div>
+            <div class="dot empty"></div>
+            <div class="dot empty"></div>
+          </div>
+        </div>
+      </div>
+      <div class="num-badge" style="background:#16a34a">4</div>
+    </div>
+
+    <!-- LEVEL 5 -->
+    <div class="level level-5 l5">
+      <div class="band"></div>
+      <div class="content">
+        <div class="icon-wrap">🎙️</div>
+        <div class="text-wrap">
+          <div class="level-name">יצירת תוצר אישי</div>
+          <div class="level-sub">
+            הסטודנט מייצר: פודקאסט, מצגת, ניסוי, דוח — תוצר שמשקף הבנה אישית ומובא לכיתה.
+            <br>
+            <span class="track-pill track-b">מסלול ב׳</span>
+            כנבס שלב <strong>ביצוע + רפלקציה</strong>
+          </div>
+        </div>
+        <div class="right-col">
+          <div class="bloom-tag">הערכה</div>
+          <div class="engagement-bar-wrap">
+            <div class="dot filled"></div>
+            <div class="dot filled"></div>
+            <div class="dot filled"></div>
+            <div class="dot filled"></div>
+            <div class="dot filled"></div>
+            <div class="dot empty"></div>
+          </div>
+        </div>
+      </div>
+      <div class="num-badge" style="background:#2563eb">5</div>
+    </div>
+
+    <!-- LEVEL 6 — top -->
+    <div class="level level-6 l6" style="position:relative; margin-top: 22px;">
+      <div class="top-badge">⭐ רמת המעורבות הגבוהה ביותר</div>
+      <div class="band"></div>
+      <div class="content">
+        <div class="icon-wrap" style="font-size:1.5rem">🛠️</div>
+        <div class="text-wrap">
+          <div class="level-name">יצירת פעילות לאחרים</div>
+          <div class="level-sub" style="color:#5b21b6">
+            הסטודנט מעצב כלי לימוד, פעילות, חידה או משאב — מלמד אחרים ובכך מעמיק את הבנתו עצמו.
+            <br>
+            <span class="track-pill track-b">מסלול ב׳ מתקדם</span>
+            <strong>"The best way to learn is to teach"</strong> — Feynman
+          </div>
+        </div>
+        <div class="right-col">
+          <div class="bloom-tag" style="background:#ede9fe;color:#4c1d95">יצירה</div>
+          <div class="engagement-bar-wrap">
+            <div class="dot filled"></div>
+            <div class="dot filled"></div>
+            <div class="dot filled"></div>
+            <div class="dot filled"></div>
+            <div class="dot filled"></div>
+            <div class="dot filled"></div>
+          </div>
+        </div>
+      </div>
+      <div class="num-badge" style="background:linear-gradient(135deg,#a78bfa,#6d28d9)">6</div>
+    </div>
+
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#cbd5e1"></div>צריכה</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#fcd34d"></div>עיבוד</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#fb923c"></div>בדיקה</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#4ade80"></div>חקירה</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#60a5fa"></div>יצירה אישית</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#7c3aed"></div>יצירה לאחרים</div>
+    <div class="legend-item">
+      <span class="track-pill track-a" style="margin:0">מסלול א׳</span>
+      המרצה יוצר → סטודנט חוקר
+    </div>
+    <div class="legend-item">
+      <span class="track-pill track-b" style="margin:0">מסלול ב׳</span>
+      סטודנט יוצר תוצר
+    </div>
+  </div>
+
+  <div class="framework-note">
+    מבוסס על <strong>טקסונומיית בלום</strong> המעודכנת · <strong>Zimmerman</strong> — למידה עצמית מווסתת · <strong>Wiggins & McTighe</strong> — תכנון לאחור
+  </div>
+
+</div>
+</body>
+</html>
