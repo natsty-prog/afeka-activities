@@ -6,223 +6,100 @@
 <title>פעילויות למידה עצמאית | אפקה</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap');
-
   :root {
-    --green:   #1fa85c;
-    --dark:    #343a41;
-    --green-light: #e8f7ef;
-    --green-mid:   #b8e8ce;
-    --bg:      #f5f7f6;
-    --surface: #ffffff;
-    --border:  #e2e8e4;
-    --text:    #343a41;
-    --muted:   #7a8a80;
-    --radius:  16px;
+    --green:#1fa85c; --dark:#343a41; --green-light:#e8f7ef;
+    --green-mid:#b8e8ce; --bg:#f5f7f6; --surface:#fff;
+    --border:#e2e8e4; --text:#343a41; --muted:#7a8a80; --radius:14px;
   }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Heebo','Segoe UI',Arial,sans-serif; min-height:100vh; }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  /* Top bar */
+  .topbar { background:var(--dark); padding:14px 40px; display:flex; align-items:center; justify-content:space-between; }
+  .topbar-logo { display:flex; align-items:center; gap:10px; font-size:0.85rem; font-weight:700; color:#fff; }
+  .topbar-logo .dot { width:28px; height:28px; border-radius:8px; background:var(--green); display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:900; color:white; }
+  .topbar-label { font-size:0.72rem; color:rgba(255,255,255,.45); font-weight:400; letter-spacing:.06em; }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Heebo', 'Segoe UI', Arial, sans-serif;
-    min-height: 100vh;
-  }
+  .page { padding:40px 40px 64px; max-width:1280px; margin:0 auto; }
 
-  /* ── Top bar ── */
-  .topbar {
-    background: var(--dark);
-    padding: 14px 40px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .topbar-logo {
-    display: flex; align-items: center; gap: 10px;
-    font-size: 0.85rem; font-weight: 700; color: #fff; letter-spacing: 0.02em;
-  }
-  .topbar-logo .dot {
-    width: 28px; height: 28px; border-radius: 8px;
-    background: var(--green);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.75rem; font-weight: 900; color: white;
-  }
-  .topbar-label {
-    font-size: 0.72rem; color: rgba(255,255,255,0.45); font-weight: 400; letter-spacing: 0.06em;
-  }
+  /* Header */
+  .header { margin-bottom:32px; }
+  .eyebrow { display:inline-flex; align-items:center; gap:7px; font-size:0.72rem; letter-spacing:.14em; text-transform:uppercase; font-weight:700; color:var(--green); background:var(--green-light); border:1px solid var(--green-mid); border-radius:40px; padding:5px 14px; margin-bottom:14px; }
+  .header-row { display:flex; align-items:flex-end; justify-content:space-between; gap:24px; flex-wrap:wrap; }
+  .header h1 { font-size:clamp(1.7rem,3.5vw,2.4rem); font-weight:900; line-height:1.15; color:var(--dark); }
+  .header h1 span { color:var(--green); }
+  .header p { font-size:0.9rem; color:var(--muted); max-width:380px; line-height:1.7; text-align:left; }
 
-  /* ── Page shell ── */
-  .page { padding: 48px 40px 64px; max-width: 1220px; margin: 0 auto; }
+  /* Stats */
+  .stats-row { display:flex; gap:0; margin-bottom:28px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+  .stat { flex:1; padding:16px 18px; text-align:center; border-left:1px solid var(--border); }
+  .stat:last-child { border-left:none; }
+  .stat .num { font-size:1.8rem; font-weight:900; color:var(--green); line-height:1; margin-bottom:3px; }
+  .stat .lbl { font-size:0.7rem; color:var(--muted); letter-spacing:.04em; font-weight:500; }
 
-  /* ── Header ── */
-  .header { margin-bottom: 44px; }
-  .header .eyebrow {
-    display: inline-flex; align-items: center; gap: 7px;
-    font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700;
-    color: var(--green);
-    background: var(--green-light);
-    border: 1px solid var(--green-mid);
-    border-radius: 40px; padding: 5px 14px; margin-bottom: 16px;
-  }
-  .header-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
-  .header h1 {
-    font-size: clamp(1.8rem, 4vw, 2.6rem);
-    font-weight: 900;
-    line-height: 1.15;
-    color: var(--dark);
-  }
-  .header h1 span { color: var(--green); }
-  .header p {
-    font-size: 0.92rem; color: var(--muted); max-width: 420px; line-height: 1.7; text-align: left;
-  }
+  /* ── Search & Filter bar ── */
+  .filter-bar { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 20px; margin-bottom:24px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .search-wrap { position:relative; flex:1; min-width:200px; }
+  .search-wrap svg { position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--muted); pointer-events:none; }
+  .search-input { width:100%; padding:9px 36px 9px 14px; border:1.5px solid var(--border); border-radius:8px; font-family:'Heebo',sans-serif; font-size:0.88rem; color:var(--dark); background:var(--bg); outline:none; transition:border-color .18s; }
+  .search-input:focus { border-color:var(--green); }
+  .search-input::placeholder { color:var(--muted); }
 
-  /* ── Stats row ── */
-  .stats-row {
-    display: flex; gap: 0; margin-bottom: 40px;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); overflow: hidden;
-  }
-  .stat {
-    flex: 1; padding: 18px 20px; text-align: center;
-    border-left: 1px solid var(--border);
-  }
-  .stat:last-child { border-left: none; }
-  .stat .num { font-size: 1.9rem; font-weight: 900; color: var(--green); line-height: 1; margin-bottom: 4px; }
-  .stat .lbl { font-size: 0.72rem; color: var(--muted); letter-spacing: 0.04em; font-weight: 500; }
+  .filter-group { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+  .filter-label { font-size:0.72rem; font-weight:700; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; white-space:nowrap; }
+  .filter-btn { padding:6px 13px; border-radius:20px; border:1.5px solid var(--border); background:var(--bg); color:var(--muted); font-family:'Heebo',sans-serif; font-size:0.75rem; font-weight:600; cursor:pointer; transition:all .18s; white-space:nowrap; }
+  .filter-btn:hover { border-color:var(--green); color:var(--green); }
+  .filter-btn.active { background:var(--green-light); border-color:var(--green); color:var(--green); }
+  .filter-divider { width:1px; height:32px; background:var(--border); }
 
-  /* ── Grid ── */
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-  }
+  /* Count */
+  .results-count { font-size:0.8rem; color:var(--muted); margin-bottom:16px; }
+  .results-count span { color:var(--green); font-weight:700; }
 
-  /* ── Card ── */
-  .card {
-    position: relative;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 26px 24px 22px;
-    cursor: pointer;
-    text-decoration: none;
-    color: var(--text);
-    display: flex; flex-direction: column;
-    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
-    overflow: hidden;
-  }
-  .card:hover {
-    transform: translateY(-5px);
-    border-color: var(--green);
-    box-shadow: 0 12px 40px -8px rgba(31,168,92,0.18), 0 2px 8px rgba(0,0,0,0.06);
-  }
+  /* Grid */
+  .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
 
-  /* Top colour stripe */
-  .card-stripe {
-    position: absolute; top: 0; left: 0; right: 0; height: 4px;
-    background: var(--green);
-    border-radius: var(--radius) var(--radius) 0 0;
-    opacity: 0.55;
-    transition: opacity 0.22s;
-  }
-  .card:hover .card-stripe { opacity: 1; }
+  /* Card */
+  .card { position:relative; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:24px 22px 20px; cursor:pointer; text-decoration:none; color:var(--text); display:flex; flex-direction:column; transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease; overflow:hidden; }
+  .card:hover { transform:translateY(-4px); border-color:var(--green); box-shadow:0 10px 32px -6px rgba(31,168,92,.16), 0 2px 8px rgba(0,0,0,.05); }
+  .card-stripe { position:absolute; top:0; left:0; right:0; height:3px; background:var(--green); border-radius:var(--radius) var(--radius) 0 0; opacity:.45; transition:opacity .2s; }
+  .card:hover .card-stripe { opacity:1; }
+  .card-head { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:12px; }
+  .card-icon { width:46px; height:46px; border-radius:11px; background:var(--green-light); border:1px solid var(--green-mid); display:flex; align-items:center; justify-content:center; font-size:1.4rem; flex-shrink:0; transition:background .2s; }
+  .card:hover .card-icon { background:var(--green); }
+  .card-badge { font-size:0.6rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; background:var(--bg); border:1px solid var(--border); color:var(--muted); border-radius:20px; padding:3px 9px; transition:color .2s,border-color .2s,background .2s; }
+  .card:hover .card-badge { color:var(--green); border-color:var(--green-mid); background:var(--green-light); }
+  .type-pill { display:inline-flex; align-items:center; gap:5px; font-size:0.6rem; font-weight:700; letter-spacing:.06em; padding:3px 9px; border-radius:20px; margin-bottom:8px; background:var(--bg); color:var(--muted); border:1px solid var(--border); }
+  .type-pill .dot { width:5px; height:5px; border-radius:50%; background:var(--green); }
+  .card-title { font-size:0.97rem; font-weight:800; line-height:1.3; margin-bottom:4px; color:var(--dark); }
+  .card-sub { font-size:0.74rem; color:var(--muted); margin-bottom:12px; }
+  .card hr { border:none; border-top:1px solid var(--border); margin:10px 0; }
+  .section-label { font-size:0.58rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-weight:700; margin-bottom:6px; }
+  .outcomes { list-style:none; flex:1; }
+  .outcomes li { display:flex; align-items:flex-start; gap:7px; font-size:0.78rem; color:#4a5a50; line-height:1.5; margin-bottom:5px; }
+  .outcomes li::before { content:'✓'; color:var(--green); font-size:0.68rem; font-weight:800; flex-shrink:0; margin-top:2px; }
+  .tags { display:flex; flex-wrap:wrap; gap:4px; margin-top:12px; }
+  .tag { font-size:0.6rem; font-weight:600; background:var(--bg); border:1px solid var(--border); border-radius:20px; padding:2px 8px; color:var(--muted); transition:color .18s,border-color .18s,background .18s; }
+  .card:hover .tag { color:var(--green); border-color:var(--green-mid); background:var(--green-light); }
+  .card-cta { display:flex; align-items:center; justify-content:flex-end; gap:5px; font-size:0.74rem; font-weight:700; color:var(--green); margin-top:14px; opacity:0; transform:translateX(-4px); transition:opacity .2s,transform .2s; }
+  .card:hover .card-cta { opacity:1; transform:translateX(0); }
+  .card-cta svg { width:12px; height:12px; }
 
-  /* Card head */
-  .card-head {
-    display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px;
-  }
-  .card-icon {
-    width: 48px; height: 48px; border-radius: 12px;
-    background: var(--green-light);
-    border: 1px solid var(--green-mid);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.45rem; flex-shrink: 0;
-    transition: background 0.22s;
-  }
-  .card:hover .card-icon { background: var(--green); }
+  /* No results */
+  .no-results { text-align:center; padding:60px 20px; color:var(--muted); display:none; }
+  .no-results.show { display:block; }
+  .no-results .nr-icon { font-size:2.5rem; margin-bottom:12px; }
 
-  .card-badge {
-    font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-    background: var(--bg); border: 1px solid var(--border);
-    color: var(--muted); border-radius: 20px; padding: 4px 10px;
-    transition: color 0.22s, border-color 0.22s, background 0.22s;
-  }
-  .card:hover .card-badge {
-    color: var(--green); border-color: var(--green-mid); background: var(--green-light);
-  }
+  /* Footer */
+  .footer { text-align:center; margin-top:48px; color:var(--muted); font-size:0.76rem; padding-top:20px; border-top:1px solid var(--border); }
+  .footer strong { color:var(--dark); }
 
-  /* Type pill */
-  .type-pill {
-    display: inline-flex; align-items: center; gap: 5px;
-    font-size: 0.62rem; font-weight: 700; letter-spacing: 0.06em;
-    padding: 3px 10px; border-radius: 20px; margin-bottom: 10px;
-    background: var(--bg); color: var(--muted); border: 1px solid var(--border);
-  }
-  .type-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
-
-  .card-title { font-size: 1.0rem; font-weight: 800; line-height: 1.3; margin-bottom: 4px; color: var(--dark); }
-  .card-sub   { font-size: 0.75rem; color: var(--muted); font-weight: 400; margin-bottom: 14px; }
-
-  /* Divider */
-  .card hr { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
-
-  /* Outcomes */
-  .section-label {
-    font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase;
-    color: var(--muted); font-weight: 700; margin-bottom: 8px;
-  }
-  .outcomes { list-style: none; flex: 1; }
-  .outcomes li {
-    display: flex; align-items: flex-start; gap: 8px;
-    font-size: 0.8rem; color: #4a5a50; line-height: 1.55; margin-bottom: 6px;
-  }
-  .outcomes li::before {
-    content: '✓'; color: var(--green); font-size: 0.7rem; font-weight: 800;
-    flex-shrink: 0; margin-top: 2px;
-  }
-
-  /* Tags */
-  .tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 14px; }
-  .tag {
-    font-size: 0.62rem; font-weight: 600;
-    background: var(--bg); border: 1px solid var(--border);
-    border-radius: 20px; padding: 3px 9px; color: var(--muted);
-    transition: color 0.2s, border-color 0.2s, background 0.2s;
-  }
-  .card:hover .tag { color: var(--green); border-color: var(--green-mid); background: var(--green-light); }
-
-  /* CTA */
-  .card-cta {
-    display: flex; align-items: center; justify-content: flex-end; gap: 5px;
-    font-size: 0.76rem; font-weight: 700; color: var(--green);
-    margin-top: 16px; opacity: 0; transform: translateX(-5px);
-    transition: opacity 0.22s, transform 0.22s;
-  }
-  .card:hover .card-cta { opacity: 1; transform: translateX(0); }
-  .card-cta svg { width: 13px; height: 13px; }
-
-  /* ── Footer ── */
-  .footer {
-    text-align: center; margin-top: 52px;
-    color: var(--muted); font-size: 0.76rem;
-    padding-top: 24px; border-top: 1px solid var(--border);
-  }
-  .footer strong { color: var(--dark); }
-
-  /* ── Responsive ── */
-  @media (max-width: 960px)  { .grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 620px)  {
-    .grid { grid-template-columns: 1fr; }
-    .page { padding: 28px 16px; }
-    .topbar { padding: 12px 16px; }
-    .stats-row { flex-wrap: wrap; }
-    .stat { min-width: 50%; border-bottom: 1px solid var(--border); }
-  }
+  @media(max-width:960px){ .grid{grid-template-columns:repeat(2,1fr);} }
+  @media(max-width:620px){ .grid{grid-template-columns:1fr;} .page{padding:24px 14px;} .topbar{padding:12px 16px;} .stats-row{flex-wrap:wrap;} .stat{min-width:50%;border-bottom:1px solid var(--border);} .filter-bar{flex-direction:column;align-items:stretch;} }
 </style>
 </head>
 <body>
 
-<!-- Top bar -->
 <div class="topbar">
   <div class="topbar-logo">
     <div class="dot">א</div>
@@ -233,192 +110,229 @@
 
 <div class="page">
 
-  <!-- Header -->
   <div class="header">
-    <div class="eyebrow">
-      <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="4"/></svg>
-      כלי למידה דיגיטליים — הנדסה לתואר ראשון
-    </div>
+    <div class="eyebrow"><svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor"><circle cx="4" cy="4" r="3"/></svg> כלי למידה דיגיטליים — הנדסה לתואר ראשון</div>
     <div class="header-row">
       <h1>פעילויות <span>למידה עצמאית</span><br>אינטראקטיביות</h1>
-      <p>סביבות חקירה דיגיטליות לסטודנטים — לכל תחום הנדסי פעילות ייחודית שמאפשרת ניסוי, גילוי ולמידה ללא תלות במרצה</p>
+      <p>סביבות חקירה דיגיטליות — לכל תחום הנדסי פעילות ייחודית שמאפשרת ניסוי, גילוי ולמידה ללא תלות במרצה</p>
     </div>
   </div>
 
-  <!-- Stats -->
   <div class="stats-row">
-    <div class="stat"><div class="num">6</div><div class="lbl">פעילויות</div></div>
-    <div class="stat"><div class="num">6</div><div class="lbl">תחומי הנדסה</div></div>
+    <div class="stat"><div class="num" id="stat-total">10</div><div class="lbl">פעילויות</div></div>
+    <div class="stat"><div class="num">7</div><div class="lbl">תחומי הנדסה</div></div>
     <div class="stat"><div class="num">100%</div><div class="lbl">אינטראקטיבי</div></div>
     <div class="stat"><div class="num">∞</div><div class="lbl">ניסויים אפשריים</div></div>
   </div>
 
-  <!-- Cards Grid -->
-  <div class="grid">
+  <!-- Filter bar -->
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="7"/><path d="M15 15l3 3"/></svg>
+      <input type="text" class="search-input" id="search-input" placeholder="חפש פעילות, תחום או מילת מפתח..." oninput="filterCards()">
+    </div>
 
-    <!-- 1. Software -->
-    <a class="card" href="01-software-sorting.html" target="_blank">
-      <div class="card-stripe"></div>
-      <div class="card-head">
-        <div class="card-icon">🔄</div>
-        <div class="card-badge">הנדסת תוכנה</div>
-      </div>
-      <div class="type-pill"><span class="dot"></span>פעילות אינטראקטיבית — ויזואליזציה</div>
-      <div class="card-title">ויזואליזציה של אלגוריתמי מיון</div>
-      <div class="card-sub">מבני נתונים | סיבוכיות זמן | Big-O Notation</div>
-      <hr>
-      <div class="section-label">תוצרי למידה</div>
-      <ul class="outcomes">
-        <li>הבנת ההבדל בין אלגוריתמי O(n²) ל-O(n log n)</li>
-        <li>זיהוי מצבים שבהם כל אלגוריתם עדיף</li>
-        <li>קריאת טבלת סיבוכיות ופרשנות מעשית</li>
-        <li>תצפית בפעולות השוואה והחלפה בזמן אמת</li>
-      </ul>
-      <div class="tags">
-        <span class="tag">Bubble Sort</span><span class="tag">Merge Sort</span>
-        <span class="tag">Quick Sort</span><span class="tag">אנימציה חיה</span>
-        <span class="tag">ספירת פעולות</span>
-      </div>
-      <div class="card-cta">פתח פעילות<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 7h12M7 1l6 6-6 6"/></svg></div>
-    </a>
+    <div class="filter-divider"></div>
 
-    <!-- 2. Electrical -->
-    <a class="card" href="02-electrical-circuit.html" target="_blank">
-      <div class="card-stripe"></div>
-      <div class="card-head">
-        <div class="card-icon">⚡</div>
-        <div class="card-badge">הנדסת חשמל</div>
-      </div>
-      <div class="type-pill"><span class="dot"></span>מעבדה וירטואלית — חישוב חי</div>
-      <div class="card-title">מעבדת מעגלים חשמליים</div>
-      <div class="card-sub">חוק אוהם | חוקי קירכהוף | מעגלי טור ומקביל</div>
-      <hr>
-      <div class="section-label">תוצרי למידה</div>
-      <ul class="outcomes">
-        <li>יישום חוק אוהם V = I × R בתרחישים שונים</li>
-        <li>הבנת הקשר בין מתח, זרם, התנגדות והספק</li>
-        <li>חישוב התנגדות שקולה בטור ובמקביל</li>
-        <li>זיהוי השפעת שינוי פרמטר אחד על האחרים</li>
-      </ul>
-      <div class="tags">
-        <span class="tag">V=IR</span><span class="tag">טור ומקביל</span>
-        <span class="tag">הספק P=VI</span><span class="tag">נעילת משתנה</span>
-        <span class="tag">ויזואליזציה</span>
-      </div>
-      <div class="card-cta">פתח פעילות<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 7h12M7 1l6 6-6 6"/></svg></div>
-    </a>
+    <div class="filter-group">
+      <span class="filter-label">סוג:</span>
+      <button class="filter-btn active" data-filter="type" data-val="all" onclick="setFilter('type','all',this)">הכל</button>
+      <button class="filter-btn" data-filter="type" data-val="simulation" onclick="setFilter('type','simulation',this)">סימולציה</button>
+      <button class="filter-btn" data-filter="type" data-val="visualization" onclick="setFilter('type','visualization',this)">ויזואליזציה</button>
+      <button class="filter-btn" data-filter="type" data-val="interactive" onclick="setFilter('type','interactive',this)">אינטראקטיבי קל</button>
+      <button class="filter-btn" data-filter="type" data-val="quiz" onclick="setFilter('type','quiz',this)">חידון</button>
+    </div>
 
-    <!-- 3. Mechanical -->
-    <a class="card" href="03-mechanical-stress-strain.html" target="_blank">
-      <div class="card-stripe"></div>
-      <div class="card-head">
-        <div class="card-icon">🔩</div>
-        <div class="card-badge">הנדסה מכנית</div>
-      </div>
-      <div class="type-pill"><span class="dot"></span>סימולציה — חקירת חומרים</div>
-      <div class="card-title">עקומת מאמץ-עיבור</div>
-      <div class="card-sub">מכניקת חומרים | Stress-Strain | מודול יאנג</div>
-      <hr>
-      <div class="section-label">תוצרי למידה</div>
-      <ul class="outcomes">
-        <li>קריאה ופרשנות של עקומת מאמץ-עיבור</li>
-        <li>זיהוי אזורים: אלסטי, פלסטי, צווארון ושבירה</li>
-        <li>השוואת מאפייני חומרים (E, UTS, ductility)</li>
-        <li>הבנת הקשר בין מבנה החומר להתנהגותו</li>
-      </ul>
-      <div class="tags">
-        <span class="tag">5 חומרים</span><span class="tag">אזור אלסטי</span>
-        <span class="tag">Necking</span><span class="tag">אנרגיית עיבור</span>
-        <span class="tag">שבירה</span>
-      </div>
-      <div class="card-cta">פתח פעילות<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 7h12M7 1l6 6-6 6"/></svg></div>
-    </a>
+    <div class="filter-divider"></div>
 
-    <!-- 4. Industrial -->
-    <a class="card" href="04-industrial-production.html" target="_blank">
-      <div class="card-stripe"></div>
-      <div class="card-head">
-        <div class="card-icon">🏭</div>
-        <div class="card-badge">הנדסה תעשייתית</div>
-      </div>
-      <div class="type-pill"><span class="dot"></span>סימולציה — קו ייצור חי</div>
-      <div class="card-title">סימולטור קו ייצור</div>
-      <div class="card-sub">תורת התורים | Little's Law | זיהוי צוואר בקבוק</div>
-      <hr>
-      <div class="section-label">תוצרי למידה</div>
-      <ul class="outcomes">
-        <li>זיהוי צוואר בקבוק ומשמעותו לתפוקת המערכת</li>
-        <li>יישום חוק ליטל: L = λ × W</li>
-        <li>הבנת מדדי ביצוע: WIP, Cycle Time, Throughput</li>
-        <li>ניסוי אסטרטגיות איזון קו ייצור</li>
-      </ul>
-      <div class="tags">
-        <span class="tag">Little's Law</span><span class="tag">גרף גנט</span>
-        <span class="tag">Bottleneck</span><span class="tag">KPIs</span>
-        <span class="tag">סימולציה חיה</span>
-      </div>
-      <div class="card-cta">פתח פעילות<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 7h12M7 1l6 6-6 6"/></svg></div>
-    </a>
-
-    <!-- 5. Mathematics -->
-    <a class="card" href="05-math-calculus.html" target="_blank">
-      <div class="card-stripe"></div>
-      <div class="card-head">
-        <div class="card-icon">∫</div>
-        <div class="card-badge">מתמטיקה</div>
-      </div>
-      <div class="type-pill"><span class="dot"></span>חקירה — חשבון דיפרנציאלי</div>
-      <div class="card-title">חשבון אינטגרלי ודיפרנציאלי</div>
-      <div class="card-sub">נגזרת | אינטגרל | נקודות קריטיות | חקירת פונקציות</div>
-      <hr>
-      <div class="section-label">תוצרי למידה</div>
-      <ul class="outcomes">
-        <li>הבנה גיאומטרית של נגזרת כשיפוע המשיק</li>
-        <li>קישור בין שיפוע הנגזרת ועלייה/ירידה של פונקציה</li>
-        <li>פרשנות ויזואלית של אינטגרל כשטח</li>
-        <li>זיהוי נקודות מקסימום, מינימום ונקודות פיתול</li>
-      </ul>
-      <div class="tags">
-        <span class="tag">8 פונקציות</span><span class="tag">משיק חי</span>
-        <span class="tag">שטח אינטגרל</span><span class="tag">f'(x) ו-f''(x)</span>
-        <span class="tag">נקודות קריטיות</span>
-      </div>
-      <div class="card-cta">פתח פעילות<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 7h12M7 1l6 6-6 6"/></svg></div>
-    </a>
-
-    <!-- 6. Biomedical -->
-    <a class="card" href="06-biomedical-ecg.html" target="_blank">
-      <div class="card-stripe"></div>
-      <div class="card-head">
-        <div class="card-icon">🫀</div>
-        <div class="card-badge">הנדסה רפואית</div>
-      </div>
-      <div class="type-pill"><span class="dot"></span>מוניטור חי — אבחון קליני</div>
-      <div class="card-title">סימולטור אק"ג | ECG Monitor</div>
-      <div class="card-sub">פענוח גלי PQRST | הפרעות קצב | ניטור סימנים חיוניים</div>
-      <hr>
-      <div class="section-label">תוצרי למידה</div>
-      <ul class="outcomes">
-        <li>זיהוי גלי P, QRS ו-T ומשמעותם הפיזיולוגית</li>
-        <li>אבחון הפרעות קצב: AFib, VFib, Brady, Tachy</li>
-        <li>הבנת הקשר בין האות החשמלי לפעילות הלב</li>
-        <li>פרשנות פרמטרי ניטור: HR, SpO₂, BP, RR</li>
-      </ul>
-      <div class="tags">
-        <span class="tag">7 קצבי לב</span><span class="tag">גלי PQRST</span>
-        <span class="tag">AFib & VFib</span><span class="tag">Gain & Speed</span>
-        <span class="tag">סימנים חיוניים</span>
-      </div>
-      <div class="card-cta">פתח פעילות<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 7h12M7 1l6 6-6 6"/></svg></div>
-    </a>
-
+    <div class="filter-group">
+      <span class="filter-label">תחום:</span>
+      <button class="filter-btn active" data-filter="field" data-val="all" onclick="setFilter('field','all',this)">הכל</button>
+      <button class="filter-btn" data-filter="field" data-val="software" onclick="setFilter('field','software',this)">תוכנה</button>
+      <button class="filter-btn" data-filter="field" data-val="electrical" onclick="setFilter('field','electrical',this)">חשמל</button>
+      <button class="filter-btn" data-filter="field" data-val="mechanical" onclick="setFilter('field','mechanical',this)">מכנית</button>
+      <button class="filter-btn" data-filter="field" data-val="industrial" onclick="setFilter('field','industrial',this)">תעו"נ</button>
+      <button class="filter-btn" data-filter="field" data-val="math" onclick="setFilter('field','math',this)">מתמטיקה</button>
+      <button class="filter-btn" data-filter="field" data-val="biomedical" onclick="setFilter('field','biomedical',this)">רפואית</button>
+      <button class="filter-btn" data-filter="field" data-val="physics" onclick="setFilter('field','physics',this)">פיזיקה</button>
+    </div>
   </div>
 
-  <!-- Footer -->
-  <div class="footer">
-    <p>פותח עבור מרצי <strong>אפקה — המכללה האקדמית להנדסה תל-אביב</strong> | כל הפעילויות עצמאיות ואינן דורשות חיבור לרשת</p>
+  <div class="results-count" id="results-count"><span id="rc-num">10</span> פעילויות מוצגות</div>
+
+  <div class="grid" id="cards-grid"></div>
+  <div class="no-results" id="no-results">
+    <div class="nr-icon">🔍</div>
+    <div style="font-size:1.0rem;font-weight:700;color:var(--dark);margin-bottom:6px">לא נמצאו פעילויות</div>
+    <div>נסה לשנות את הפילטרים או מחק את החיפוש</div>
   </div>
 
+  <div class="footer"><p>פותח עבור מרצי <strong>אפקה — המכללה האקדמית להנדסה תל-אביב</strong> | כל הפעילויות עצמאיות ואינן דורשות חיבור לרשת</p></div>
 </div>
+
+<script>
+const activities = [
+  {
+    id:1, file:'01-software-sorting.html',
+    icon:'🔄', field:'software', fieldLabel:'הנדסת תוכנה',
+    type:'simulation', typeLabel:'סימולציה — ויזואליזציה',
+    title:'ויזואליזציה של אלגוריתמי מיון',
+    sub:'מבני נתונים | סיבוכיות זמן | Big-O Notation',
+    outcomes:['הבנת ההבדל בין O(n²) ל-O(n log n)','זיהוי מצבים שבהם כל אלגוריתם עדיף','קריאת טבלת סיבוכיות ופרשנות מעשית','תצפית בפעולות השוואה והחלפה בזמן אמת'],
+    tags:['Bubble Sort','Merge Sort','Quick Sort','אנימציה חיה','ספירת פעולות'],
+    keywords:'אלגוריתם מיון מבני נתונים חיפוש'
+  },
+  {
+    id:2, file:'02-electrical-circuit.html',
+    icon:'⚡', field:'electrical', fieldLabel:'הנדסת חשמל',
+    type:'simulation', typeLabel:'מעבדה וירטואלית — חישוב חי',
+    title:'מעבדת מעגלים חשמליים',
+    sub:'חוק אוהם | חוקי קירכהוף | מעגלי טור ומקביל',
+    outcomes:['יישום חוק אוהם V=I×R בתרחישים שונים','הבנת הקשר בין מתח, זרם, התנגדות והספק','חישוב התנגדות שקולה בטור ובמקביל','זיהוי השפעת שינוי פרמטר אחד על האחרים'],
+    tags:['V=IR','טור ומקביל','הספק P=VI','נעילת משתנה'],
+    keywords:'אוהם מתח זרם התנגדות מעגל חשמלי'
+  },
+  {
+    id:3, file:'03-mechanical-stress-strain.html',
+    icon:'🔩', field:'mechanical', fieldLabel:'הנדסה מכנית',
+    type:'simulation', typeLabel:'סימולציה — חקירת חומרים',
+    title:'עקומת מאמץ-עיבור',
+    sub:'מכניקת חומרים | Stress-Strain | מודול יאנג',
+    outcomes:['קריאה ופרשנות של עקומת מאמץ-עיבור','זיהוי אזורים: אלסטי, פלסטי, צווארון ושבירה','השוואת מאפייני חומרים (E, UTS, ductility)','הבנת הקשר בין מבנה החומר להתנהגותו'],
+    tags:['5 חומרים','אזור אלסטי','Necking','אנרגיית עיבור','שבירה'],
+    keywords:'מכניקה חומרים פלדה אלומיניום גומי עצם עיבור מאמץ'
+  },
+  {
+    id:4, file:'04-industrial-production.html',
+    icon:'🏭', field:'industrial', fieldLabel:'הנדסה תעשייתית',
+    type:'simulation', typeLabel:'סימולציה — קו ייצור חי',
+    title:'סימולטור קו ייצור',
+    sub:'תורת התורים | Little\'s Law | זיהוי צוואר בקבוק',
+    outcomes:['זיהוי צוואר בקבוק ומשמעותו לתפוקה','יישום חוק ליטל: L = λ × W','הבנת מדדי ביצוע: WIP, Cycle Time','ניסוי אסטרטגיות איזון קו ייצור'],
+    tags:["Little's Law",'גרף גנט','Bottleneck','KPIs'],
+    keywords:'ייצור תורים תהליך אופטימיזציה תפוקה תחנה'
+  },
+  {
+    id:5, file:'05-math-calculus.html',
+    icon:'∫', field:'math', fieldLabel:'מתמטיקה',
+    type:'visualization', typeLabel:'חקירה — חשבון דיפרנציאלי',
+    title:'חשבון אינטגרלי ודיפרנציאלי',
+    sub:'נגזרת | אינטגרל | נקודות קריטיות | חקירת פונקציות',
+    outcomes:['הבנה גיאומטרית של נגזרת כשיפוע המשיק','קישור בין שיפוע הנגזרת לעלייה/ירידה','פרשנות ויזואלית של אינטגרל כשטח','זיהוי נקודות מקסימום, מינימום ופיתול'],
+    tags:['8 פונקציות','משיק חי','שטח אינטגרל',"f'(x)"],
+    keywords:'נגזרת אינטגרל פונקציה חשבון מתמטיקה גרף'
+  },
+  {
+    id:6, file:'06-biomedical-ecg.html',
+    icon:'🫀', field:'biomedical', fieldLabel:'הנדסה רפואית',
+    type:'simulation', typeLabel:'מוניטור חי — אבחון קליני',
+    title:'סימולטור אק"ג | ECG Monitor',
+    sub:'פענוח גלי PQRST | הפרעות קצב | ניטור סימנים חיוניים',
+    outcomes:['זיהוי גלי P, QRS ו-T ומשמעותם','אבחון הפרעות קצב: AFib, VFib, Brady','הבנת הקשר בין האות החשמלי לפעילות הלב','פרשנות פרמטרי ניטור: HR, SpO₂, BP'],
+    tags:['7 קצבי לב','PQRST','AFib & VFib','סימנים חיוניים'],
+    keywords:'אקג לב קצב פרפור ניטור רפואה ביו'
+  },
+  {
+    id:7, file:'07-physics-waves.html',
+    icon:'〰', field:'physics', fieldLabel:'פיזיקה',
+    type:'visualization', typeLabel:'ויזואליזציה — גלים',
+    title:'גלים וסופרפוזיציה',
+    sub:'פיזיקה גלית | עקרון הסופרפוזיציה | הפרעה בונה ומהרסת',
+    outcomes:['הבנת עקרון הסופרפוזיציה ויישומו','זיהוי הפרעה בונה ומהרסת ותנאיהן','הסבר תופעת הפעימות (Beats)','קשר בין פאזה, תדר ואמפליטודה לגל המורכב'],
+    tags:['הפרעה בונה','הפרעה מהרסת','פעימות','גל עומד','אמפליטודה'],
+    keywords:'גל פיזיקה סופרפוזיציה תדר פאזה הפרעה'
+  },
+  {
+    id:8, file:'08-electrical-logic-gates.html',
+    icon:'⊕', field:'electrical', fieldLabel:'הנדסת חשמל',
+    type:'visualization', typeLabel:'ויזואליזציה — לוגיקה דיגיטלית',
+    title:'שערים לוגיים אינטראקטיביים',
+    sub:'AND | OR | NOT | XOR | NAND | NOR | אלגברה בוליאנית',
+    outcomes:['הכרת 6 שערים לוגיים ופעולתם','קריאת טבלת אמת לכל שער','הבנת המושג Universal Gate','יישום אלגברה בוליאנית על מעגלים דיגיטליים'],
+    tags:['AND / OR / NOT','XOR','NAND / NOR','טבלת אמת','Universal Gate'],
+    keywords:'לוגיקה שערים דיגיטלי בוליאני מעגל חשמל'
+  },
+  {
+    id:9, file:'09-math-derivatives-quiz.html',
+    icon:'∂', field:'math', fieldLabel:'מתמטיקה',
+    type:'quiz', typeLabel:'חידון — בחינה עצמית',
+    title:'חידון חוקי נגזרות',
+    sub:'10 שאלות | פידבק מיידי | ניקוד ועצות שיפור',
+    outcomes:['שינון חוקי הנגזרת הבסיסיים','זיהוי שגיאות נפוצות בחישוב נגזרות','הערכה עצמית של רמת שליטה בחומר','חיזוק ידע לפני בחינה'],
+    tags:['10 שאלות','פידבק מיידי','ניקוד','חוק החזקה','sin/cos/eˣ'],
+    keywords:'נגזרת חידון בחן מתמטיקה בחינה עצמית'
+  },
+  {
+    id:10, file:'10-industrial-process-sort.html',
+    icon:'🔀', field:'industrial', fieldLabel:'הנדסה תעשייתית',
+    type:'interactive', typeLabel:'אינטראקטיבי — מיון ד&ד',
+    title:'מיון שלבי תהליך ייצור',
+    sub:'גרור ושחרר | ייצור | פיתוח תוכנה | ניהול פרויקט',
+    outcomes:['הבנת הסדר הנכון של תהליכי ייצור','היכרות עם מחזור SDLC בפיתוח תוכנה','הכרת שלבי ניהול פרויקט (PMBOK)','חשיבה על הרציונל מאחורי כל שלב'],
+    tags:['Drag & Drop','3 תרחישים','SDLC','PMBOK','ייצור'],
+    keywords:'תהליך ייצור מיון סדר פרויקט פיתוח תוכנה'
+  }
+];
+
+let activeFilters = { type:'all', field:'all' };
+let searchQuery = '';
+
+function setFilter(group, val, btn) {
+  activeFilters[group] = val;
+  document.querySelectorAll(`[data-filter="${group}"]`).forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterCards();
+}
+
+function filterCards() {
+  searchQuery = document.getElementById('search-input').value.toLowerCase();
+  const grid = document.getElementById('cards-grid');
+  const noR = document.getElementById('no-results');
+  let visible = 0;
+
+  activities.forEach(a => {
+    const matchType  = activeFilters.type === 'all' || a.type === activeFilters.type;
+    const matchField = activeFilters.field === 'all' || a.field === activeFilters.field;
+    const matchSearch = !searchQuery ||
+      a.title.toLowerCase().includes(searchQuery) ||
+      a.sub.toLowerCase().includes(searchQuery) ||
+      a.keywords.toLowerCase().includes(searchQuery) ||
+      a.fieldLabel.includes(searchQuery) ||
+      a.tags.some(t => t.toLowerCase().includes(searchQuery));
+
+    const el = document.getElementById('card-' + a.id);
+    if (el) {
+      const show = matchType && matchField && matchSearch;
+      el.style.display = show ? 'flex' : 'none';
+      if (show) visible++;
+    }
+  });
+
+  document.getElementById('rc-num').textContent = visible;
+  noR.classList.toggle('show', visible === 0);
+}
+
+function buildCards() {
+  const grid = document.getElementById('cards-grid');
+  grid.innerHTML = activities.map(a => `
+    <a class="card" id="card-${a.id}" href="${a.file}" target="_blank">
+      <div class="card-stripe"></div>
+      <div class="card-head">
+        <div class="card-icon">${a.icon}</div>
+        <div class="card-badge">${a.fieldLabel}</div>
+      </div>
+      <div class="type-pill"><span class="dot"></span>${a.typeLabel}</div>
+      <div class="card-title">${a.title}</div>
+      <div class="card-sub">${a.sub}</div>
+      <hr>
+      <div class="section-label">תוצרי למידה</div>
+      <ul class="outcomes">${a.outcomes.map(o=>`<li>${o}</li>`).join('')}</ul>
+      <div class="tags">${a.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      <div class="card-cta">פתח פעילות<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 7h12M7 1l6 6-6 6"/></svg></div>
+    </a>`).join('');
+}
+
+buildCards();
+</script>
 </body>
 </html>

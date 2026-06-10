@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>שערים לוגיים | הנדסת חשמל</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap');
+  :root { --bg:#f5f7f6; --s:#fff; --b:#e2e8e4; --green:#1fa85c; --dark:#343a41; --muted:#7a8a80; --red:#e74c3c; --radius:12px; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--dark); font-family:'Heebo',sans-serif; min-height:100vh; padding:20px; }
+  header { text-align:center; margin-bottom:24px; }
+  header h1 { font-size:1.55rem; font-weight:800; color:var(--dark); margin-bottom:4px; }
+  header p { color:var(--muted); font-size:0.88rem; }
+  .layout { display:grid; grid-template-columns:1fr 1fr; gap:20px; max-width:1000px; margin:0 auto; }
+  .gate-card { background:var(--s); border:1.5px solid var(--b); border-radius:var(--radius); padding:20px; transition:border-color .2s, box-shadow .2s; cursor:pointer; }
+  .gate-card:hover, .gate-card.selected { border-color:var(--green); box-shadow:0 4px 20px rgba(31,168,92,.15); }
+  .gate-card h3 { font-size:1.0rem; font-weight:800; color:var(--dark); margin-bottom:4px; }
+  .gate-card .en { font-size:0.72rem; color:var(--muted); margin-bottom:12px; }
+  .gate-svg-wrap { text-align:center; margin-bottom:14px; }
+  .gate-desc { font-size:0.78rem; color:var(--muted); line-height:1.6; margin-bottom:14px; }
+  /* Truth table */
+  table { width:100%; border-collapse:collapse; font-size:0.78rem; }
+  th { background:var(--bg); padding:6px 8px; font-weight:700; color:var(--muted); text-align:center; border-bottom:1.5px solid var(--b); font-size:0.7rem; letter-spacing:.06em; text-transform:uppercase; }
+  td { padding:7px 8px; text-align:center; border-bottom:1px solid var(--b); font-family:monospace; font-weight:700; }
+  td:last-child { font-size:1.0rem; }
+  tr.highlight-row td { background:rgba(31,168,92,.07); }
+  .bit-1 { color:var(--green); }
+  .bit-0 { color:var(--red); }
+  /* Interactive inputs */
+  .inputs-row { display:flex; gap:10px; align-items:center; margin-bottom:14px; flex-wrap:wrap; }
+  .input-toggle {
+    display:flex; align-items:center; gap:8px; background:var(--bg); border:1.5px solid var(--b);
+    border-radius:8px; padding:8px 14px; cursor:pointer; font-size:0.85rem; font-weight:700;
+    transition:all .2s; user-select:none;
+  }
+  .input-toggle.on { background:rgba(31,168,92,.1); border-color:var(--green); color:var(--green); }
+  .bit-display { font-size:1.4rem; font-weight:900; font-family:monospace; }
+  .result-box { display:flex; align-items:center; justify-content:center; gap:10px; padding:12px; border-radius:8px; font-size:1.1rem; font-weight:800; margin-top:4px; }
+  .result-box.on { background:rgba(31,168,92,.12); color:var(--green); border:1.5px solid var(--green); }
+  .result-box.off { background:rgba(231,76,60,.08); color:var(--red); border:1.5px solid #f8bcb8; }
+  .formula { font-family:monospace; font-size:0.85rem; background:var(--bg); border:1px solid var(--b); border-radius:6px; padding:4px 10px; display:inline-block; margin-bottom:10px; color:var(--dark); }
+  @media(max-width:650px){ .layout{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<header>
+  <h1>⊕ שערים לוגיים — ויזואליזציה ואינטראקציה</h1>
+  <p>הנדסת חשמל | מעגלים דיגיטליים | אלגברה בוליאנית</p>
+</header>
+
+<div class="layout" id="gates-grid"></div>
+
+<script>
+const gates = [
+  {
+    id:'and', name:'AND Gate', en:'שער AND — וגם', formula:'Y = A · B',
+    desc:'הפלט הוא 1 רק אם שני הכניסות הן 1. נדרשת הסכמה משני הצדדים.',
+    svg:`<svg width="100" height="60" viewBox="0 0 100 60">
+      <path d="M10 10 H50 A25 25 0 0 1 50 50 H10 Z" fill="#e8f7ef" stroke="#1fa85c" stroke-width="2"/>
+      <line x1="0" y1="20" x2="10" y2="20" stroke="#343a41" stroke-width="2"/>
+      <line x1="0" y1="40" x2="10" y2="40" stroke="#343a41" stroke-width="2"/>
+      <line x1="75" y1="30" x2="100" y2="30" stroke="#343a41" stroke-width="2"/>
+      <text x="2" y="18" font-size="10" fill="#7a8a80">A</text>
+      <text x="2" y="43" font-size="10" fill="#7a8a80">B</text>
+      <text x="82" y="27" font-size="10" fill="#7a8a80">Y</text>
+    </svg>`,
+    truth:[{a:0,b:0,y:0},{a:0,b:1,y:0},{a:1,b:0,y:0},{a:1,b:1,y:1}],
+    calc:(a,b)=>a&b, inputs:2
+  },
+  {
+    id:'or', name:'OR Gate', en:'שער OR — או', formula:'Y = A + B',
+    desc:'הפלט הוא 1 אם לפחות אחת הכניסות היא 1. מספיקה הסכמה אחת.',
+    svg:`<svg width="100" height="60" viewBox="0 0 100 60">
+      <path d="M10 10 Q20 30 10 50 Q40 50 65 30 Q40 10 10 10Z" fill="#e8f7ef" stroke="#1fa85c" stroke-width="2"/>
+      <line x1="0" y1="20" x2="15" y2="20" stroke="#343a41" stroke-width="2"/>
+      <line x1="0" y1="40" x2="15" y2="40" stroke="#343a41" stroke-width="2"/>
+      <line x1="65" y1="30" x2="100" y2="30" stroke="#343a41" stroke-width="2"/>
+      <text x="2" y="18" font-size="10" fill="#7a8a80">A</text>
+      <text x="2" y="43" font-size="10" fill="#7a8a80">B</text>
+      <text x="72" y="27" font-size="10" fill="#7a8a80">Y</text>
+    </svg>`,
+    truth:[{a:0,b:0,y:0},{a:0,b:1,y:1},{a:1,b:0,y:1},{a:1,b:1,y:1}],
+    calc:(a,b)=>a|b, inputs:2
+  },
+  {
+    id:'not', name:'NOT Gate', en:'שער NOT — היפוך', formula:'Y = Ā',
+    desc:'הפלט הפוך מהכניסה. 0 הופך ל-1, ו-1 הופך ל-0. נקרא גם Inverter.',
+    svg:`<svg width="100" height="60" viewBox="0 0 100 60">
+      <polygon points="15,10 15,50 65,30" fill="#e8f7ef" stroke="#1fa85c" stroke-width="2"/>
+      <circle cx="70" cy="30" r="5" fill="white" stroke="#1fa85c" stroke-width="2"/>
+      <line x1="0" y1="30" x2="15" y2="30" stroke="#343a41" stroke-width="2"/>
+      <line x1="75" y1="30" x2="100" y2="30" stroke="#343a41" stroke-width="2"/>
+      <text x="2" y="27" font-size="10" fill="#7a8a80">A</text>
+      <text x="82" y="27" font-size="10" fill="#7a8a80">Y</text>
+    </svg>`,
+    truth:[{a:0,y:1},{a:1,y:0}],
+    calc:(a)=>a^1, inputs:1
+  },
+  {
+    id:'xor', name:'XOR Gate', en:'שער XOR — או בלעדי', formula:'Y = A ⊕ B',
+    desc:'הפלט הוא 1 רק אם הכניסות שונות זו מזו. נפוץ מאוד בחישובים אריתמטיים ובהצפנה.',
+    svg:`<svg width="100" height="60" viewBox="0 0 100 60">
+      <path d="M15 10 Q25 30 15 50 Q42 50 67 30 Q42 10 15 10Z" fill="#e8f7ef" stroke="#1fa85c" stroke-width="2"/>
+      <path d="M8 10 Q18 30 8 50" fill="none" stroke="#1fa85c" stroke-width="2"/>
+      <line x1="0" y1="20" x2="18" y2="20" stroke="#343a41" stroke-width="2"/>
+      <line x1="0" y1="40" x2="18" y2="40" stroke="#343a41" stroke-width="2"/>
+      <line x1="67" y1="30" x2="100" y2="30" stroke="#343a41" stroke-width="2"/>
+      <text x="2" y="18" font-size="10" fill="#7a8a80">A</text>
+      <text x="2" y="43" font-size="10" fill="#7a8a80">B</text>
+      <text x="74" y="27" font-size="10" fill="#7a8a80">Y</text>
+    </svg>`,
+    truth:[{a:0,b:0,y:0},{a:0,b:1,y:1},{a:1,b:0,y:1},{a:1,b:1,y:0}],
+    calc:(a,b)=>a^b, inputs:2
+  },
+  {
+    id:'nand', name:'NAND Gate', en:'שער NAND — AND הפוך', formula:'Y = ̄(A·B)',
+    desc:'NAND = NOT AND. הפלט הוא 0 רק אם שתי הכניסות הן 1. הוא Universal Gate — אפשר לממש כל פונקציה בוליאנית עם שערי NAND בלבד.',
+    svg:`<svg width="100" height="60" viewBox="0 0 100 60">
+      <path d="M10 10 H50 A25 25 0 0 1 50 50 H10 Z" fill="#e8f7ef" stroke="#1fa85c" stroke-width="2"/>
+      <circle cx="80" cy="30" r="5" fill="white" stroke="#1fa85c" stroke-width="2"/>
+      <line x1="0" y1="20" x2="10" y2="20" stroke="#343a41" stroke-width="2"/>
+      <line x1="0" y1="40" x2="10" y2="40" stroke="#343a41" stroke-width="2"/>
+      <line x1="85" y1="30" x2="100" y2="30" stroke="#343a41" stroke-width="2"/>
+      <text x="2" y="18" font-size="10" fill="#7a8a80">A</text>
+      <text x="2" y="43" font-size="10" fill="#7a8a80">B</text>
+    </svg>`,
+    truth:[{a:0,b:0,y:1},{a:0,b:1,y:1},{a:1,b:0,y:1},{a:1,b:1,y:0}],
+    calc:(a,b)=>(a&b)^1, inputs:2
+  },
+  {
+    id:'nor', name:'NOR Gate', en:'שער NOR — OR הפוך', formula:'Y = ̄(A+B)',
+    desc:'NOR = NOT OR. הפלט הוא 1 רק אם שתי הכניסות הן 0. גם הוא Universal Gate.',
+    svg:`<svg width="100" height="60" viewBox="0 0 100 60">
+      <path d="M10 10 Q20 30 10 50 Q40 50 62 30 Q40 10 10 10Z" fill="#e8f7ef" stroke="#1fa85c" stroke-width="2"/>
+      <circle cx="69" cy="30" r="5" fill="white" stroke="#1fa85c" stroke-width="2"/>
+      <line x1="0" y1="20" x2="15" y2="20" stroke="#343a41" stroke-width="2"/>
+      <line x1="0" y1="40" x2="15" y2="40" stroke="#343a41" stroke-width="2"/>
+      <line x1="74" y1="30" x2="100" y2="30" stroke="#343a41" stroke-width="2"/>
+      <text x="2" y="18" font-size="10" fill="#7a8a80">A</text>
+      <text x="2" y="43" font-size="10" fill="#7a8a80">B</text>
+    </svg>`,
+    truth:[{a:0,b:0,y:1},{a:0,b:1,y:0},{a:1,b:0,y:0},{a:1,b:1,y:0}],
+    calc:(a,b)=>(a|b)^1, inputs:2
+  }
+];
+
+const state = {};
+gates.forEach(g => { state[g.id] = { a:0, b:0 }; });
+
+function renderGate(g) {
+  const a = state[g.id].a, b = state[g.id].b;
+  const y = g.inputs === 1 ? g.calc(a) : g.calc(a, b);
+  const rows = g.truth.map((r,i) => {
+    const isActive = g.inputs === 1 ? (r.a === a) : (r.a === a && r.b === b);
+    return `<tr class="${isActive ? 'highlight-row' : ''}">
+      <td class="bit-${r.a}">${r.a}</td>
+      ${g.inputs === 2 ? `<td class="bit-${r.b}">${r.b}</td>` : ''}
+      <td class="bit-${r.y}">${r.y}</td>
+    </tr>`;
+  }).join('');
+
+  return `<div class="gate-card" onclick="toggleGate('${g.id}')">
+    <h3>${g.name}</h3>
+    <div class="en">${g.en}</div>
+    <div class="gate-svg-wrap">${g.svg}</div>
+    <div class="formula">${g.formula}</div>
+    <div class="gate-desc">${g.desc}</div>
+    <div class="inputs-row">
+      <div class="input-toggle ${a?'on':''}" onclick="event.stopPropagation();toggleInput('${g.id}','a')">
+        A <span class="bit-display ${a?'bit-1':'bit-0'}">${a}</span>
+      </div>
+      ${g.inputs===2 ? `<div class="input-toggle ${b?'on':''}" onclick="event.stopPropagation();toggleInput('${g.id}','b')">
+        B <span class="bit-display ${b?'bit-1':'bit-0'}">${b}</span>
+      </div>` : ''}
+      <div style="font-size:1.1rem;font-weight:700;color:var(--muted)">→</div>
+      <div class="result-box ${y?'on':'off'}">
+        Y = <span style="font-size:1.4rem;font-family:monospace">${y}</span>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>A</th>${g.inputs===2?'<th>B</th>':''}  <th>Y</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+}
+
+function toggleInput(id, input) {
+  state[id][input] ^= 1;
+  render();
+}
+
+function render() {
+  document.getElementById('gates-grid').innerHTML = gates.map(renderGate).join('');
+}
+
+render();
+</script>
+</body>
+</html>

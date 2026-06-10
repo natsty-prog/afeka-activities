@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ויזואליזציה של גלים וסופרפוזיציה | פיזיקה</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap');
+  :root { --bg:#0d1117; --s:#161b22; --s2:#21262d; --b:#30363d; --acc:#f0883e; --acc2:#ffa657; --blue:#79c0ff; --green:#56d364; --red:#f85149; --text:#e6edf3; --muted:#7d8590; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Heebo',sans-serif; min-height:100vh; padding:20px; }
+  header { text-align:center; margin-bottom:20px; }
+  header h1 { font-size:1.6rem; font-weight:800; color:var(--acc2); margin-bottom:4px; }
+  header p { color:var(--muted); font-size:0.88rem; }
+  .layout { display:grid; grid-template-columns:240px 1fr; gap:16px; max-width:1100px; margin:0 auto; }
+  .panel { background:var(--s); border:1px solid var(--b); border-radius:12px; padding:16px; }
+  .panel h3 { font-size:0.72rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:12px; padding-bottom:6px; border-bottom:1px solid var(--b); }
+  canvas { display:block; border-radius:8px; background:#050810; border:1px solid var(--b); width:100%; }
+  label { font-size:0.8rem; color:var(--muted); display:block; margin-bottom:4px; margin-top:12px; }
+  .val { font-weight:700; font-family:monospace; }
+  input[type=range] { width:100%; accent-color:var(--acc); cursor:pointer; }
+  .wave-row { padding:10px 12px; border-radius:8px; margin-bottom:8px; border:1px solid var(--b); background:var(--s2); }
+  .wave-row .wlabel { font-size:0.82rem; font-weight:700; margin-bottom:8px; }
+  .info-box { background:var(--s2); border:1px solid var(--b); border-radius:8px; padding:12px; margin-top:12px; font-size:0.78rem; color:var(--muted); line-height:1.6; }
+  .info-box strong { color:var(--text); }
+  .phase-badge { display:inline-block; font-size:0.65rem; font-weight:700; border-radius:20px; padding:2px 8px; margin-top:6px; }
+  .btn { display:inline-block; padding:8px 14px; border-radius:8px; border:none; cursor:pointer; font-size:0.82rem; font-weight:600; background:var(--acc); color:#0d1117; margin-top:10px; width:100%; }
+</style>
+</head>
+<body>
+<header>
+  <h1>〰 גלים וסופרפוזיציה</h1>
+  <p>פיזיקה גלית | עקרון הסופרפוזיציה | הפרעה בונה ומהרסת</p>
+</header>
+<div class="layout">
+  <div>
+    <div class="panel" style="margin-bottom:14px">
+      <h3>גל 1</h3>
+      <div class="wave-row">
+        <div class="wlabel" style="color:#79c0ff">━ גל 1 (כחול)</div>
+        <label>אמפליטודה A₁: <span class="val" id="a1v">1.0</span></label>
+        <input type="range" id="a1" min="0.1" max="2" step="0.1" value="1" oninput="update()">
+        <label>תדר f₁: <span class="val" id="f1v">1.0</span> Hz</label>
+        <input type="range" id="f1" min="0.5" max="4" step="0.1" value="1" oninput="update()">
+        <label>פאזה φ₁: <span class="val" id="p1v">0°</span></label>
+        <input type="range" id="p1" min="0" max="360" step="5" value="0" oninput="update()">
+      </div>
+    </div>
+    <div class="panel" style="margin-bottom:14px">
+      <h3>גל 2</h3>
+      <div class="wave-row">
+        <div class="wlabel" style="color:#f0883e">━ גל 2 (כתום)</div>
+        <label>אמפליטודה A₂: <span class="val" id="a2v">1.0</span></label>
+        <input type="range" id="a2" min="0.1" max="2" step="0.1" value="1" oninput="update()">
+        <label>תדר f₂: <span class="val" id="f2v">1.0</span> Hz</label>
+        <input type="range" id="f2" min="0.5" max="4" step="0.1" value="1" oninput="update()">
+        <label>פאזה φ₂: <span class="val" id="p2v">0°</span></label>
+        <input type="range" id="p2" min="0" max="360" step="5" value="0" oninput="update()">
+      </div>
+    </div>
+    <div class="panel">
+      <h3>תצורות מהירות</h3>
+      <button class="btn" onclick="preset('constructive')">✦ הפרעה בונה (0°)</button>
+      <button class="btn" style="background:#f85149;margin-top:6px" onclick="preset('destructive')">✕ הפרעה מהרסת (180°)</button>
+      <button class="btn" style="background:#56d364;margin-top:6px" onclick="preset('beats')">♪ פעימות (תדרים שונים)</button>
+      <button class="btn" style="background:#79c0ff;margin-top:6px" onclick="preset('standing')">~ גל עומד</button>
+    </div>
+  </div>
+  <div>
+    <div class="panel">
+      <h3>גל 1 בלבד</h3>
+      <canvas id="c1" height="90"></canvas>
+      <h3 style="margin-top:14px">גל 2 בלבד</h3>
+      <canvas id="c2" height="90"></canvas>
+      <h3 style="margin-top:14px">גל מורכב — סופרפוזיציה (גל 1 + גל 2)</h3>
+      <canvas id="cs" height="130"></canvas>
+      <div class="info-box" id="info-box">
+        <strong>הפרעה בונה:</strong> כאשר שני גלים באותו תדר ופאזה — האמפליטודות מתחברות.
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+let running = true, t = 0;
+
+function getVals() {
+  return {
+    a1: parseFloat(document.getElementById('a1').value),
+    f1: parseFloat(document.getElementById('f1').value),
+    p1: parseFloat(document.getElementById('p1').value) * Math.PI / 180,
+    a2: parseFloat(document.getElementById('a2').value),
+    f2: parseFloat(document.getElementById('f2').value),
+    p2: parseFloat(document.getElementById('p2').value) * Math.PI / 180,
+  };
+}
+
+function update() {
+  const v = getVals();
+  document.getElementById('a1v').textContent = v.a1.toFixed(1);
+  document.getElementById('f1v').textContent = v.f1.toFixed(1);
+  document.getElementById('p1v').textContent = (v.p1 * 180 / Math.PI).toFixed(0) + '°';
+  document.getElementById('a2v').textContent = v.a2.toFixed(1);
+  document.getElementById('f2v').textContent = v.f2.toFixed(1);
+  document.getElementById('p2v').textContent = (v.p2 * 180 / Math.PI).toFixed(0) + '°';
+  updateInfo(v);
+}
+
+function updateInfo(v) {
+  const box = document.getElementById('info-box');
+  const phaseDiff = Math.abs(v.p1 - v.p2) * 180 / Math.PI % 360;
+  const freqDiff = Math.abs(v.f1 - v.f2);
+  if (freqDiff > 0.05) {
+    box.innerHTML = `<strong>פעימות (Beats):</strong> כאשר תדרים שונים במעט — נוצרות פעימות בתדר Δf = ${freqDiff.toFixed(1)} Hz. גלי קול יוצרים אפקט של "ווו-ווו".`;
+  } else if (phaseDiff < 20 || phaseDiff > 340) {
+    box.innerHTML = `<strong>הפרעה בונה (Constructive):</strong> הגלים בפאזה — האמפליטודה הכוללת = A₁+A₂ = ${(v.a1+v.a2).toFixed(1)}.`;
+  } else if (phaseDiff > 160 && phaseDiff < 200) {
+    box.innerHTML = `<strong>הפרעה מהרסת (Destructive):</strong> הגלים בניגוד פאזה — האמפליטודה הכוללת = |A₁−A₂| = ${Math.abs(v.a1-v.a2).toFixed(1)}.`;
+  } else {
+    box.innerHTML = `<strong>הפרעה חלקית:</strong> הפרש פאזה = ${phaseDiff.toFixed(0)}°. נוצרת התאבכות חלקית בין בונה למהרסת.`;
+  }
+}
+
+function preset(type) {
+  const sliders = { a1:1,f1:1,p1:0,a2:1,f2:1,p2:0 };
+  if (type === 'constructive') { sliders.p2 = 0; }
+  else if (type === 'destructive') { sliders.p2 = 180; }
+  else if (type === 'beats') { sliders.f1 = 2; sliders.f2 = 2.3; }
+  else if (type === 'standing') { sliders.f1 = 2; sliders.f2 = 2; sliders.p2 = 180; sliders.a1 = 1; sliders.a2 = 1; }
+  Object.keys(sliders).forEach(k => { document.getElementById(k).value = sliders[k]; });
+  update();
+}
+
+function drawWave(canvasId, fn, color, height) {
+  const c = document.getElementById(canvasId);
+  c.width = c.offsetWidth;
+  c.height = height || 90;
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height, mid = H / 2, amp = H * 0.38;
+  ctx.fillStyle = '#050810'; ctx.fillRect(0, 0, W, H);
+  // grid
+  ctx.strokeStyle = '#111820'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, mid); ctx.lineTo(W, mid); ctx.stroke();
+  for (let x = 0; x < W; x += 60) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+  // wave
+  ctx.strokeStyle = color; ctx.lineWidth = 2.5;
+  ctx.shadowColor = color; ctx.shadowBlur = 8;
+  ctx.beginPath();
+  for (let px = 0; px < W; px++) {
+    const x = (px / W) * 4 * Math.PI;
+    const y = mid - fn(x) * amp;
+    px === 0 ? ctx.moveTo(px, y) : ctx.lineTo(px, y);
+  }
+  ctx.stroke(); ctx.shadowBlur = 0;
+}
+
+function loop() {
+  if (!running) return;
+  t += 0.025;
+  const v = getVals();
+  drawWave('c1', x => v.a1 * Math.sin(v.f1 * x - t + v.p1), '#79c0ff');
+  drawWave('c2', x => v.a2 * Math.sin(v.f2 * x - t + v.p2), '#f0883e');
+  drawWave('cs', x => v.a1 * Math.sin(v.f1 * x - t + v.p1) + v.a2 * Math.sin(v.f2 * x - t + v.p2), '#56d364', 130);
+  requestAnimationFrame(loop);
+}
+
+update(); loop();
+window.addEventListener('resize', update);
+</script>
+</body>
+</html>

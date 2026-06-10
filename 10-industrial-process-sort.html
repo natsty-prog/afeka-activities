@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מיון שלבי תהליך ייצור | תעו"נ</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap');
+  :root { --bg:#f5f7f6; --s:#fff; --b:#e2e8e4; --green:#1fa85c; --dark:#343a41; --muted:#7a8a80; --red:#e74c3c; --radius:12px; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--dark); font-family:'Heebo',sans-serif; min-height:100vh; padding:24px 16px; }
+  header { text-align:center; margin-bottom:24px; }
+  header h1 { font-size:1.55rem; font-weight:900; color:var(--dark); margin-bottom:4px; }
+  header p { color:var(--muted); font-size:0.86rem; }
+  .wrap { max-width:860px; margin:0 auto; }
+  /* Scenario tabs */
+  .scenario-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+  .sc-tab { padding:8px 16px; border-radius:8px; border:1.5px solid var(--b); background:var(--s); color:var(--muted); font-size:0.82rem; font-weight:600; cursor:pointer; transition:all .18s; }
+  .sc-tab.active { background:rgba(31,168,92,.1); border-color:var(--green); color:var(--green); }
+  /* Scenario info */
+  .scenario-info { background:var(--s); border:1.5px solid var(--b); border-radius:var(--radius); padding:16px 20px; margin-bottom:18px; display:flex; align-items:flex-start; gap:14px; }
+  .sc-icon { font-size:2rem; flex-shrink:0; }
+  .sc-title { font-size:1.0rem; font-weight:800; margin-bottom:4px; }
+  .sc-desc { font-size:0.8rem; color:var(--muted); line-height:1.55; }
+  /* Instructions */
+  .instr { font-size:0.8rem; color:var(--muted); text-align:center; margin-bottom:14px; background:rgba(31,168,92,.05); border:1px solid rgba(31,168,92,.15); border-radius:8px; padding:8px; }
+  /* Drop zone */
+  .zones-wrap { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:18px; }
+  .zone-col h4 { font-size:0.72rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); font-weight:700; margin-bottom:8px; }
+  .drop-zone {
+    min-height:320px; background:var(--s); border:2px dashed var(--b); border-radius:var(--radius);
+    padding:10px; transition:border-color .2s, background .2s;
+  }
+  .drop-zone.dragover { border-color:var(--green); background:rgba(31,168,92,.04); }
+  /* Steps */
+  .step {
+    display:flex; align-items:center; gap:10px;
+    background:var(--bg); border:1.5px solid var(--b);
+    border-radius:8px; padding:10px 12px; margin-bottom:6px;
+    cursor:grab; font-size:0.85rem; font-weight:600; color:var(--dark);
+    transition:all .18s; user-select:none;
+  }
+  .step:hover { border-color:var(--green); background:rgba(31,168,92,.05); }
+  .step.dragging { opacity:.4; cursor:grabbing; }
+  .step.correct-pos { background:rgba(31,168,92,.08); border-color:var(--green); color:var(--green); }
+  .step.wrong-pos   { background:rgba(231,76,60,.06); border-color:var(--red); color:var(--red); }
+  .step .pos-num { width:22px; height:22px; border-radius:50%; background:var(--b); display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:800; flex-shrink:0; }
+  .step.correct-pos .pos-num { background:var(--green); color:white; }
+  .step.wrong-pos   .pos-num { background:var(--red); color:white; }
+  .step-icon { font-size:1.1rem; flex-shrink:0; }
+  /* Actions */
+  .actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+  .btn { padding:10px 22px; border-radius:8px; border:none; font-family:'Heebo',sans-serif; font-size:0.88rem; font-weight:700; cursor:pointer; transition:all .18s; }
+  .btn-primary { background:var(--green); color:#fff; }
+  .btn-secondary { background:var(--s); border:1.5px solid var(--b); color:var(--muted); }
+  .btn-secondary:hover { border-color:var(--green); color:var(--green); }
+  /* Result */
+  .result-banner { padding:14px 18px; border-radius:10px; text-align:center; margin-top:16px; font-size:0.9rem; font-weight:700; display:none; }
+  .result-banner.show { display:block; }
+  .result-banner.success { background:rgba(31,168,92,.1); border:1.5px solid rgba(31,168,92,.3); color:#155e3a; }
+  .result-banner.partial { background:rgba(243,156,18,.08); border:1.5px solid rgba(243,156,18,.3); color:#7d4c0a; }
+  .result-banner.fail    { background:rgba(231,76,60,.07); border:1.5px solid rgba(231,76,60,.2); color:#922b21; }
+  /* Score badges */
+  .score-badges { display:flex; justify-content:center; gap:16px; margin-bottom:16px; }
+  .badge { background:var(--s); border:1.5px solid var(--b); border-radius:8px; padding:8px 16px; text-align:center; }
+  .badge .n { font-size:1.4rem; font-weight:900; line-height:1; }
+  .badge .l { font-size:0.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🔀 מיון שלבי תהליך ייצור</h1>
+  <p>הנדסה תעשייתית | סדר את השלבים בתהליך הנכון וגלה את הרציונל מאחוריו</p>
+</header>
+
+<div class="wrap">
+  <div class="scenario-tabs" id="sc-tabs"></div>
+  <div class="scenario-info" id="sc-info"></div>
+  <div class="score-badges">
+    <div class="badge"><div class="n" id="b-correct" style="color:var(--green)">0</div><div class="l">נכון</div></div>
+    <div class="badge"><div class="n" id="b-wrong" style="color:var(--red)">0</div><div class="l">שגוי</div></div>
+    <div class="badge"><div class="n" id="b-score" style="color:var(--dark)">—</div><div class="l">ציון</div></div>
+  </div>
+  <div class="instr">🖱 גרור כל שלב מהעמודה השמאלית לעמודה הימנית בסדר הנכון לדעתך</div>
+  <div class="zones-wrap">
+    <div>
+      <h4>שלבים (גרור מכאן)</h4>
+      <div class="drop-zone" id="source-zone"></div>
+    </div>
+    <div>
+      <h4>הסדר שלך (גרור לכאן)</h4>
+      <div class="drop-zone" id="target-zone"></div>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="btn btn-primary" onclick="check()">✓ בדוק תשובה</button>
+    <button class="btn btn-secondary" onclick="reveal()">👁 הצג פתרון</button>
+    <button class="btn btn-secondary" onclick="reset()">↺ אפס</button>
+  </div>
+  <div class="result-banner" id="result-banner"></div>
+</div>
+
+<script>
+const scenarios = [
+  {
+    id:'manufacture', icon:'🏭', name:'ייצור מוצר פיזי',
+    desc:'תהליך ייצור יחידה בקו ייצור — מחומר גלם עד למוצר מוכן לשיווק.',
+    steps:[
+      { id:'s1', icon:'📦', text:'קבלת חומרי גלם ובדיקת איכות כניסה' },
+      { id:'s2', icon:'✂', text:'חיתוך וגזירה לפי מידות התוכנית' },
+      { id:'s3', icon:'🔧', text:'עיצוב וכיפוף חלקים' },
+      { id:'s4', icon:'⚙', text:'הרכבת תת-מכלולים' },
+      { id:'s5', icon:'🔩', text:'הרכבה סופית של המוצר' },
+      { id:'s6', icon:'🔍', text:'בדיקת איכות ובקרה — QC' },
+      { id:'s7', icon:'🎨', text:'גמר שטחי (צביעה / ציפוי)' },
+      { id:'s8', icon:'📫', text:'אריזה ומשלוח ללקוח' },
+    ]
+  },
+  {
+    id:'software', icon:'💻', name:'פיתוח תוכנה',
+    desc:'מחזור חיי פיתוח תוכנה (SDLC) — משלב הדרישות ועד תחזוקה.',
+    steps:[
+      { id:'d1', icon:'📋', text:'איסוף ואפיון דרישות המשתמש' },
+      { id:'d2', icon:'📐', text:'תכנון ארכיטקטורת המערכת' },
+      { id:'d3', icon:'🎨', text:'עיצוב UI/UX ופרוטוטייפ' },
+      { id:'d4', icon:'💻', text:'פיתוח וכתיבת קוד' },
+      { id:'d5', icon:'🧪', text:'בדיקות יחידה ואינטגרציה' },
+      { id:'d6', icon:'🐛', text:'תיקון באגים ו-Code Review' },
+      { id:'d7', icon:'🚀', text:'פריסה לסביבת Production' },
+      { id:'d8', icon:'🔄', text:'תחזוקה ועדכונים שוטפים' },
+    ]
+  },
+  {
+    id:'project', icon:'📊', name:'ניהול פרויקט הנדסי',
+    desc:'שלבי ניהול פרויקט לפי PMI/PMBOK — מפתיחה עד סגירה.',
+    steps:[
+      { id:'p1', icon:'🎯', text:'הגדרת מטרות ומינוי מנהל פרויקט' },
+      { id:'p2', icon:'📝', text:'כתיבת מסמך פתיחה (Project Charter)' },
+      { id:'p3', icon:'🗺', text:'תכנון לוחות זמנים ותקציב (WBS)' },
+      { id:'p4', icon:'👥', text:'גיוס והקצאת משאבים' },
+      { id:'p5', icon:'⚙', text:'ביצוע עבודות הפרויקט' },
+      { id:'p6', icon:'📈', text:'מעקב ובקרה — Earned Value' },
+      { id:'p7', icon:'⚠', text:'ניהול סיכונים ושינויים' },
+      { id:'p8', icon:'✅', text:'סגירת פרויקט ולקחים' },
+    ]
+  }
+];
+
+let current = 0, revealed = false;
+let sourceItems = [], targetItems = [];
+let draggedEl = null, dragSource = null;
+
+function loadScenario(idx) {
+  current = idx;
+  revealed = false;
+  const sc = scenarios[idx];
+  sourceItems = shuffle([...sc.steps]);
+  targetItems = [];
+  renderAll();
+}
+
+function shuffle(arr) { return [...arr].sort(()=>Math.random()-.5); }
+
+function renderTabs() {
+  document.getElementById('sc-tabs').innerHTML = scenarios.map((s,i)=>
+    `<div class="sc-tab ${i===current?'active':''}" onclick="loadScenario(${i})">${s.icon} ${s.name}</div>`
+  ).join('');
+}
+
+function renderInfo() {
+  const sc = scenarios[current];
+  document.getElementById('sc-info').innerHTML = `<div class="sc-icon">${sc.icon}</div><div><div class="sc-title">${sc.name}</div><div class="sc-desc">${sc.desc}</div></div>`;
+}
+
+function renderZone(zoneId, items, showFeedback) {
+  const zone = document.getElementById(zoneId);
+  zone.innerHTML = '';
+  items.forEach((step, i) => {
+    const div = document.createElement('div');
+    div.className = 'step';
+    if (showFeedback && zoneId === 'target-zone') {
+      const correctIdx = scenarios[current].steps.findIndex(s=>s.id===step.id);
+      if (correctIdx === i) div.classList.add('correct-pos');
+      else div.classList.add('wrong-pos');
+    }
+    div.draggable = true;
+    div.dataset.id = step.id;
+    div.dataset.src = zoneId;
+    div.innerHTML = `<div class="pos-num">${zoneId==='target-zone'?i+1:'•'}</div><span class="step-icon">${step.icon}</span><span>${step.text}</span>`;
+    div.addEventListener('dragstart', e => { draggedEl = step; dragSource = zoneId; div.classList.add('dragging'); });
+    div.addEventListener('dragend', () => div.classList.remove('dragging'));
+    zone.appendChild(div);
+  });
+}
+
+['source-zone','target-zone'].forEach(zid => {
+  const zone = document.getElementById(zid);
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('dragover');
+    if (!draggedEl) return;
+    if (dragSource === 'source-zone' && zid === 'source-zone') return;
+    if (dragSource === 'target-zone' && zid === 'target-zone') return;
+    if (dragSource === 'source-zone') {
+      sourceItems = sourceItems.filter(s=>s.id!==draggedEl.id);
+      targetItems.push(draggedEl);
+    } else {
+      targetItems = targetItems.filter(s=>s.id!==draggedEl.id);
+      sourceItems.push(draggedEl);
+    }
+    draggedEl = null;
+    document.getElementById('result-banner').className = 'result-banner';
+    renderZones(false);
+  });
+});
+
+function renderZones(showFeedback) {
+  renderZone('source-zone', sourceItems, showFeedback);
+  renderZone('target-zone', targetItems, showFeedback);
+}
+
+function renderAll() {
+  renderTabs(); renderInfo(); renderZones(false);
+  document.getElementById('result-banner').className = 'result-banner';
+  document.getElementById('b-correct').textContent = '0';
+  document.getElementById('b-wrong').textContent = '0';
+  document.getElementById('b-score').textContent = '—';
+}
+
+function check() {
+  if (targetItems.length < 2) { alert('גרור לפחות כמה שלבים לעמודה הימנית'); return; }
+  const correct = scenarios[current].steps;
+  let hits = 0;
+  targetItems.forEach((step, i) => { if (correct[i] && correct[i].id === step.id) hits++; });
+  const pct = Math.round(hits / correct.length * 100);
+  document.getElementById('b-correct').textContent = hits;
+  document.getElementById('b-wrong').textContent = targetItems.length - hits;
+  document.getElementById('b-score').textContent = pct + '%';
+  const banner = document.getElementById('result-banner');
+  banner.className = 'result-banner show ' + (pct===100?'success':pct>=60?'partial':'fail');
+  banner.textContent = pct===100 ? `🏆 מושלם! כל ${correct.length} השלבים בסדר הנכון!` : pct>=60 ? `👍 ${hits} מתוך ${correct.length} שלבים במקום הנכון. נסה שוב!` : `📚 ${hits} נכון. כדאי לחשוב על הגיון התהליך ולנסות שוב.`;
+  renderZones(true);
+}
+
+function reveal() {
+  sourceItems = [];
+  targetItems = [...scenarios[current].steps];
+  renderZones(true);
+  const hits = scenarios[current].steps.length;
+  document.getElementById('b-correct').textContent = hits;
+  document.getElementById('b-wrong').textContent = 0;
+  document.getElementById('b-score').textContent = '100%';
+  const banner = document.getElementById('result-banner');
+  banner.className = 'result-banner show success';
+  banner.textContent = '👁 הסדר הנכון מוצג — שים לב לרציונל של כל שלב';
+}
+
+function reset() { loadScenario(current); }
+
+loadScenario(0);
+</script>
+</body>
+</html>
