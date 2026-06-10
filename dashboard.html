@@ -40,7 +40,6 @@
   .search-input { width:100%; padding:9px 36px 9px 14px; border:1.5px solid var(--border); border-radius:8px; font-family:'Heebo',sans-serif; font-size:0.88rem; color:var(--dark); background:var(--bg); outline:none; transition:border-color .18s; }
   .search-input:focus { border-color:var(--green); }
   .search-input::placeholder { color:var(--muted); }
-
   .filter-group { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
   .filter-label { font-size:0.72rem; font-weight:700; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; white-space:nowrap; }
   .filter-btn { padding:6px 13px; border-radius:20px; border:1.5px solid var(--border); background:var(--bg); color:var(--muted); font-family:'Heebo',sans-serif; font-size:0.75rem; font-weight:600; cursor:pointer; transition:all .18s; white-space:nowrap; }
@@ -53,7 +52,8 @@
 
   .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
 
-  .card { position:relative; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:24px 22px 20px; cursor:pointer; text-decoration:none; color:var(--text); display:flex; flex-direction:column; transition:transform .2s, box-shadow .2s, border-color .2s; overflow:hidden; }
+  /* Card */
+  .card { position:relative; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:24px 22px 16px; text-decoration:none; color:var(--text); display:flex; flex-direction:column; transition:transform .2s, box-shadow .2s, border-color .2s; overflow:hidden; }
   .card:hover { transform:translateY(-4px); border-color:var(--green); box-shadow:0 10px 32px -6px rgba(31,168,92,.16), 0 2px 8px rgba(0,0,0,.05); }
   .card-stripe { position:absolute; top:0; left:0; right:0; height:3px; background:var(--green); opacity:.45; transition:opacity .2s; }
   .card:hover .card-stripe { opacity:1; }
@@ -74,8 +74,73 @@
   .tags { display:flex; flex-wrap:wrap; gap:4px; margin-top:12px; }
   .tag { font-size:0.6rem; font-weight:600; background:var(--bg); border:1px solid var(--border); border-radius:20px; padding:2px 8px; color:var(--muted); transition:all .18s; }
   .card:hover .tag { color:var(--green); border-color:var(--green-mid); background:var(--green-light); }
-  .card-cta { display:flex; align-items:center; justify-content:flex-end; gap:5px; font-size:0.74rem; font-weight:700; color:var(--green); margin-top:14px; opacity:0; transform:translateX(-4px); transition:opacity .2s, transform .2s; }
-  .card:hover .card-cta { opacity:1; transform:translateX(0); }
+
+  /* Card footer row */
+  .card-footer { display:flex; align-items:center; justify-content:space-between; margin-top:14px; padding-top:12px; border-top:1px solid var(--border); }
+  .card-cta { display:flex; align-items:center; gap:5px; font-size:0.74rem; font-weight:700; color:var(--green); text-decoration:none; }
+  .card-cta svg { width:12px; height:12px; }
+
+  /* Prompt button */
+  .prompt-btn {
+    display:inline-flex; align-items:center; gap:5px;
+    font-size:0.68rem; font-weight:700; padding:5px 11px;
+    border-radius:20px; border:1.5px solid var(--border);
+    background:var(--bg); color:var(--muted);
+    cursor:pointer; font-family:'Heebo',sans-serif;
+    transition:all .18s; letter-spacing:.02em;
+    text-decoration:none;
+  }
+  .prompt-btn:hover { background:#fff8e6; border-color:#f0c040; color:#b07800; }
+  .prompt-btn .pb-icon { font-size:0.82rem; }
+
+  /* Modal overlay */
+  .modal-overlay {
+    display:none; position:fixed; inset:0;
+    background:rgba(30,35,40,.55); backdrop-filter:blur(4px);
+    z-index:1000; align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-overlay.open { display:flex; }
+  .modal {
+    background:var(--surface); border-radius:18px; max-width:680px; width:100%;
+    max-height:88vh; overflow:hidden; display:flex; flex-direction:column;
+    box-shadow:0 24px 64px rgba(0,0,0,.18);
+    animation: modalIn .22s cubic-bezier(.34,1.3,.64,1);
+  }
+  @keyframes modalIn { from{opacity:0;transform:scale(.94) translateY(10px)} to{opacity:1;transform:none} }
+  .modal-header {
+    padding:22px 24px 16px; border-bottom:1px solid var(--border);
+    display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+  }
+  .modal-header-left { display:flex; align-items:center; gap:12px; }
+  .modal-header-icon { width:42px; height:42px; border-radius:10px; background:var(--green-light); border:1px solid var(--green-mid); display:flex; align-items:center; justify-content:center; font-size:1.3rem; flex-shrink:0; }
+  .modal-title { font-size:1.05rem; font-weight:800; color:var(--dark); margin-bottom:2px; }
+  .modal-sub { font-size:0.72rem; color:var(--muted); }
+  .modal-close {
+    width:32px; height:32px; border-radius:8px; border:1px solid var(--border);
+    background:var(--bg); cursor:pointer; display:flex; align-items:center;
+    justify-content:center; font-size:1.1rem; color:var(--muted); flex-shrink:0;
+    transition:all .15s;
+  }
+  .modal-close:hover { background:var(--dark); color:#fff; border-color:var(--dark); }
+  .modal-body { padding:20px 24px 24px; overflow-y:auto; flex:1; }
+  .modal-label { font-size:0.62rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+  .modal-label::after { content:''; flex:1; height:1px; background:var(--border); }
+  .prompt-box {
+    background:#1e2329; color:#a8d8a8; font-family:'Courier New',Courier,monospace;
+    font-size:0.82rem; line-height:1.75; padding:18px 20px; border-radius:10px;
+    white-space:pre-wrap; word-break:break-word; position:relative;
+    border:1px solid #2d3440;
+  }
+  .copy-btn {
+    position:absolute; top:10px; left:10px;
+    background:#2d3440; color:#7d8590; border:1px solid #3d4450;
+    border-radius:6px; padding:4px 10px; font-size:0.68rem; font-family:'Heebo',sans-serif;
+    font-weight:700; cursor:pointer; transition:all .15s; letter-spacing:.04em;
+  }
+  .copy-btn:hover { background:var(--green); color:#fff; border-color:var(--green); }
+  .copy-btn.copied { background:var(--green); color:#fff; border-color:var(--green); }
+  .modal-tip { margin-top:14px; background:var(--green-light); border:1px solid var(--green-mid); border-radius:8px; padding:12px 14px; font-size:0.78rem; color:#1a6e3a; line-height:1.6; }
+  .modal-tip strong { font-weight:700; }
 
   .no-results { text-align:center; padding:60px 20px; color:var(--muted); display:none; }
   .no-results.show { display:block; }
@@ -99,7 +164,6 @@
 </div>
 
 <div class="page">
-
   <div class="header">
     <div class="eyebrow"><svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor"><circle cx="4" cy="4" r="3"/></svg> כלי למידה דיגיטליים — הנדסה לתואר ראשון</div>
     <div class="header-row">
@@ -144,7 +208,6 @@
   </div>
 
   <div class="results-count"><span id="rc-num">10</span> פעילויות מוצגות</div>
-
   <div class="grid" id="cards-grid"></div>
   <div class="no-results" id="no-results">
     <div class="nr-icon">🔍</div>
@@ -155,18 +218,276 @@
   <div class="footer"><p>פותח עבור מרצי <strong>אפקה — המכללה האקדמית להנדסה תל-אביב</strong> | כל הפעילויות עצמאיות ואינן דורשות חיבור לרשת</p></div>
 </div>
 
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <div class="modal-header-icon" id="modal-icon"></div>
+        <div>
+          <div class="modal-title" id="modal-title"></div>
+          <div class="modal-sub" id="modal-sub"></div>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-label">הפרומפט ששימש ליצירת הפעילות</div>
+      <div class="prompt-box" id="modal-prompt">
+        <button class="copy-btn" id="copy-btn" onclick="copyPrompt()">העתק</button>
+        <span id="prompt-text"></span>
+      </div>
+      <div class="modal-tip" id="modal-tip"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 const activities = [
-  { id:1, file:'01-software-sorting.html', icon:'🔄', field:'software', fieldLabel:'הנדסת תוכנה', type:'simulation', typeLabel:'סימולציה', title:'ויזואליזציה של אלגוריתמי מיון', sub:'מבני נתונים | סיבוכיות זמן | Big-O', outcomes:['הבנת ההבדל בין O(n²) ל-O(n log n)','זיהוי מצבים שבהם כל אלגוריתם עדיף','קריאת טבלת סיבוכיות ופרשנות מעשית','תצפית בפעולות השוואה והחלפה בזמן אמת'], tags:['Bubble Sort','Merge Sort','Quick Sort','אנימציה חיה'], keywords:'אלגוריתם מיון מבני נתונים' },
-  { id:2, file:'02-electrical-circuit.html', icon:'⚡', field:'electrical', fieldLabel:'הנדסת חשמל', type:'simulation', typeLabel:'סימולציה', title:'מעבדת מעגלים חשמליים', sub:'חוק אוהם | מעגלי טור ומקביל | הספק', outcomes:['יישום חוק אוהם V=I×R','הבנת הקשר בין מתח, זרם והתנגדות','חישוב התנגדות שקולה בטור ובמקביל','זיהוי השפעת שינוי פרמטר אחד על האחרים'], tags:['V=IR','טור ומקביל','P=VI','נעילת משתנה'], keywords:'אוהם מתח זרם התנגדות מעגל חשמלי' },
-  { id:3, file:'03-mechanical-stress-strain.html', icon:'🔩', field:'mechanical', fieldLabel:'הנדסה מכנית', type:'simulation', typeLabel:'סימולציה', title:'עקומת מאמץ-עיבור', sub:'מכניקת חומרים | Stress-Strain | מודול יאנג', outcomes:['קריאת עקומת מאמץ-עיבור','זיהוי אזורים: אלסטי, פלסטי, שבירה','השוואת מאפייני חומרים שונים','הבנת הקשר בין מבנה החומר להתנהגותו'], tags:['5 חומרים','אזור אלסטי','Necking','שבירה'], keywords:'מכניקה חומרים פלדה אלומיניום' },
-  { id:4, file:'04-industrial-production.html', icon:'🏭', field:'industrial', fieldLabel:'הנדסה תעשייתית', type:'simulation', typeLabel:'סימולציה', title:'סימולטור קו ייצור', sub:"תורת התורים | Little's Law | צוואר בקבוק", outcomes:['זיהוי צוואר בקבוק ומשמעותו','יישום חוק ליטל L=λ×W','הבנת מדדי ביצוע: WIP, Cycle Time','ניסוי אסטרטגיות איזון קו ייצור'], tags:["Little's Law",'גנט','Bottleneck','KPIs'], keywords:'ייצור תורים תהליך אופטימיזציה' },
-  { id:5, file:'05-math-calculus.html', icon:'∫', field:'math', fieldLabel:'מתמטיקה', type:'visualization', typeLabel:'ויזואליזציה', title:'חשבון אינטגרלי ודיפרנציאלי', sub:"נגזרת | אינטגרל | נקודות קריטיות | f'(x)", outcomes:['הבנה גיאומטרית של נגזרת כשיפוע','קישור בין שיפוע הנגזרת לעלייה/ירידה','פרשנות ויזואלית של אינטגרל כשטח','זיהוי נקודות מקסימום ומינימום'], tags:['8 פונקציות','משיק חי','שטח אינטגרל',"f'(x)"], keywords:'נגזרת אינטגרל פונקציה גרף מתמטיקה' },
-  { id:6, file:'06-biomedical-ecg.html', icon:'🫀', field:'biomedical', fieldLabel:'הנדסה רפואית', type:'simulation', typeLabel:'סימולציה', title:'סימולטור אק"ג | ECG Monitor', sub:'פענוח גלי PQRST | הפרעות קצב | ניטור', outcomes:['זיהוי גלי P, QRS ו-T','אבחון הפרעות קצב: AFib, VFib','הבנת הקשר בין האות החשמלי ללב','פרשנות HR, SpO₂, BP'], tags:['7 קצבי לב','PQRST','AFib','סימנים חיוניים'], keywords:'אקג לב קצב פרפור ניטור רפואה' },
-  { id:7, file:'07-physics-waves.html', icon:'〰️', field:'physics', fieldLabel:'פיזיקה', type:'visualization', typeLabel:'ויזואליזציה', title:'גלים וסופרפוזיציה', sub:'פיזיקה גלית | הפרעה בונה ומהרסת | פעימות', outcomes:['הבנת עקרון הסופרפוזיציה','זיהוי הפרעה בונה ומהרסת','הסבר תופעת הפעימות (Beats)','קשר בין פאזה, תדר ואמפליטודה'], tags:['הפרעה בונה','הפרעה מהרסת','פעימות','גל עומד'], keywords:'גל פיזיקה סופרפוזיציה תדר פאזה' },
-  { id:8, file:'08-electrical-logic-gates.html', icon:'⊕', field:'electrical', fieldLabel:'הנדסת חשמל', type:'visualization', typeLabel:'ויזואליזציה', title:'שערים לוגיים אינטראקטיביים', sub:'AND | OR | NOT | XOR | NAND | NOR', outcomes:['הכרת 6 שערים לוגיים ופעולתם','קריאת טבלת אמת לכל שער','הבנת Universal Gate','יישום אלגברה בוליאנית'], tags:['AND/OR/NOT','XOR','NAND/NOR','טבלת אמת'], keywords:'לוגיקה שערים דיגיטלי בוליאני' },
-  { id:9, file:'09-math-derivatives-quiz.html', icon:'∂', field:'math', fieldLabel:'מתמטיקה', type:'quiz', typeLabel:'חידון', title:'חידון חוקי נגזרות', sub:'10 שאלות | פידבק מיידי | ניקוד', outcomes:['שינון חוקי הנגזרת הבסיסיים','זיהוי שגיאות נפוצות','הערכה עצמית של שליטה בחומר','חיזוק ידע לפני בחינה'], tags:['10 שאלות','פידבק מיידי','חוק החזקה','sin/cos/eˣ'], keywords:'נגזרת חידון מתמטיקה בחינה עצמית' },
-  { id:10, file:'10-industrial-process-sort.html', icon:'🔀', field:'industrial', fieldLabel:'הנדסה תעשייתית', type:'interactive', typeLabel:'אינטראקטיבי', title:'מיון שלבי תהליך ייצור', sub:'גרור ושחרר | ייצור | פיתוח תוכנה | ניהול פרויקט', outcomes:['הבנת הסדר הנכון של תהליכי ייצור','היכרות עם מחזור SDLC','הכרת שלבי ניהול פרויקט PMBOK','חשיבה על הרציונל של כל שלב'], tags:['Drag & Drop','3 תרחישים','SDLC','PMBOK'], keywords:'תהליך ייצור מיון סדר פרויקט' }
+  {
+    id:1, file:'01-software-sorting.html', icon:'🔄', field:'software', fieldLabel:'הנדסת תוכנה',
+    type:'simulation', typeLabel:'סימולציה',
+    title:'ויזואליזציה של אלגוריתמי מיון', sub:'מבני נתונים | Big-O | סיבוכיות זמן',
+    outcomes:['הבנת ההבדל בין O(n²) ל-O(n log n)','זיהוי מצבים שבהם כל אלגוריתם עדיף','קריאת טבלת סיבוכיות ופרשנות מעשית','תצפית בפעולות השוואה והחלפה בזמן אמת'],
+    tags:['Bubble Sort','Merge Sort','Quick Sort','אנימציה חיה'],
+    keywords:'אלגוריתם מיון מבני נתונים',
+    prompt:`צור פעילות למידה אינטראקטיבית בנושא אלגוריתמי מיון להנדסת תוכנה.
+
+הפעילות תכלול:
+- ויזואליזציה אנימציה חיה של 5 אלגוריתמים: Bubble, Selection, Insertion, Merge, Quick Sort
+- בחירת אלגוריתם ומהירות אנימציה
+- ספירה חיה של פעולות השוואה והחלפה
+- טבלת Big-O סיבוכיות זמן ומקום עם הדגשת השורה הנוכחית
+- עיצוב canvas עם צבעים לפי מצב: רגיל / משווה / ממוין / ציר
+
+תוצרי הלמידה:
+- הבנת ההבדל בין O(n²) ל-O(n log n) בצורה ויזואלית
+- זיהוי מתי כל אלגוריתם עדיף
+- קריאת ופרשנות טבלת סיבוכיות
+
+שפה: עברית, קובץ HTML אחד עצמאי ללא תלויות חיצוניות.`,
+    tip:'<strong>טיפ לשימוש:</strong> שנה את גודל המערך ומהירות האנימציה כדי לראות את ההבדל בין O(n²) ל-O(n log n) בצורה ברורה.'
+  },
+  {
+    id:2, file:'02-electrical-circuit.html', icon:'⚡', field:'electrical', fieldLabel:'הנדסת חשמל',
+    type:'simulation', typeLabel:'סימולציה',
+    title:'מעבדת מעגלים חשמליים', sub:'חוק אוהם | טור ומקביל | הספק',
+    outcomes:['יישום חוק אוהם V=I×R','הבנת הקשר בין מתח, זרם והתנגדות','חישוב התנגדות שקולה בטור ובמקביל','זיהוי השפעת שינוי פרמטר אחד על האחרים'],
+    tags:['V=IR','טור ומקביל','P=VI','נעילת משתנה'],
+    keywords:'אוהם מתח זרם התנגדות מעגל חשמלי',
+    prompt:`צור מעבדה וירטואלית אינטראקטיבית לחוק אוהם ומעגלים חשמליים.
+
+הפעילות תכלול:
+- סליידרים לשינוי V, I, R עם אפשרות לנעול משתנה אחד
+- 3 מצבים: מעגל בודד, מעגל טור, מעגל מקביל
+- ציור canvas של המעגל עם אפקטי זוהר
+- חישוב P=VI בזמן אמת
+- הצגת נוסחאות וחישובים מפורטים
+
+תוצרי הלמידה:
+- יישום חוק אוהם V=I×R
+- הבנת הקשר בין מתח, זרם, התנגדות והספק
+- חישוב התנגדות שקולה בטור ובמקביל
+
+שפה: עברית, קובץ HTML אחד עצמאי ללא תלויות חיצוניות.`,
+    tip:'<strong>נסה את זה:</strong> נעל את ה-R ושנה את V — תראה כיצד I משתנה בהתאם. אחר כך נסה את מצב המקביל ובדוק מדוע ההתנגדות השקולה קטנה מכל נגד בנפרד.'
+  },
+  {
+    id:3, file:'03-mechanical-stress-strain.html', icon:'🔩', field:'mechanical', fieldLabel:'הנדסה מכנית',
+    type:'simulation', typeLabel:'סימולציה',
+    title:'עקומת מאמץ-עיבור', sub:'מכניקת חומרים | Stress-Strain | מודול יאנג',
+    outcomes:['קריאת עקומת מאמץ-עיבור','זיהוי אזורים: אלסטי, פלסטי, שבירה','השוואת מאפייני חומרים שונים','הבנת הקשר בין מבנה החומר להתנהגותו'],
+    tags:['5 חומרים','אזור אלסטי','Necking','שבירה'],
+    keywords:'מכניקה חומרים פלדה אלומיניום עיבור מאמץ',
+    prompt:`צור סימולטור אינטראקטיבי לעקומת מאמץ-עיבור (Stress-Strain Curve) להנדסה מכנית.
+
+הפעילות תכלול:
+- בחירה מתוך 5 חומרים: פלדה, אלומיניום, נחושת, גומי, עצם
+- גרף canvas עם 4 אזורים: אלסטי, פלסטי, צווארון (Necking), שבירה
+- אנימציה של דגימה שמתעוותת ומתארכת בזמן הטעינה
+- כפתור "הפעל עד לשבירה"
+- הצגת E (מודול יאנג), UTS, Yield Strength
+
+תוצרי הלמידה:
+- קריאת עקומת מאמץ-עיבור
+- זיהוי אזורים: אלסטי, פלסטי, Necking, שבירה
+- השוואת מאפייני חומרים שונים
+
+שפה: עברית, קובץ HTML אחד עצמאי ללא תלויות חיצוניות.`,
+    tip:'<strong>השווה חומרים:</strong> בחר גומי ואחר כך פלדה — שים לב להבדל הדרמטי ב-E (מודול יאנג) ולאופי שונה לחלוטין של עקומת ה-Stress-Strain.'
+  },
+  {
+    id:4, file:'04-industrial-production.html', icon:'🏭', field:'industrial', fieldLabel:'הנדסה תעשייתית',
+    type:'simulation', typeLabel:'סימולציה',
+    title:'סימולטור קו ייצור', sub:"Little's Law | צוואר בקבוק | KPIs",
+    outcomes:['זיהוי צוואר בקבוק ומשמעותו','יישום חוק ליטל L=λ×W','הבנת מדדי ביצוע: WIP, Cycle Time','ניסוי אסטרטגיות איזון קו ייצור'],
+    tags:["Little's Law",'גנט','Bottleneck','KPIs'],
+    keywords:'ייצור תורים תהליך אופטימיזציה',
+    prompt:`צור סימולטור קו ייצור אינטראקטיבי להנדסה תעשייתית.
+
+הפעילות תכלול:
+- 4 תחנות ייצור עם סליידרים לשינוי קצב
+- זיהוי צוואר בקבוק בזמן אמת (תחנת המינימום)
+- אנימציה של חגורת הובלה עם מוצרים נעים
+- גרף גנט על canvas
+- KPIs: תפוקה, WIP, Cycle Time, תחנת צוואר בקבוק
+- יישום חוק ליטל: L = λ × W
+
+תוצרי הלמידה:
+- הבנת צוואר בקבוק ומשמעותו לתפוקה
+- יישום חוק ליטל
+- ניסוי אסטרטגיות איזון קו ייצור
+
+שפה: עברית, קובץ HTML אחד עצמאי ללא תלויות חיצוניות.`,
+    tip:'<strong>ניסוי מומלץ:</strong> הפחת את קצב תחנה 2 לאפס — ראה כיצד כל קו הייצור נעצר. זה בדיוק עקרון צוואר הבקבוק של Theory of Constraints.'
+  },
+  {
+    id:5, file:'05-math-calculus.html', icon:'∫', field:'math', fieldLabel:'מתמטיקה',
+    type:'visualization', typeLabel:'ויזואליזציה',
+    title:'חשבון אינטגרלי ודיפרנציאלי', sub:"נגזרת | אינטגרל | f'(x) | נקודות קריטיות",
+    outcomes:['הבנה גיאומטרית של נגזרת כשיפוע','קישור בין שיפוע הנגזרת לעלייה/ירידה','פרשנות ויזואלית של אינטגרל כשטח','זיהוי נקודות מקסימום ומינימום'],
+    tags:['8 פונקציות','משיק חי','שטח אינטגרל',"f'(x)"],
+    keywords:'נגזרת אינטגרל פונקציה גרף מתמטיקה',
+    prompt:`צור חוקר חשבון דיפרנציאלי ואינטגרלי אינטראקטיבי.
+
+הפעילות תכלול:
+- בחירה מתוך 8 פונקציות: x², x³-3x, sin, cos, eˣ, x⁴-4x², ln(x), 1/x
+- סליידר X שמזיז נקודה לאורך הגרף
+- מצבים: קו משיק, שטח אינטגרל, שניהם
+- הצגת f(x), f'(x), f''(x), ערך האינטגרל
+- תיאור מצב: עולה/יורדת, קעורה/קמורה, מקסימום/מינימום
+
+תוצרי הלמידה:
+- הבנה גיאומטרית של נגזרת כשיפוע המשיק
+- קישור בין סימן הנגזרת לעלייה/ירידה
+- פרשנות ויזואלית של אינטגרל כשטח
+
+שפה: עברית, קובץ HTML אחד עצמאי ללא תלויות חיצוניות.`,
+    tip:"<strong>נסה זאת:</strong> בחר x³-3x והפעל מצב 'שניהם' — גרור את X מעבר לנקודות הקריטיות וראה כיצד f'(x) עובר מ-+ ל-- בנקודת המקסימום."
+  },
+  {
+    id:6, file:'06-biomedical-ecg.html', icon:'🫀', field:'biomedical', fieldLabel:'הנדסה רפואית',
+    type:'simulation', typeLabel:'סימולציה',
+    title:'סימולטור אק"ג | ECG Monitor', sub:'PQRST | הפרעות קצב | סימנים חיוניים',
+    outcomes:['זיהוי גלי P, QRS ו-T','אבחון הפרעות קצב: AFib, VFib','הבנת הקשר בין האות החשמלי ללב','פרשנות HR, SpO₂, BP'],
+    tags:['7 קצבי לב','PQRST','AFib','סימנים חיוניים'],
+    keywords:'אקג לב קצב פרפור ניטור רפואה',
+    prompt:`צור מוניטור אק"ג (ECG) וירטואלי אינטראקטיבי להנדסה רפואית.
+
+הפעילות תכלול:
+- 7 קצבי לב: NSR, Tachycardia, Bradycardia, AFib, VFib, PVC, Asystole
+- גל ECG גולל בזמן אמת על canvas עם רקע נייר-גרף
+- סימנים חיוניים: HR, SpO₂, BP, RR, Temp
+- התראה אדומה מהבהבת ב-VFib
+- הסבר קליני לכל קצב
+
+תוצרי הלמידה:
+- זיהוי גלי P, QRS ו-T ומשמעותם
+- אבחון הפרעות קצב: AFib, VFib, Brady
+- הבנת הקשר בין האות החשמלי לפעילות הלב
+
+שפה: עברית, קובץ HTML אחד עצמאי ללא תלויות חיצוניות.`,
+    tip:'<strong>לתרגול קליני:</strong> עבור בין VFib ל-NSR — שים לב להבדל הדרמטי בסימנים החיוניים. VFib היא מצב חירום — לכן ההתראה האדומה.'
+  },
+  {
+    id:7, file:'07-physics-waves.html', icon:'〰️', field:'physics', fieldLabel:'פיזיקה',
+    type:'visualization', typeLabel:'ויזואליזציה',
+    title:'גלים וסופרפוזיציה', sub:'הפרעה בונה ומהרסת | פעימות | גל עומד',
+    outcomes:['הבנת עקרון הסופרפוזיציה','זיהוי הפרעה בונה ומהרסת','הסבר תופעת הפעימות (Beats)','קשר בין פאזה, תדר ואמפליטודה'],
+    tags:['הפרעה בונה','הפרעה מהרסת','פעימות','גל עומד'],
+    keywords:'גל פיזיקה סופרפוזיציה תדר פאזה',
+    prompt:`צור ויזואליזציה אינטראקטיבית של גלים וסופרפוזיציה לפיזיקה.
+
+הפעילות תכלול:
+- 3 canvases: גל 1 (כחול), גל 2 (כתום), גל מורכב (ירוק)
+- סליידרים: אמפליטודה, תדר, פאזה לכל גל
+- 4 פרסטים: הפרעה בונה, הפרעה מהרסת, פעימות, גל עומד
+- תיבת מידע שמסבירה את סוג ההתאבכות בזמן אמת
+- עיצוב כהה עם אפקטי glow
+
+תוצרי הלמידה:
+- הבנת עקרון הסופרפוזיציה
+- זיהוי הפרעה בונה ומהרסת
+- הסבר תופעת הפעימות (Beats)
+- קשר בין פאזה, תדר ואמפליטודה לגל המורכב
+
+שפה: עברית, קובץ HTML אחד עצמאי ללא תלויות חיצוניות.`,
+    tip:'<strong>ניסוי מעניין:</strong> לחץ "פעימות" ואז שנה את הפרש התדרים בהדרגה — תשמע בדמיון את הגל "פועם". כך מכוונים כלי נגינה!'
+  },
+  {
+    id:8, file:'08-electrical-logic-gates.html', icon:'⊕', field:'electrical', fieldLabel:'הנדסת חשמל',
+    type:'visualization', typeLabel:'ויזואליזציה',
+    title:'שערים לוגיים אינטראקטיביים', sub:'AND | OR | NOT | XOR | NAND | NOR',
+    outcomes:['הכרת 6 שערים לוגיים ופעולתם','קריאת טבלת אמת לכל שער','הבנת Universal Gate','יישום אלגברה בוליאנית'],
+    tags:['AND/OR/NOT','XOR','NAND/NOR','טבלת אמת'],
+    keywords:'לוגיקה שערים דיגיטלי בוליאני',
+    prompt:`צור ויזואליזציה אינטראקטיבית של שערים לוגיים להנדסת חשמל — לוגיקה דיגיטלית.
+
+הפעילות תכלול:
+- 6 שערים: AND, OR, NOT, XOR, NAND, NOR
+- לכל שער: דיאגרמת SVG, כפתורי A/B להחלפת קלט, תיבת תוצאה Y
+- טבלת אמת עם הדגשת השורה הפעילה
+- הסבר לכל שער כולל שימושים נפוצים
+- עיצוב בצבעי אפקה: לבן וירוק
+
+תוצרי הלמידה:
+- הכרת 6 שערים לוגיים ופעולתם
+- קריאת טבלת אמת
+- הבנת Universal Gate (NAND, NOR)
+- יישום אלגברה בוליאנית
+
+שפה: עברית, קובץ HTML אחד עצמאי ללא תלויות חיצוניות.`,
+    tip:'<strong>אתגר:</strong> נסה לבנות שער AND מתוך שערי NAND בלבד — זו הסיבה שנקרא Universal Gate. NAND(NAND(A,B), NAND(A,B)) = AND!'
+  },
+  {
+    id:9, file:'09-math-derivatives-quiz.html', icon:'∂', field:'math', fieldLabel:'מתמטיקה',
+    type:'quiz', typeLabel:'חידון',
+    title:'חידון חוקי נגזרות', sub:'10 שאלות | פידבק מיידי | ניקוד',
+    outcomes:['שינון חוקי הנגזרת הבסיסיים','זיהוי שגיאות נפוצות','הערכה עצמית של שליטה בחומר','חיזוק ידע לפני בחינה'],
+    tags:['10 שאלות','פידבק מיידי','חוק החזקה','sin/cos/eˣ'],
+    keywords:'נגזרת חידון מתמטיקה בחינה עצמית',
+    prompt:`צור חידון אינטראקטיבי לחוקי נגזרות למתמטיקה בהנדסה.
+
+הפעילות תכלול:
+- 10 שאלות אקראיות מתוך מאגר של חוקי נגזרות: חוק החזקה, sin, cos, eˣ, ln, tan, √x, קבוע, פונקציה מורכבת
+- 4 אפשרויות בחירה לכל שאלה (multiple choice)
+- פידבק מיידי עם הסבר לכל תשובה
+- סרגל התקדמות, ניקוד חי, מסך סיום עם אמוג'י
+- עיצוב בצבעי אפקה
+
+תוצרי הלמידה:
+- שינון חוקי הנגזרת הבסיסיים
+- זיהוי שגיאות נפוצות
+- הערכה עצמית לפני בחינה
+
+שפה: עברית, קובץ HTML אחד עצמאי ללא תלויות חיצוניות.`,
+    tip:'<strong>לשימוש מיטבי:</strong> הפעל את החידון 3 פעמים ברצף — הסדר אקראי מדי פעם מחדש. עד שמגיעים ל-10/10 עם פידבק מיידי.'
+  },
+  {
+    id:10, file:'10-industrial-process-sort.html', icon:'🔀', field:'industrial', fieldLabel:'הנדסה תעשייתית',
+    type:'interactive', typeLabel:'אינטראקטיבי',
+    title:'מיון שלבי תהליך ייצור', sub:'גרור ושחרר | SDLC | PMBOK',
+    outcomes:['הבנת הסדר הנכון של תהליכי ייצור','היכרות עם מחזור SDLC','הכרת שלבי ניהול פרויקט PMBOK','חשיבה על הרציונל של כל שלב'],
+    tags:['Drag & Drop','3 תרחישים','SDLC','PMBOK'],
+    keywords:'תהליך ייצור מיון סדר פרויקט',
+    prompt:`צור פעילות גרור-ושחרר (Drag & Drop) לסידור שלבי תהליכים להנדסה תעשייתית.
+
+הפעילות תכלול:
+- 3 תרחישים: תהליך ייצור, מחזור פיתוח תוכנה (SDLC), ניהול פרויקט (PMBOK)
+- גרירת שלבים מאזור מקור לאזור יעד
+- כפתור "בדוק" — צביעה ירוק/אדום לפי נכון/שגוי
+- כפתור "גלה" — מציג את הסדר הנכון עם הסבר לכל שלב
+- עיצוב בצבעי אפקה
+
+תוצרי הלמידה:
+- הבנת הסדר הנכון של תהליכי ייצור
+- היכרות עם מחזור SDLC
+- הכרת שלבי PMBOK
+- חשיבה על הרציונל של כל שלב
+
+שפה: עברית, קובץ HTML אחד עצמאי ללא תלויות חיצוניות.`,
+    tip:'<strong>לדיון בכיתה:</strong> שאל "למה תכנון בא לפני ביצוע?" — השלבים מעוררים שיחה על הרציונל שמאחורי כל מתודולוגיה: ייצור, תוכנה וניהול פרויקטים.'
+  }
 ];
 
 let activeFilters = { type:'all', field:'all' };
@@ -196,6 +517,42 @@ function filterCards() {
   document.getElementById('no-results').classList.toggle('show', visible === 0);
 }
 
+function openPrompt(id, event) {
+  event.preventDefault();
+  event.stopPropagation();
+  const a = activities.find(x => x.id === id);
+  if (!a) return;
+  document.getElementById('modal-icon').textContent = a.icon;
+  document.getElementById('modal-title').textContent = a.title;
+  document.getElementById('modal-sub').textContent = a.fieldLabel + ' — ' + a.typeLabel;
+  document.getElementById('prompt-text').textContent = a.prompt;
+  document.getElementById('modal-tip').innerHTML = a.tip;
+  document.getElementById('copy-btn').textContent = 'העתק';
+  document.getElementById('copy-btn').classList.remove('copied');
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(event) {
+  if (event.target === document.getElementById('modal-overlay')) closeModalDirect();
+}
+function closeModalDirect() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function copyPrompt() {
+  const text = document.getElementById('prompt-text').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = '✓ הועתק!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'העתק'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModalDirect(); });
+
 function buildCards() {
   document.getElementById('cards-grid').innerHTML = activities.map(a => `
     <a class="card" id="card-${a.id}" href="${a.file}" target="_blank">
@@ -211,7 +568,12 @@ function buildCards() {
       <div class="section-label">תוצרי למידה</div>
       <ul class="outcomes">${a.outcomes.map(o => '<li>' + o + '</li>').join('')}</ul>
       <div class="tags">${a.tags.map(t => '<span class="tag">' + t + '</span>').join('')}</div>
-      <div class="card-cta">פתח פעילות <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M1 7h12M7 1l6 6-6 6"/></svg></div>
+      <div class="card-footer">
+        <button class="prompt-btn" onclick="openPrompt(${a.id}, event)">
+          <span class="pb-icon">✦</span> פרומפט
+        </button>
+        <div class="card-cta">פתח פעילות <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M1 7h12M7 1l6 6-6 6"/></svg></div>
+      </div>
     </a>`).join('');
 }
 
