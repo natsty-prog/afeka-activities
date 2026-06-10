@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>פעילויות למידה עצמאית | אפקה</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap');
+  :root {
+    --green:#1fa85c; --dark:#343a41; --green-light:#e8f7ef;
+    --green-mid:#b8e8ce; --bg:#f5f7f6; --surface:#fff;
+    --border:#e2e8e4; --text:#343a41; --muted:#7a8a80; --radius:14px;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Heebo','Segoe UI',Arial,sans-serif; min-height:100vh; }
+
+  .topbar { background:var(--dark); padding:14px 40px; display:flex; align-items:center; justify-content:space-between; }
+  .topbar-logo { display:flex; align-items:center; gap:10px; font-size:0.85rem; font-weight:700; color:#fff; }
+  .topbar-logo .dot { width:28px; height:28px; border-radius:8px; background:var(--green); display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:900; color:white; }
+  .topbar-label { font-size:0.72rem; color:rgba(255,255,255,.45); font-weight:400; letter-spacing:.06em; }
+
+  .page { padding:40px 40px 64px; max-width:1280px; margin:0 auto; }
+
+  .header { margin-bottom:32px; }
+  .eyebrow { display:inline-flex; align-items:center; gap:7px; font-size:0.72rem; letter-spacing:.14em; text-transform:uppercase; font-weight:700; color:var(--green); background:var(--green-light); border:1px solid var(--green-mid); border-radius:40px; padding:5px 14px; margin-bottom:14px; }
+  .header-row { display:flex; align-items:flex-end; justify-content:space-between; gap:24px; flex-wrap:wrap; }
+  .header h1 { font-size:clamp(1.7rem,3.5vw,2.4rem); font-weight:900; line-height:1.15; color:var(--dark); }
+  .header h1 span { color:var(--green); }
+  .header p { font-size:0.9rem; color:var(--muted); max-width:380px; line-height:1.7; }
+
+  .stats-row { display:flex; margin-bottom:28px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+  .stat { flex:1; padding:16px 18px; text-align:center; border-left:1px solid var(--border); }
+  .stat:last-child { border-left:none; }
+  .stat .num { font-size:1.8rem; font-weight:900; color:var(--green); line-height:1; margin-bottom:3px; }
+  .stat .lbl { font-size:0.7rem; color:var(--muted); letter-spacing:.04em; font-weight:500; }
+
+  .filter-bar { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 20px; margin-bottom:24px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .search-wrap { position:relative; flex:1; min-width:200px; }
+  .search-wrap svg { position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--muted); pointer-events:none; }
+  .search-input { width:100%; padding:9px 36px 9px 14px; border:1.5px solid var(--border); border-radius:8px; font-family:'Heebo',sans-serif; font-size:0.88rem; color:var(--dark); background:var(--bg); outline:none; transition:border-color .18s; }
+  .search-input:focus { border-color:var(--green); }
+  .search-input::placeholder { color:var(--muted); }
+
+  .filter-group { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+  .filter-label { font-size:0.72rem; font-weight:700; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; white-space:nowrap; }
+  .filter-btn { padding:6px 13px; border-radius:20px; border:1.5px solid var(--border); background:var(--bg); color:var(--muted); font-family:'Heebo',sans-serif; font-size:0.75rem; font-weight:600; cursor:pointer; transition:all .18s; white-space:nowrap; }
+  .filter-btn:hover { border-color:var(--green); color:var(--green); }
+  .filter-btn.active { background:var(--green-light); border-color:var(--green); color:var(--green); }
+  .filter-divider { width:1px; height:32px; background:var(--border); flex-shrink:0; }
+
+  .results-count { font-size:0.8rem; color:var(--muted); margin-bottom:16px; }
+  .results-count span { color:var(--green); font-weight:700; }
+
+  .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+
+  .card { position:relative; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:24px 22px 20px; cursor:pointer; text-decoration:none; color:var(--text); display:flex; flex-direction:column; transition:transform .2s, box-shadow .2s, border-color .2s; overflow:hidden; }
+  .card:hover { transform:translateY(-4px); border-color:var(--green); box-shadow:0 10px 32px -6px rgba(31,168,92,.16), 0 2px 8px rgba(0,0,0,.05); }
+  .card-stripe { position:absolute; top:0; left:0; right:0; height:3px; background:var(--green); opacity:.45; transition:opacity .2s; }
+  .card:hover .card-stripe { opacity:1; }
+  .card-head { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:12px; }
+  .card-icon { width:46px; height:46px; border-radius:11px; background:var(--green-light); border:1px solid var(--green-mid); display:flex; align-items:center; justify-content:center; font-size:1.4rem; flex-shrink:0; transition:background .2s; }
+  .card:hover .card-icon { background:var(--green); }
+  .card-badge { font-size:0.6rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; background:var(--bg); border:1px solid var(--border); color:var(--muted); border-radius:20px; padding:3px 9px; transition:all .2s; }
+  .card:hover .card-badge { color:var(--green); border-color:var(--green-mid); background:var(--green-light); }
+  .type-pill { display:inline-flex; align-items:center; gap:5px; font-size:0.6rem; font-weight:700; padding:3px 9px; border-radius:20px; margin-bottom:8px; background:var(--bg); color:var(--muted); border:1px solid var(--border); }
+  .type-pill .dot { width:5px; height:5px; border-radius:50%; background:var(--green); }
+  .card-title { font-size:0.97rem; font-weight:800; line-height:1.3; margin-bottom:4px; color:var(--dark); }
+  .card-sub { font-size:0.74rem; color:var(--muted); margin-bottom:12px; }
+  .card hr { border:none; border-top:1px solid var(--border); margin:10px 0; }
+  .section-label { font-size:0.58rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-weight:700; margin-bottom:6px; }
+  .outcomes { list-style:none; flex:1; }
+  .outcomes li { display:flex; align-items:flex-start; gap:7px; font-size:0.78rem; color:#4a5a50; line-height:1.5; margin-bottom:5px; }
+  .outcomes li::before { content:'✓'; color:var(--green); font-size:0.68rem; font-weight:800; flex-shrink:0; margin-top:2px; }
+  .tags { display:flex; flex-wrap:wrap; gap:4px; margin-top:12px; }
+  .tag { font-size:0.6rem; font-weight:600; background:var(--bg); border:1px solid var(--border); border-radius:20px; padding:2px 8px; color:var(--muted); transition:all .18s; }
+  .card:hover .tag { color:var(--green); border-color:var(--green-mid); background:var(--green-light); }
+  .card-cta { display:flex; align-items:center; justify-content:flex-end; gap:5px; font-size:0.74rem; font-weight:700; color:var(--green); margin-top:14px; opacity:0; transform:translateX(-4px); transition:opacity .2s, transform .2s; }
+  .card:hover .card-cta { opacity:1; transform:translateX(0); }
+
+  .no-results { text-align:center; padding:60px 20px; color:var(--muted); display:none; }
+  .no-results.show { display:block; }
+  .no-results .nr-icon { font-size:2.5rem; margin-bottom:12px; }
+
+  .footer { text-align:center; margin-top:48px; color:var(--muted); font-size:0.76rem; padding-top:20px; border-top:1px solid var(--border); }
+  .footer strong { color:var(--dark); }
+
+  @media(max-width:960px){ .grid{grid-template-columns:repeat(2,1fr);} }
+  @media(max-width:620px){ .grid{grid-template-columns:1fr;} .page{padding:24px 14px;} .topbar{padding:12px 16px;} .stats-row{flex-wrap:wrap;} .filter-bar{flex-direction:column;align-items:stretch;} }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">
+    <div class="dot">א</div>
+    אפקה — המכללה האקדמית להנדסה תל-אביב
+  </div>
+  <div class="topbar-label">למידה עצמאית אינטראקטיבית</div>
+</div>
+
+<div class="page">
+
+  <div class="header">
+    <div class="eyebrow"><svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor"><circle cx="4" cy="4" r="3"/></svg> כלי למידה דיגיטליים — הנדסה לתואר ראשון</div>
+    <div class="header-row">
+      <h1>פעילויות <span>למידה עצמאית</span><br>אינטראקטיביות</h1>
+      <p>סביבות חקירה דיגיטליות — לכל תחום הנדסי פעילות ייחודית שמאפשרת ניסוי, גילוי ולמידה ללא תלות במרצה</p>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat"><div class="num">10</div><div class="lbl">פעילויות</div></div>
+    <div class="stat"><div class="num">7</div><div class="lbl">תחומי הנדסה</div></div>
+    <div class="stat"><div class="num">100%</div><div class="lbl">אינטראקטיבי</div></div>
+    <div class="stat"><div class="num">∞</div><div class="lbl">ניסויים אפשריים</div></div>
+  </div>
+
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="7"/><path d="M15 15l3 3"/></svg>
+      <input type="text" class="search-input" id="search-input" placeholder="חפש פעילות, תחום או מילת מפתח..." oninput="filterCards()">
+    </div>
+    <div class="filter-divider"></div>
+    <div class="filter-group">
+      <span class="filter-label">סוג:</span>
+      <button class="filter-btn active" data-filter="type" data-val="all" onclick="setFilter('type','all',this)">הכל</button>
+      <button class="filter-btn" data-filter="type" data-val="simulation" onclick="setFilter('type','simulation',this)">סימולציה</button>
+      <button class="filter-btn" data-filter="type" data-val="visualization" onclick="setFilter('type','visualization',this)">ויזואליזציה</button>
+      <button class="filter-btn" data-filter="type" data-val="interactive" onclick="setFilter('type','interactive',this)">אינטראקטיבי</button>
+      <button class="filter-btn" data-filter="type" data-val="quiz" onclick="setFilter('type','quiz',this)">חידון</button>
+    </div>
+    <div class="filter-divider"></div>
+    <div class="filter-group">
+      <span class="filter-label">תחום:</span>
+      <button class="filter-btn active" data-filter="field" data-val="all" onclick="setFilter('field','all',this)">הכל</button>
+      <button class="filter-btn" data-filter="field" data-val="software" onclick="setFilter('field','software',this)">תוכנה</button>
+      <button class="filter-btn" data-filter="field" data-val="electrical" onclick="setFilter('field','electrical',this)">חשמל</button>
+      <button class="filter-btn" data-filter="field" data-val="mechanical" onclick="setFilter('field','mechanical',this)">מכנית</button>
+      <button class="filter-btn" data-filter="field" data-val="industrial" onclick="setFilter('field','industrial',this)">תעו"נ</button>
+      <button class="filter-btn" data-filter="field" data-val="math" onclick="setFilter('field','math',this)">מתמטיקה</button>
+      <button class="filter-btn" data-filter="field" data-val="biomedical" onclick="setFilter('field','biomedical',this)">רפואית</button>
+      <button class="filter-btn" data-filter="field" data-val="physics" onclick="setFilter('field','physics',this)">פיזיקה</button>
+    </div>
+  </div>
+
+  <div class="results-count"><span id="rc-num">10</span> פעילויות מוצגות</div>
+
+  <div class="grid" id="cards-grid"></div>
+  <div class="no-results" id="no-results">
+    <div class="nr-icon">🔍</div>
+    <div style="font-size:1.0rem;font-weight:700;color:var(--dark);margin-bottom:6px">לא נמצאו פעילויות</div>
+    <div>נסי לשנות את הפילטרים או למחוק את החיפוש</div>
+  </div>
+
+  <div class="footer"><p>פותח עבור מרצי <strong>אפקה — המכללה האקדמית להנדסה תל-אביב</strong> | כל הפעילויות עצמאיות ואינן דורשות חיבור לרשת</p></div>
+</div>
+
+<script>
+const activities = [
+  { id:1, file:'01-software-sorting.html', icon:'🔄', field:'software', fieldLabel:'הנדסת תוכנה', type:'simulation', typeLabel:'סימולציה', title:'ויזואליזציה של אלגוריתמי מיון', sub:'מבני נתונים | סיבוכיות זמן | Big-O', outcomes:['הבנת ההבדל בין O(n²) ל-O(n log n)','זיהוי מצבים שבהם כל אלגוריתם עדיף','קריאת טבלת סיבוכיות ופרשנות מעשית','תצפית בפעולות השוואה והחלפה בזמן אמת'], tags:['Bubble Sort','Merge Sort','Quick Sort','אנימציה חיה'], keywords:'אלגוריתם מיון מבני נתונים' },
+  { id:2, file:'02-electrical-circuit.html', icon:'⚡', field:'electrical', fieldLabel:'הנדסת חשמל', type:'simulation', typeLabel:'סימולציה', title:'מעבדת מעגלים חשמליים', sub:'חוק אוהם | מעגלי טור ומקביל | הספק', outcomes:['יישום חוק אוהם V=I×R','הבנת הקשר בין מתח, זרם והתנגדות','חישוב התנגדות שקולה בטור ובמקביל','זיהוי השפעת שינוי פרמטר אחד על האחרים'], tags:['V=IR','טור ומקביל','P=VI','נעילת משתנה'], keywords:'אוהם מתח זרם התנגדות מעגל חשמלי' },
+  { id:3, file:'03-mechanical-stress-strain.html', icon:'🔩', field:'mechanical', fieldLabel:'הנדסה מכנית', type:'simulation', typeLabel:'סימולציה', title:'עקומת מאמץ-עיבור', sub:'מכניקת חומרים | Stress-Strain | מודול יאנג', outcomes:['קריאת עקומת מאמץ-עיבור','זיהוי אזורים: אלסטי, פלסטי, שבירה','השוואת מאפייני חומרים שונים','הבנת הקשר בין מבנה החומר להתנהגותו'], tags:['5 חומרים','אזור אלסטי','Necking','שבירה'], keywords:'מכניקה חומרים פלדה אלומיניום' },
+  { id:4, file:'04-industrial-production.html', icon:'🏭', field:'industrial', fieldLabel:'הנדסה תעשייתית', type:'simulation', typeLabel:'סימולציה', title:'סימולטור קו ייצור', sub:"תורת התורים | Little's Law | צוואר בקבוק", outcomes:['זיהוי צוואר בקבוק ומשמעותו','יישום חוק ליטל L=λ×W','הבנת מדדי ביצוע: WIP, Cycle Time','ניסוי אסטרטגיות איזון קו ייצור'], tags:["Little's Law",'גנט','Bottleneck','KPIs'], keywords:'ייצור תורים תהליך אופטימיזציה' },
+  { id:5, file:'05-math-calculus.html', icon:'∫', field:'math', fieldLabel:'מתמטיקה', type:'visualization', typeLabel:'ויזואליזציה', title:'חשבון אינטגרלי ודיפרנציאלי', sub:"נגזרת | אינטגרל | נקודות קריטיות | f'(x)", outcomes:['הבנה גיאומטרית של נגזרת כשיפוע','קישור בין שיפוע הנגזרת לעלייה/ירידה','פרשנות ויזואלית של אינטגרל כשטח','זיהוי נקודות מקסימום ומינימום'], tags:['8 פונקציות','משיק חי','שטח אינטגרל',"f'(x)"], keywords:'נגזרת אינטגרל פונקציה גרף מתמטיקה' },
+  { id:6, file:'06-biomedical-ecg.html', icon:'🫀', field:'biomedical', fieldLabel:'הנדסה רפואית', type:'simulation', typeLabel:'סימולציה', title:'סימולטור אק"ג | ECG Monitor', sub:'פענוח גלי PQRST | הפרעות קצב | ניטור', outcomes:['זיהוי גלי P, QRS ו-T','אבחון הפרעות קצב: AFib, VFib','הבנת הקשר בין האות החשמלי ללב','פרשנות HR, SpO₂, BP'], tags:['7 קצבי לב','PQRST','AFib','סימנים חיוניים'], keywords:'אקג לב קצב פרפור ניטור רפואה' },
+  { id:7, file:'07-physics-waves.html', icon:'〰️', field:'physics', fieldLabel:'פיזיקה', type:'visualization', typeLabel:'ויזואליזציה', title:'גלים וסופרפוזיציה', sub:'פיזיקה גלית | הפרעה בונה ומהרסת | פעימות', outcomes:['הבנת עקרון הסופרפוזיציה','זיהוי הפרעה בונה ומהרסת','הסבר תופעת הפעימות (Beats)','קשר בין פאזה, תדר ואמפליטודה'], tags:['הפרעה בונה','הפרעה מהרסת','פעימות','גל עומד'], keywords:'גל פיזיקה סופרפוזיציה תדר פאזה' },
+  { id:8, file:'08-electrical-logic-gates.html', icon:'⊕', field:'electrical', fieldLabel:'הנדסת חשמל', type:'visualization', typeLabel:'ויזואליזציה', title:'שערים לוגיים אינטראקטיביים', sub:'AND | OR | NOT | XOR | NAND | NOR', outcomes:['הכרת 6 שערים לוגיים ופעולתם','קריאת טבלת אמת לכל שער','הבנת Universal Gate','יישום אלגברה בוליאנית'], tags:['AND/OR/NOT','XOR','NAND/NOR','טבלת אמת'], keywords:'לוגיקה שערים דיגיטלי בוליאני' },
+  { id:9, file:'09-math-derivatives-quiz.html', icon:'∂', field:'math', fieldLabel:'מתמטיקה', type:'quiz', typeLabel:'חידון', title:'חידון חוקי נגזרות', sub:'10 שאלות | פידבק מיידי | ניקוד', outcomes:['שינון חוקי הנגזרת הבסיסיים','זיהוי שגיאות נפוצות','הערכה עצמית של שליטה בחומר','חיזוק ידע לפני בחינה'], tags:['10 שאלות','פידבק מיידי','חוק החזקה','sin/cos/eˣ'], keywords:'נגזרת חידון מתמטיקה בחינה עצמית' },
+  { id:10, file:'10-industrial-process-sort.html', icon:'🔀', field:'industrial', fieldLabel:'הנדסה תעשייתית', type:'interactive', typeLabel:'אינטראקטיבי', title:'מיון שלבי תהליך ייצור', sub:'גרור ושחרר | ייצור | פיתוח תוכנה | ניהול פרויקט', outcomes:['הבנת הסדר הנכון של תהליכי ייצור','היכרות עם מחזור SDLC','הכרת שלבי ניהול פרויקט PMBOK','חשיבה על הרציונל של כל שלב'], tags:['Drag & Drop','3 תרחישים','SDLC','PMBOK'], keywords:'תהליך ייצור מיון סדר פרויקט' }
+];
+
+let activeFilters = { type:'all', field:'all' };
+
+function setFilter(group, val, btn) {
+  activeFilters[group] = val;
+  document.querySelectorAll('[data-filter="' + group + '"]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterCards();
+}
+
+function filterCards() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  let visible = 0;
+  activities.forEach(a => {
+    const matchType  = activeFilters.type === 'all' || a.type === activeFilters.type;
+    const matchField = activeFilters.field === 'all' || a.field === activeFilters.field;
+    const matchSearch = !q || a.title.toLowerCase().includes(q) || a.sub.toLowerCase().includes(q) || a.keywords.toLowerCase().includes(q) || a.fieldLabel.includes(q) || a.tags.some(t => t.toLowerCase().includes(q));
+    const el = document.getElementById('card-' + a.id);
+    if (el) {
+      const show = matchType && matchField && matchSearch;
+      el.style.display = show ? 'flex' : 'none';
+      if (show) visible++;
+    }
+  });
+  document.getElementById('rc-num').textContent = visible;
+  document.getElementById('no-results').classList.toggle('show', visible === 0);
+}
+
+function buildCards() {
+  document.getElementById('cards-grid').innerHTML = activities.map(a => `
+    <a class="card" id="card-${a.id}" href="${a.file}" target="_blank">
+      <div class="card-stripe"></div>
+      <div class="card-head">
+        <div class="card-icon">${a.icon}</div>
+        <div class="card-badge">${a.fieldLabel}</div>
+      </div>
+      <div class="type-pill"><span class="dot"></span>${a.typeLabel}</div>
+      <div class="card-title">${a.title}</div>
+      <div class="card-sub">${a.sub}</div>
+      <hr>
+      <div class="section-label">תוצרי למידה</div>
+      <ul class="outcomes">${a.outcomes.map(o => '<li>' + o + '</li>').join('')}</ul>
+      <div class="tags">${a.tags.map(t => '<span class="tag">' + t + '</span>').join('')}</div>
+      <div class="card-cta">פתח פעילות <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M1 7h12M7 1l6 6-6 6"/></svg></div>
+    </a>`).join('');
+}
+
+buildCards();
+</script>
+</body>
+</html>
