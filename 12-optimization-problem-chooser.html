@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>בחירת בעיית אופטימיזציה הנדסית | ד"ר לובה טטרואשוילי</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap');
+:root {
+  --green:#1fa85c; --dark:#343a41; --green-light:#e8f7ef;
+  --green-mid:#b8e8ce; --bg:#f5f7f6; --surface:#fff;
+  --border:#e2e8e4; --text:#343a41; --muted:#7a8a80;
+  --radius:14px; --blue:#2563eb; --blue-light:#eff6ff;
+  --amber:#d97706; --amber-light:#fffbeb; --red:#dc2626; --red-light:#fef2f2;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Heebo','Segoe UI',Arial,sans-serif;min-height:100vh;}
+
+.topbar{background:var(--dark);padding:14px 40px;display:flex;align-items:center;justify-content:space-between;}
+.topbar-logo{display:flex;align-items:center;gap:10px;font-size:.85rem;font-weight:700;color:#fff;}
+.topbar-logo .dot{width:28px;height:28px;border-radius:8px;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:900;color:#fff;}
+.topbar-label{font-size:.72rem;color:rgba(255,255,255,.45);font-weight:400;letter-spacing:.06em;}
+.back-link{font-size:.8rem;color:rgba(255,255,255,.6);text-decoration:none;display:flex;align-items:center;gap:6px;transition:color .18s;}
+.back-link:hover{color:#fff;}
+
+.page{padding:40px 40px 80px;max-width:860px;margin:0 auto;}
+
+.hero{background:var(--dark);border-radius:var(--radius);padding:36px 40px;margin-bottom:32px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-40px;left:-40px;width:200px;height:200px;border-radius:50%;background:rgba(31,168,92,.15);}
+.hero-eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--green);background:rgba(31,168,92,.15);border:1px solid rgba(31,168,92,.3);border-radius:40px;padding:4px 14px;display:inline-flex;align-items:center;gap:6px;margin-bottom:14px;}
+.hero h1{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:900;color:#fff;line-height:1.2;margin-bottom:10px;}
+.hero h1 span{color:var(--green);}
+.hero p{font-size:.9rem;color:rgba(255,255,255,.65);line-height:1.7;max-width:560px;}
+.hero-meta{margin-top:18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.hero-chip{font-size:.75rem;color:rgba(255,255,255,.5);display:flex;align-items:center;gap:5px;}
+
+/* Progress bar */
+.progress-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin-bottom:28px;}
+.progress-steps{display:flex;align-items:center;gap:0;}
+.prog-step{display:flex;flex-direction:column;align-items:center;flex:1;position:relative;}
+.prog-step:not(:last-child)::after{content:'';position:absolute;top:16px;left:0;width:100%;height:2px;background:var(--border);z-index:0;}
+.prog-step.done:not(:last-child)::after{background:var(--green);}
+.prog-circle{width:32px;height:32px;border-radius:50%;border:2px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:var(--muted);position:relative;z-index:1;transition:all .3s;}
+.prog-step.done .prog-circle{background:var(--green);border-color:var(--green);color:#fff;}
+.prog-step.active .prog-circle{border-color:var(--green);color:var(--green);box-shadow:0 0 0 4px var(--green-light);}
+.prog-label{font-size:.65rem;color:var(--muted);margin-top:6px;text-align:center;font-weight:500;}
+.prog-step.active .prog-label{color:var(--green);font-weight:700;}
+.prog-step.done .prog-label{color:var(--green);}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px 32px;margin-bottom:20px;}
+.card-title{font-size:1.1rem;font-weight:800;color:var(--dark);margin-bottom:6px;display:flex;align-items:center;gap:10px;}
+.card-subtitle{font-size:.85rem;color:var(--muted);margin-bottom:20px;line-height:1.6;}
+.step-badge{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--green);color:#fff;font-size:.7rem;font-weight:900;flex-shrink:0;}
+
+/* Domain grid */
+.domain-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:16px;}
+.domain-card{border:1.5px solid var(--border);border-radius:10px;padding:14px 16px;cursor:pointer;transition:all .2s;background:var(--bg);}
+.domain-card:hover{border-color:var(--green);background:var(--green-light);}
+.domain-card.selected{border-color:var(--green);background:var(--green-light);box-shadow:0 0 0 3px rgba(31,168,92,.15);}
+.domain-icon{font-size:1.6rem;margin-bottom:6px;}
+.domain-name{font-size:.8rem;font-weight:700;color:var(--dark);}
+.domain-examples{font-size:.7rem;color:var(--muted);margin-top:3px;line-height:1.5;}
+
+/* Checklist */
+.checklist{display:flex;flex-direction:column;gap:10px;}
+.check-item{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:all .2s;background:var(--bg);}
+.check-item:hover{border-color:var(--green);}
+.check-item.checked{border-color:var(--green);background:var(--green-light);}
+.check-box{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);background:#fff;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;margin-top:1px;}
+.check-item.checked .check-box{background:var(--green);border-color:var(--green);}
+.check-box svg{display:none;}
+.check-item.checked .check-box svg{display:block;}
+.check-label{font-size:.88rem;font-weight:600;color:var(--dark);}
+.check-hint{font-size:.75rem;color:var(--muted);margin-top:3px;line-height:1.5;}
+
+/* Form inputs */
+.form-group{margin-bottom:16px;}
+.form-label{font-size:.8rem;font-weight:700;color:var(--dark);margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.form-label .required{color:var(--red);font-size:.7rem;}
+.form-input,.form-textarea,.form-select{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:'Heebo',sans-serif;font-size:.88rem;color:var(--dark);background:var(--bg);outline:none;transition:border-color .18s;}
+.form-input:focus,.form-textarea:focus,.form-select:focus{border-color:var(--green);background:#fff;}
+.form-textarea{resize:vertical;min-height:80px;line-height:1.6;}
+.form-hint{font-size:.72rem;color:var(--muted);margin-top:5px;line-height:1.5;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+
+/* Algorithm cards */
+.algo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.algo-card{border:1.5px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;transition:all .2s;background:var(--bg);}
+.algo-card:hover{border-color:var(--blue);}
+.algo-card.selected{border-color:var(--blue);background:var(--blue-light);box-shadow:0 0 0 3px rgba(37,99,235,.1);}
+.algo-name{font-size:.85rem;font-weight:800;color:var(--dark);margin-bottom:4px;}
+.algo-when{font-size:.72rem;color:var(--muted);line-height:1.5;margin-bottom:6px;}
+.algo-tag{display:inline-flex;padding:2px 8px;border-radius:4px;font-size:.65rem;font-weight:700;background:var(--blue-light);color:var(--blue);}
+.algo-card.selected .algo-tag{background:var(--blue);color:#fff;}
+
+/* Alert */
+.alert{border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:.83rem;display:flex;gap:10px;align-items:flex-start;}
+.alert.warn{background:var(--amber-light);border:1px solid #fde68a;color:var(--amber);}
+.alert.success{background:var(--green-light);border:1px solid var(--green-mid);color:#166534;}
+.alert.info{background:var(--blue-light);border:1px solid #bfdbfe;color:var(--blue);}
+
+/* Summary */
+.summary-section{margin-bottom:20px;}
+.summary-label{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.summary-value{font-size:.9rem;color:var(--dark);line-height:1.7;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;}
+.summary-badge{display:inline-flex;padding:3px 10px;border-radius:5px;font-size:.75rem;font-weight:700;background:var(--green-light);color:var(--green);border:1px solid var(--green-mid);}
+
+/* Buttons */
+.btn-row{display:flex;gap:10px;margin-top:24px;justify-content:space-between;align-items:center;}
+.btn{padding:11px 24px;border-radius:8px;border:none;font-family:'Heebo',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px;}
+.btn-primary{background:var(--green);color:#fff;}
+.btn-primary:hover{background:#18874a;}
+.btn-primary:disabled{background:var(--border);color:var(--muted);cursor:not-allowed;}
+.btn-secondary{background:var(--surface);border:1.5px solid var(--border);color:var(--muted);}
+.btn-secondary:hover{border-color:var(--green);color:var(--green);}
+.btn-export{background:var(--dark);color:#fff;}
+.btn-export:hover{background:#1a1e22;}
+
+/* Step visibility */
+.step-panel{display:none;}
+.step-panel.active{display:block;}
+
+/* Score meter */
+.score-wrap{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:16px;}
+.score-label{font-size:.75rem;font-weight:700;color:var(--muted);margin-bottom:8px;}
+.score-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;}
+.score-fill{height:100%;background:var(--green);border-radius:4px;transition:width .4s;}
+.score-text{font-size:.75rem;color:var(--green);font-weight:700;margin-top:5px;}
+
+/* AI prompt box */
+.prompt-box{background:#1e2330;border-radius:10px;padding:16px 18px;margin-top:12px;}
+.prompt-box-label{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.prompt-box-label::before{content:'✦';color:var(--green);}
+.prompt-text{font-size:.82rem;color:rgba(255,255,255,.85);line-height:1.7;font-family:'Heebo',monospace;}
+.copy-prompt-btn{margin-top:10px;padding:6px 14px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.6);font-size:.72rem;font-family:'Heebo',sans-serif;cursor:pointer;transition:all .18s;}
+.copy-prompt-btn:hover{background:rgba(255,255,255,.08);color:#fff;}
+
+@media(max-width:640px){
+  .page{padding:20px 16px 60px;}
+  .form-row{grid-template-columns:1fr;}
+  .algo-grid{grid-template-columns:1fr;}
+  .domain-grid{grid-template-columns:repeat(2,1fr);}
+  .hero{padding:24px 20px;}
+  .card{padding:20px 18px;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">
+    <div class="dot">A</div>
+    <div>
+      <div>אפקה</div>
+      <div class="topbar-label">פעילויות למידה עצמאית</div>
+    </div>
+  </div>
+  <a href="index.html" class="back-link">← חזרה לדף הראשי</a>
+</div>
+
+<div class="page">
+
+  <div class="hero">
+    <div class="hero-eyebrow">✦ פעילות פיגום</div>
+    <h1>בחירת <span>בעיית אופטימיזציה</span><br>הנדסית אמיתית</h1>
+    <p>אשף שלבים שיעזור לך לזהות בעיה הנדסית מעולמך, לנסח אותה מתמטית, ולהתאים לה את האלגוריתם המתאים.</p>
+    <div class="hero-meta">
+      <div class="hero-chip">👩‍🏫 ד"ר לובה טטרואשוילי</div>
+      <div class="hero-chip">📐 מודלים מתמטיים ואופטימיזציה</div>
+      <div class="hero-chip">⏱ כ-20 דקות</div>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-wrap">
+    <div class="progress-steps" id="progressSteps">
+      <div class="prog-step active" data-step="1">
+        <div class="prog-circle">1</div>
+        <div class="prog-label">תחום</div>
+      </div>
+      <div class="prog-step" data-step="2">
+        <div class="prog-circle">2</div>
+        <div class="prog-label">בעיה</div>
+      </div>
+      <div class="prog-step" data-step="3">
+        <div class="prog-circle">3</div>
+        <div class="prog-label">בדיקה</div>
+      </div>
+      <div class="prog-step" data-step="4">
+        <div class="prog-circle">4</div>
+        <div class="prog-label">ניסוח</div>
+      </div>
+      <div class="prog-step" data-step="5">
+        <div class="prog-circle">5</div>
+        <div class="prog-label">אלגוריתם</div>
+      </div>
+      <div class="prog-step" data-step="6">
+        <div class="prog-circle">✓</div>
+        <div class="prog-label">סיכום</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== STEP 1: Domain ===== -->
+  <div class="step-panel active" id="step1">
+    <div class="card">
+      <div class="card-title"><div class="step-badge">1</div> בחר את תחום ההתמחות שלך</div>
+      <div class="card-subtitle">בחר את הקטגוריה ההנדסית הקרובה ביותר לתחום הלימוד שלך. זה יעזור לנו להציע לך בעיות רלוונטיות.</div>
+
+      <div class="domain-grid" id="domainGrid">
+        <div class="domain-card" data-domain="mechanical" onclick="selectDomain(this)">
+          <div class="domain-icon">⚙️</div>
+          <div class="domain-name">הנדסה מכנית</div>
+          <div class="domain-examples">ייצור, מכונות, חום, בקרה</div>
+        </div>
+        <div class="domain-card" data-domain="industrial" onclick="selectDomain(this)">
+          <div class="domain-icon">🏭</div>
+          <div class="domain-name">הנדסה תעשייתית</div>
+          <div class="domain-examples">שרשרת אספקה, תזמון, מלאי</div>
+        </div>
+        <div class="domain-card" data-domain="civil" onclick="selectDomain(this)">
+          <div class="domain-icon">🏗️</div>
+          <div class="domain-name">הנדסה אזרחית</div>
+          <div class="domain-examples">מבנים, תחבורה, מים</div>
+        </div>
+        <div class="domain-card" data-domain="electrical" onclick="selectDomain(this)">
+          <div class="domain-icon">⚡</div>
+          <div class="domain-name">הנדסה חשמלית</div>
+          <div class="domain-examples">רשתות, חשמל, אותות</div>
+        </div>
+        <div class="domain-card" data-domain="software" onclick="selectDomain(this)">
+          <div class="domain-icon">💻</div>
+          <div class="domain-name">הנדסת תוכנה</div>
+          <div class="domain-examples">מערכות, אלגוריתמים, AI</div>
+        </div>
+        <div class="domain-card" data-domain="chemical" onclick="selectDomain(this)">
+          <div class="domain-icon">🧪</div>
+          <div class="domain-name">הנדסה כימית</div>
+          <div class="domain-examples">תהליכים, חומרים, אנרגיה</div>
+        </div>
+        <div class="domain-card" data-domain="biomedical" onclick="selectDomain(this)">
+          <div class="domain-icon">🧬</div>
+          <div class="domain-name">הנדסה ביו-רפואית</div>
+          <div class="domain-examples">מכשור, ניתוח, רובוטיקה</div>
+        </div>
+        <div class="domain-card" data-domain="other" onclick="selectDomain(this)">
+          <div class="domain-icon">🔧</div>
+          <div class="domain-name">אחר</div>
+          <div class="domain-examples">תחום שאינו מופיע כאן</div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <span></span>
+      <button class="btn btn-primary" id="btn1next" disabled onclick="goStep(2)">המשך ← </button>
+    </div>
+  </div>
+
+  <!-- ===== STEP 2: Problem description ===== -->
+  <div class="step-panel" id="step2">
+    <div class="card">
+      <div class="card-title"><div class="step-badge">2</div> תאר את הבעיה שלך</div>
+      <div class="card-subtitle">פרט את הבעיה שרצית לפתור. אל תדאג לגבי הניסוח המתמטי – זה יבוא בהמשך. כתוב בשפה שלך.</div>
+
+      <div class="form-group">
+        <div class="form-label">שם הבעיה / פרויקט <span class="required">*</span></div>
+        <input class="form-input" id="problemName" placeholder='למשל: "תזמון מכונות בקו ייצור"' oninput="checkStep2()">
+      </div>
+      <div class="form-group">
+        <div class="form-label">תיאור הבעיה בשפה חופשית <span class="required">*</span></div>
+        <textarea class="form-textarea" id="problemDesc" placeholder="מה הבעיה? מה היית רוצה לשפר/למקסם/למזער? בסביבה אמיתית שאתה מכיר..." rows="4" oninput="checkStep2()"></textarea>
+      </div>
+      <div class="form-group">
+        <div class="form-label">הקשר אמיתי</div>
+        <input class="form-input" id="problemContext" placeholder='למשל: "מפעל לייצור חלקי מכוניות", "בית חולים", "חברת לוגיסטיקה"'>
+        <div class="form-hint">מאיפה הגיעה הבעיה? (עבודה, סטאז׳, חדשות, ניסיון אישי)</div>
+      </div>
+
+      <div class="alert info" style="margin-top:8px;">
+        <span>💡</span>
+        <div>רמז: חשוב על מקום בו משהו בוזבז (זמן, כסף, חומר, אנרגיה) – שם בדרך כלל מסתתרת בעיית אופטימיזציה.</div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goStep(1)">← חזרה</button>
+      <button class="btn btn-primary" id="btn2next" disabled onclick="goStep(3)">המשך ←</button>
+    </div>
+  </div>
+
+  <!-- ===== STEP 3: Checklist ===== -->
+  <div class="step-panel" id="step3">
+    <div class="card">
+      <div class="card-title"><div class="step-badge">3</div> האם הבעיה שלך ניתנת למידול?</div>
+      <div class="card-subtitle">סמן את כל הפריטים שרלוונטיים לבעיה שלך. כדי להמשיך, תצטרך לסמן לפחות 4 מתוך 5.</div>
+
+      <div class="score-wrap">
+        <div class="score-label">ציון מידוליות</div>
+        <div class="score-bar"><div class="score-fill" id="scoreFill" style="width:0%"></div></div>
+        <div class="score-text" id="scoreText">0 / 5 קריטריונים</div>
+      </div>
+
+      <div class="checklist" id="checklist">
+        <div class="check-item" onclick="toggleCheck(this)" data-id="c1">
+          <div class="check-box"><svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5L4.5 8.5L11 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div>
+            <div class="check-label">יש מטרה מספרית ברורה</div>
+            <div class="check-hint">אפשר לומר "רוצה למקסם X" או "רוצה למזער Y" (רווח, עלות, זמן, משקל, מרחק...)</div>
+          </div>
+        </div>
+        <div class="check-item" onclick="toggleCheck(this)" data-id="c2">
+          <div class="check-box"><svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5L4.5 8.5L11 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div>
+            <div class="check-label">יש אילוצים ברורים</div>
+            <div class="check-hint">יש גבולות, משאבים מוגבלים, כללים שאסור לעבור (תקציב, קיבולת, זמן, משקל...)</div>
+          </div>
+        </div>
+        <div class="check-item" onclick="toggleCheck(this)" data-id="c3">
+          <div class="check-box"><svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5L4.5 8.5L11 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div>
+            <div class="check-label">יש משתנים שניתן לשלוט בהם</div>
+            <div class="check-hint">קיימות כמויות שניתן לבחור/לשנות (כמה לייצר? כמה להזמין? באיזה נתיב לנסוע?)</div>
+          </div>
+        </div>
+        <div class="check-item" onclick="toggleCheck(this)" data-id="c4">
+          <div class="check-box"><svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5L4.5 8.5L11 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div>
+            <div class="check-label">ניתן לאסוף או להניח נתונים</div>
+            <div class="check-hint">יש ערכים מספריים (מדידות, תחזיות, הנחות סבירות) שאפשר לעבוד איתם</div>
+          </div>
+        </div>
+        <div class="check-item" onclick="toggleCheck(this)" data-id="c5">
+          <div class="check-box"><svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5L4.5 8.5L11 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div>
+            <div class="check-label">הבעיה שאפשרית לפתרון בשלב זה</div>
+            <div class="check-hint">הבעיה לא גדולה מדי, ניתן לפשט ולהתמקד בהיבט אחד (לא צריך לפתור את כל העולם)</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="checkAlert" style="margin-top:14px;display:none;"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goStep(2)">← חזרה</button>
+      <button class="btn btn-primary" id="btn3next" disabled onclick="goStep(4)">המשך ←</button>
+    </div>
+  </div>
+
+  <!-- ===== STEP 4: Math formulation ===== -->
+  <div class="step-panel" id="step4">
+    <div class="card">
+      <div class="card-title"><div class="step-badge">4</div> ניסוח מתמטי</div>
+      <div class="card-subtitle">הגדר את הבעיה בצורה מתמטית. כל שדה עוזר לנסח את המודל שתציג.</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <div class="form-label">משתני ההחלטה</div>
+          <input class="form-input" id="mathVars" placeholder="x₁, x₂, ... (מה ניתן לשלוט בו)">
+          <div class="form-hint">דוגמה: x₁ = כמות מוצר A, x₂ = כמות מוצר B</div>
+        </div>
+        <div class="form-group">
+          <div class="form-label">סוג המשתנים</div>
+          <select class="form-select" id="mathVarType">
+            <option value="">בחר...</option>
+            <option value="continuous">רציפים (ממשיים)</option>
+            <option value="integer">שלמים (Integer)</option>
+            <option value="binary">בינאריים (0/1)</option>
+            <option value="mixed">מעורב</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label">פונקציית מטרה f(x) <span class="required">*</span></div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <button class="btn btn-secondary" style="padding:6px 14px;font-size:.78rem;" id="objMax" onclick="setObj('max')">מקסום ⬆️</button>
+          <button class="btn btn-secondary" style="padding:6px 14px;font-size:.78rem;" id="objMin" onclick="setObj('min')">מינימום ⬇️</button>
+        </div>
+        <textarea class="form-textarea" id="mathObj" placeholder="למשל: max Z = 5x₁ + 4x₂ (רווח כולל)" rows="2" oninput="checkStep4()"></textarea>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label">אילוצים <span class="required">*</span></div>
+        <textarea class="form-textarea" id="mathConstraints" placeholder="למשל:&#10;2x₁ + x₂ ≤ 40  (שעות עבודה)&#10;x₁ + 2x₂ ≤ 50  (חומר גלם)&#10;x₁, x₂ ≥ 0      (אי-שליליות)" rows="5" oninput="checkStep4()"></textarea>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label">הנחות ופישוטים</div>
+        <textarea class="form-textarea" id="mathAssumptions" placeholder="מה הנחת? מה פישטת? (למשל: ביקוש קבוע, עלויות לינאריות...)" rows="2"></textarea>
+      </div>
+
+      <div id="aiPromptStep4" style="margin-top:8px;display:none;">
+        <div class="prompt-box">
+          <div class="prompt-box-label">Prompt מוכן לשימוש ב-AI</div>
+          <div class="prompt-text" id="promptTextStep4"></div>
+          <button class="copy-prompt-btn" onclick="copyPrompt('promptTextStep4', this)">📋 העתק prompt</button>
+        </div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goStep(3)">← חזרה</button>
+      <button class="btn btn-primary" id="btn4next" disabled onclick="goStep(5)">המשך ←</button>
+    </div>
+  </div>
+
+  <!-- ===== STEP 5: Algorithm ===== -->
+  <div class="step-panel" id="step5">
+    <div class="card">
+      <div class="card-title"><div class="step-badge">5</div> בחר אלגוריתם</div>
+      <div class="card-subtitle">בהתאם לניסוח שהגדרת, איזה אלגוריתם מתאים לבעיה שלך?</div>
+
+      <div id="algoRecommend" class="alert success" style="display:none;"></div>
+
+      <div class="algo-grid" id="algoGrid">
+        <div class="algo-card" onclick="selectAlgo(this, 'LP')">
+          <div class="algo-name">תכנון לינארי (LP)</div>
+          <div class="algo-when">מתאים כאשר: פונקציית המטרה והאילוצים לינאריים, משתנים רציפים</div>
+          <span class="algo-tag">Simplex / Interior Point</span>
+        </div>
+        <div class="algo-card" onclick="selectAlgo(this, 'ILP')">
+          <div class="algo-name">תכנון שלם (ILP/MIP)</div>
+          <div class="algo-when">מתאים כאשר: משתנים שלמים או בינאריים, בעיות תזמון, שיבוץ</div>
+          <span class="algo-tag">Branch & Bound</span>
+        </div>
+        <div class="algo-card" onclick="selectAlgo(this, 'Greedy')">
+          <div class="algo-name">אלגוריתם חמדן (Greedy)</div>
+          <div class="algo-when">מתאים כאשר: בחירה מקומית אופטימלית מובילה לפתרון גלובלי (תרמיל, עצי מינוי)</div>
+          <span class="algo-tag">Polynomial Time</span>
+        </div>
+        <div class="algo-card" onclick="selectAlgo(this, 'DP')">
+          <div class="algo-name">תכנות דינמי (DP)</div>
+          <div class="algo-when">מתאים כאשר: בעיה ניתנת לפירוק לתת-בעיות חופפות (נתיב קצר, קיצוב)</div>
+          <span class="algo-tag">Memoization / Tabulation</span>
+        </div>
+        <div class="algo-card" onclick="selectAlgo(this, 'NLP')">
+          <div class="algo-name">אופטימיזציה לא-לינארית (NLP)</div>
+          <div class="algo-when">מתאים כאשר: יש פונקציות ריבועיות, אקספוננציאליות, או אינטראקציות</div>
+          <span class="algo-tag">Gradient / Newton</span>
+        </div>
+        <div class="algo-card" onclick="selectAlgo(this, 'Graph')">
+          <div class="algo-name">אלגוריתמי גרפים</div>
+          <div class="algo-when">מתאים כאשר: הבעיה כוללת רשת, נתיבים, תזרים (תחבורה, לוגיסטיקה)</div>
+          <span class="algo-tag">Dijkstra / Max-Flow</span>
+        </div>
+        <div class="algo-card" onclick="selectAlgo(this, 'Heuristic')">
+          <div class="algo-name">היוריסטיקה / מטא-הוריסטיקה</div>
+          <div class="algo-when">מתאים כאשר: בעיה NP-קשה, פתרון מקורב מספיק (TSP, תזמון מורכב)</div>
+          <span class="algo-tag">GA / Simulated Annealing</span>
+        </div>
+        <div class="algo-card" onclick="selectAlgo(this, 'Other')">
+          <div class="algo-name">אחר / עדיין לא יודע</div>
+          <div class="algo-when">הבעיה מורכבת ודורשת בחינה נוספת של סוג האלגוריתם</div>
+          <span class="algo-tag">לבדוק עם המרצה</span>
+        </div>
+      </div>
+
+      <div id="algoJustify" style="display:none;margin-top:14px;">
+        <div class="form-group">
+          <div class="form-label">מדוע בחרת אלגוריתם זה?</div>
+          <textarea class="form-textarea" id="algoReason" placeholder="נמק בקצרה מדוע האלגוריתם שבחרת מתאים לבעיה שלך..." rows="2"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goStep(4)">← חזרה</button>
+      <button class="btn btn-primary" id="btn5next" disabled onclick="goStep(6)">צור סיכום ←</button>
+    </div>
+  </div>
+
+  <!-- ===== STEP 6: Summary ===== -->
+  <div class="step-panel" id="step6">
+    <div class="card">
+      <div class="card-title"><div class="step-badge">✓</div> סיכום – מסמך הגשה</div>
+      <div class="card-subtitle">הנה הניסוח המלא של הבעיה שלך. ניתן להעתיק ולהגיש למרצה.</div>
+
+      <div class="alert success">
+        ✅ <strong>כל הכבוד!</strong> השלמת את שלבי תהליך בחירת ומידול הבעיה ההנדסית.
+      </div>
+
+      <div class="summary-section">
+        <div class="summary-label">תחום</div>
+        <div class="summary-value" id="sumDomain">-</div>
+      </div>
+      <div class="summary-section">
+        <div class="summary-label">שם הבעיה</div>
+        <div class="summary-value" id="sumName">-</div>
+      </div>
+      <div class="summary-section">
+        <div class="summary-label">תיאור</div>
+        <div class="summary-value" id="sumDesc">-</div>
+      </div>
+      <div class="summary-section">
+        <div class="summary-label">הקשר אמיתי</div>
+        <div class="summary-value" id="sumContext">-</div>
+      </div>
+      <div class="summary-section">
+        <div class="summary-label">משתני החלטה</div>
+        <div class="summary-value" id="sumVars">-</div>
+      </div>
+      <div class="summary-section">
+        <div class="summary-label">פונקציית מטרה</div>
+        <div class="summary-value" id="sumObj">-</div>
+      </div>
+      <div class="summary-section">
+        <div class="summary-label">אילוצים</div>
+        <div class="summary-value" id="sumConstraints" style="white-space:pre-line;">-</div>
+      </div>
+      <div class="summary-section">
+        <div class="summary-label">אלגוריתם נבחר</div>
+        <div><span class="summary-badge" id="sumAlgo">-</span></div>
+      </div>
+      <div class="summary-section" id="sumReasonSection" style="display:none;">
+        <div class="summary-label">נימוק לבחירת האלגוריתם</div>
+        <div class="summary-value" id="sumReason">-</div>
+      </div>
+
+      <div style="margin-top:20px;">
+        <div class="prompt-box">
+          <div class="prompt-box-label">Prompt לסיוע ב-AI בפתרון</div>
+          <div class="prompt-text" id="finalPrompt"></div>
+          <button class="copy-prompt-btn" onclick="copyPrompt('finalPrompt', this)">📋 העתק prompt</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goStep(5)">← חזרה לעריכה</button>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-export" onclick="printSummary()">🖨️ הדפס / שמור PDF</button>
+        <button class="btn btn-primary" onclick="startOver()">התחל מחדש ↺</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const domainNames = {
+  mechanical:'הנדסה מכנית', industrial:'הנדסה תעשייתית', civil:'הנדסה אזרחית',
+  electrical:'הנדסה חשמלית', software:'הנדסת תוכנה', chemical:'הנדסה כימית',
+  biomedical:'הנדסה ביו-רפואית', other:'אחר'
+};
+
+let state = {
+  currentStep: 1,
+  domain: null,
+  objType: null,
+  algo: null
+};
+
+function goStep(n) {
+  document.getElementById('step'+state.currentStep).classList.remove('active');
+  state.currentStep = n;
+  document.getElementById('step'+n).classList.add('active');
+  updateProgress();
+  if(n===6) buildSummary();
+  if(n===4) updateAiPromptStep4();
+  if(n===5) autoRecommendAlgo();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function updateProgress() {
+  document.querySelectorAll('.prog-step').forEach(el => {
+    const s = parseInt(el.dataset.step);
+    el.classList.remove('active','done');
+    if(s < state.currentStep) el.classList.add('done');
+    else if(s === state.currentStep) el.classList.add('active');
+  });
+}
+
+function selectDomain(el) {
+  document.querySelectorAll('.domain-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  state.domain = el.dataset.domain;
+  document.getElementById('btn1next').disabled = false;
+}
+
+function checkStep2() {
+  const n = document.getElementById('problemName').value.trim();
+  const d = document.getElementById('problemDesc').value.trim();
+  document.getElementById('btn2next').disabled = !(n.length > 2 && d.length > 10);
+}
+
+let checkScore = 0;
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  checkScore = document.querySelectorAll('.check-item.checked').length;
+  const fill = Math.round(checkScore/5*100);
+  document.getElementById('scoreFill').style.width = fill+'%';
+  document.getElementById('scoreText').textContent = checkScore + ' / 5 קריטריונים';
+  const alertEl = document.getElementById('checkAlert');
+  if(checkScore >= 4) {
+    alertEl.style.display='flex';
+    alertEl.className='alert success';
+    alertEl.innerHTML='✅ <div>מצוין! הבעיה שלך עומדת בקריטריונים ומתאימה למידול מתמטי.</div>';
+    document.getElementById('btn3next').disabled = false;
+  } else if(checkScore >= 2) {
+    alertEl.style.display='flex';
+    alertEl.className='alert warn';
+    alertEl.innerHTML='⚠️ <div>עדיין חסרים כמה קריטריונים. נסה לחשוב כיצד לפשט את הבעיה כך שתעמוד בכולם.</div>';
+    document.getElementById('btn3next').disabled = true;
+  } else {
+    alertEl.style.display='none';
+    document.getElementById('btn3next').disabled = true;
+  }
+}
+
+function setObj(type) {
+  state.objType = type;
+  document.getElementById('objMax').style.background = type==='max' ? 'var(--green)' : '';
+  document.getElementById('objMax').style.color = type==='max' ? '#fff' : '';
+  document.getElementById('objMin').style.background = type==='min' ? 'var(--green)' : '';
+  document.getElementById('objMin').style.color = type==='min' ? '#fff' : '';
+}
+
+function checkStep4() {
+  const o = document.getElementById('mathObj').value.trim();
+  const c = document.getElementById('mathConstraints').value.trim();
+  const ok = o.length > 3 && c.length > 3;
+  document.getElementById('btn4next').disabled = !ok;
+  if(ok) updateAiPromptStep4();
+}
+
+function updateAiPromptStep4() {
+  const name = document.getElementById('problemName').value.trim();
+  const desc = document.getElementById('problemDesc').value.trim();
+  const obj = document.getElementById('mathObj').value.trim();
+  const con = document.getElementById('mathConstraints').value.trim();
+  if(!name || !obj) return;
+  const p = `בעיית האופטימיזציה שלי: "${name}"\n\nתיאור: ${desc}\n\nניסוח מתמטי:\nפונקציית מטרה: ${obj}\nאילוצים:\n${con}\n\nאנא:\n1. בדוק אם הניסוח המתמטי נכון ומלא\n2. הצע האם הבעיה לינארית או לא-לינארית\n3. המלץ על אלגוריתם פתרון מתאים\n4. הצג דרך לפתור עם Python (scipy או pulp)`;
+  document.getElementById('aiPromptStep4').style.display='block';
+  document.getElementById('promptTextStep4').textContent = p;
+}
+
+const algoForType = {
+  continuous: ['LP','NLP'], integer: ['ILP','DP'], binary: ['ILP','Greedy'], mixed: ['ILP']
+};
+
+function autoRecommendAlgo() {
+  const varType = document.getElementById('mathVarType').value;
+  const el = document.getElementById('algoRecommend');
+  if(!varType) { el.style.display='none'; return; }
+  const recs = algoForType[varType] || [];
+  if(recs.length) {
+    el.style.display='flex';
+    el.innerHTML = '💡 <div>בהתאם לסוג המשתנים שבחרת, אלגוריתמים מומלצים: <strong>' + recs.join(', ') + '</strong></div>';
+  }
+}
+
+function selectAlgo(el, algoId) {
+  document.querySelectorAll('.algo-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  state.algo = algoId;
+  document.getElementById('algoJustify').style.display='block';
+  document.getElementById('btn5next').disabled = false;
+}
+
+function buildSummary() {
+  document.getElementById('sumDomain').textContent = domainNames[state.domain] || '-';
+  document.getElementById('sumName').textContent = document.getElementById('problemName').value || '-';
+  document.getElementById('sumDesc').textContent = document.getElementById('problemDesc').value || '-';
+  document.getElementById('sumContext').textContent = document.getElementById('problemContext').value || 'לא צוין';
+  document.getElementById('sumVars').textContent = document.getElementById('mathVars').value || 'לא הוגדרו';
+  document.getElementById('sumObj').textContent = document.getElementById('mathObj').value || '-';
+  document.getElementById('sumConstraints').textContent = document.getElementById('mathConstraints').value || '-';
+  document.getElementById('sumAlgo').textContent = state.algo || '-';
+  const reason = document.getElementById('algoReason').value;
+  if(reason) {
+    document.getElementById('sumReasonSection').style.display='block';
+    document.getElementById('sumReason').textContent = reason;
+  }
+  const name = document.getElementById('problemName').value;
+  const obj = document.getElementById('mathObj').value;
+  const con = document.getElementById('mathConstraints').value;
+  document.getElementById('finalPrompt').textContent =
+    `אני סטודנט להנדסה ועובד על בעיית אופטימיזציה בשם: "${name}".\n\nפונקציית מטרה: ${obj}\nאילוצים:\n${con}\nאלגוריתם שנבחר: ${state.algo}\n\nבבקשה:\n1. פתור את הבעיה בשלבים\n2. הסבר כל שלב במתמטיקה ברורה\n3. הצג קוד Python לפתרון\n4. פרש את התוצאה בהקשר ההנדסי`;
+}
+
+function copyPrompt(id, btn) {
+  navigator.clipboard.writeText(document.getElementById(id).textContent)
+    .then(()=>{ const t=btn.textContent; btn.textContent='✓ הועתק!'; setTimeout(()=>btn.textContent=t,2000); });
+}
+
+function printSummary() { window.print(); }
+
+function startOver() {
+  if(confirm('להתחיל מחדש? כל הנתונים יימחקו.')) location.reload();
+}
+</script>
+</body>
+</html>
