@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>בנק שאלות – מכניקת מוצק</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 900px; margin: 0 auto; padding: 2rem; background: #f8f8f8; color: #222; }
+  h1 { font-size: 22px; border-bottom: 2px solid #333; padding-bottom: 0.5rem; }
+  h2 { font-size: 16px; color: #555; margin-top: 0; }
+  .section-title { font-size: 18px; font-weight: bold; margin: 2rem 0 1rem; padding: 0.4rem 0.8rem; background: #2c3e50; color: white; border-radius: 4px; }
+  .question { background: white; border: 1px solid #ddd; border-radius: 6px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+  .question-number { font-size: 12px; color: #888; margin-bottom: 0.25rem; }
+  .question-text { font-size: 15px; font-weight: 500; margin-bottom: 0.5rem; }
+  .options { font-size: 14px; color: #444; padding-right: 1rem; }
+  .options li { margin-bottom: 0.25rem; }
+  .answer { font-size: 13px; color: #2e7d32; background: #e8f5e9; border-radius: 4px; padding: 0.4rem 0.75rem; margin-top: 0.5rem; }
+  .bloom { display: inline-block; font-size: 11px; background: #e3f2fd; color: #1565c0; border-radius: 3px; padding: 2px 7px; margin-bottom: 0.5rem; }
+  .type-badge { display: inline-block; font-size: 11px; background: #f3e5f5; color: #6a1b9a; border-radius: 3px; padding: 2px 7px; margin-left: 6px; }
+  .xml-section { margin-top: 3rem; }
+  pre { background: #1e1e1e; color: #d4d4d4; padding: 1.5rem; border-radius: 6px; overflow-x: auto; font-size: 13px; line-height: 1.6; white-space: pre-wrap; }
+  .copy-btn { display: inline-block; margin-bottom: 0.75rem; padding: 0.4rem 1rem; background: #2c3e50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; }
+  .copy-btn:hover { background: #34495e; }
+</style>
+</head>
+<body>
+
+<h1>בנק שאלות – מכניקת מוצק</h1>
+<h2>בית הספר להנדסה מכנית | שאלות מתאימות לבחינה</h2>
+
+<!-- ===== רב-ברירה ===== -->
+<div class="section-title">רב-ברירה (Multiple Choice)</div>
+
+<div class="question">
+  <div class="question-number">שאלה 1</div>
+  <span class="bloom">בלום: הבנה</span><span class="type-badge">רב-ברירה</span>
+  <div class="question-text">גוף עשוי מפלדה נתון למאמץ ציר (axial stress) של 200 MPa. מהו העיבור היחסי (strain) אם מודול יאנג E = 200 GPa?</div>
+  <ol type="A" class="options">
+    <li>0.0001</li>
+    <li>0.001</li>
+    <li>0.01</li>
+    <li>1.0</li>
+  </ol>
+  <div class="answer">✓ תשובה נכונה: B – ε = σ/E = 200×10⁶ / 200×10⁹ = 0.001</div>
+</div>
+
+<div class="question">
+  <div class="question-number">שאלה 2</div>
+  <span class="bloom">בלום: זכירה</span><span class="type-badge">רב-ברירה</span>
+  <div class="question-text">מהו היחס בין מודול הגזירה G למודול יאנג E עבור חומר איזוטרופי עם יחס פואסון ν?</div>
+  <ol type="A" class="options">
+    <li>G = E / (1 + ν)</li>
+    <li>G = E / (2(1 + ν))</li>
+    <li>G = E / (1 − 2ν)</li>
+    <li>G = 2E(1 + ν)</li>
+  </ol>
+  <div class="answer">✓ תשובה נכונה: B – G = E / [2(1+ν)]</div>
+</div>
+
+<div class="question">
+  <div class="question-number">שאלה 3</div>
+  <span class="bloom">בלום: יישום</span><span class="type-badge">רב-ברירה</span>
+  <div class="question-text">קורה פשוטה (simply supported beam) באורך L נושאת עומס מרוזז P במרכזה. מהו גיל הכפיפה המרבי?</div>
+  <ol type="A" class="options">
+    <li>M_max = PL/4</li>
+    <li>M_max = PL/2</li>
+    <li>M_max = PL/8</li>
+    <li>M_max = PL</li>
+  </ol>
+  <div class="answer">✓ תשובה נכונה: A – M_max = PL/4 (במרכז הקורה)</div>
+</div>
+
+<div class="question">
+  <div class="question-number">שאלה 4</div>
+  <span class="bloom">בלום: ניתוח</span><span class="type-badge">רב-ברירה</span>
+  <div class="question-text">איזה מהניסוחים הבאים מתאר נכונה את תנאי כשל von Mises לחומר אניזוטרופי?</div>
+  <ol type="A" class="options">
+    <li>σ₁ ≥ σ_y</li>
+    <li>√[(σ₁−σ₂)²+(σ₂−σ₃)²+(σ₃−σ₁)²] / √2 ≥ σ_y</li>
+    <li>|σ₁| + |σ₂| ≥ σ_y</li>
+    <li>τ_max ≥ σ_y/2</li>
+  </ol>
+  <div class="answer">✓ תשובה נכונה: B – קריטריון von Mises מבוסס על אנרגיית עיוות גזירה</div>
+</div>
+
+<div class="question">
+  <div class="question-number">שאלה 5</div>
+  <span class="bloom">בלום: הבנה</span><span class="type-badge">רב-ברירה</span>
+  <div class="question-text">מה מייצגות הנקודות הקיצוניות על ציר X של מעגל מור (Mohr's Circle)?</div>
+  <ol type="A" class="options">
+    <li>מאמצי הגזירה המרביים</li>
+    <li>המאמצים הראשיים (principal stresses)</li>
+    <li>מאמץ ממוצע בלבד</li>
+    <li>מאמץ הגזירה הממוצע</li>
+  </ol>
+  <div class="answer">✓ תשובה נכונה: B – נקודות ציר X = מאמצים ראשיים (גזירה = 0)</div>
+</div>
+
+<!-- ===== נכון/לא נכון ===== -->
+<div class="section-title">נכון / לא נכון (True / False)</div>
+
+<div class="question">
+  <div class="question-number">שאלה 6</div>
+  <span class="bloom">בלום: הבנה</span><span class="type-badge">נכון/לא נכון</span>
+  <div class="question-text">בפיתול (torsion) של גל עגול, מאמץ הגזירה המרבי פועל על פני שטח חיצוני של החתך.</div>
+  <div class="answer">✓ נכון – τ = Tr/J, ומרחק r מרבי על ההיקף החיצוני</div>
+</div>
+
+<div class="question">
+  <div class="question-number">שאלה 7</div>
+  <span class="bloom">בלום: הבנה</span><span class="type-badge">נכון/לא נכון</span>
+  <div class="question-text">ציר הניטרלי (neutral axis) בכפיפת קורה מקיים תמיד מאמץ אפסי, ללא תלות בצורת החתך.</div>
+  <div class="answer">✓ נכון – על הציר הניטרלי ε=0 ולכן σ=0 (בגבולות אלסטיות)</div>
+</div>
+
+<div class="question">
+  <div class="question-number">שאלה 8</div>
+  <span class="bloom">בלום: ניתוח</span><span class="type-badge">נכון/לא נכון</span>
+  <div class="question-text">עלייה ביחס הרזות (slenderness ratio) של עמוד כפוף מגדילה את עומס אוילר הקריטי.</div>
+  <div class="answer">✗ לא נכון – P_cr = π²EI/L², עלייה באורך אפקטיבי מקטינה את עומס הכפיפה</div>
+</div>
+
+<!-- ===== תשובה קצרה ===== -->
+<div class="section-title">תשובה קצרה (Short Answer)</div>
+
+<div class="question">
+  <div class="question-number">שאלה 9</div>
+  <span class="bloom">בלום: יישום</span><span class="type-badge">תשובה קצרה</span>
+  <div class="question-text">
+    גל פלדה מוצק בקוטר 40 mm נושא מומנט פיתול T = 500 N·m.<br>
+    חשב את מאמץ הגזירה המרבי τ_max בחתך.<br>
+    <em>(J = πd⁴/32)</em>
+  </div>
+  <div class="answer">✓ J = π(0.04)⁴/32 = 2.51×10⁻⁷ m⁴ | τ_max = T·r/J = 500×0.02 / 2.51×10⁻⁷ ≈ 39.8 MPa</div>
+</div>
+
+<div class="question">
+  <div class="question-number">שאלה 10</div>
+  <span class="bloom">בלום: יישום</span><span class="type-badge">תשובה קצרה</span>
+  <div class="question-text">
+    אלמנט מאמץ נמצא במצב מישורי: σ_x = 80 MPa, σ_y = 20 MPa, τ_xy = 30 MPa.<br>
+    מצא את המאמצים הראשיים σ₁ ו-σ₂.
+  </div>
+  <div class="answer">✓ σ_avg = 50 MPa | R = √(30²+30²) = 42.4 MPa | σ₁ = 92.4 MPa, σ₂ = 7.6 MPa</div>
+</div>
+
+<div class="question">
+  <div class="question-number">שאלה 11</div>
+  <span class="bloom">בלום: הערכה</span><span class="type-badge">תשובה קצרה</span>
+  <div class="question-text">
+    חלק מכני עשוי אלומיניום (σ_y = 270 MPa) עמוד במאמץ עבודה של 90 MPa.<br>
+    מה מקדם הביטחון? האם הוא מספק לדעתך? נמק.
+  </div>
+  <div class="answer">✓ FS = 270/90 = 3 | מקובל להנדסה (FS ≥ 2–4 לפי יישום); לרכיבים קריטיים ייתכן שדרוש FS גבוה יותר</div>
+</div>
+
+<div class="question">
+  <div class="question-number">שאלה 12</div>
+  <span class="bloom">בלום: ניתוח</span><span class="type-badge">תשובה קצרה</span>
+  <div class="question-text">
+    מדוע חתך I (I-beam) יעיל יותר בכפיפה מחתך מלבני עם אותו שטח חתך?<br>
+    ענה בשתי-שלוש משפטים הכוללים את המושגים: מומנט תמידות, ציר ניטרלי, מאמץ כפיפה.
+  </div>
+  <div class="answer">✓ חתך I מרכז את שטח החומר רחוק מהציר הניטרלי → מגדיל את I → מקטין σ = Mc/I לאותה עוצמת כפיפה</div>
+</div>
+
+<!-- ===== XML ===== -->
+<div class="xml-section">
+<div class="section-title">קוד XML – לייבוא למערכת LMS</div>
+<button class="copy-btn" onclick="copyXML()">העתק XML</button>
+<pre id="xml-code">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;questionBank subject="מכניקת מוצק" department="הנדסה מכנית" version="1.0"&gt;
+
+  &lt;!-- ===== רב-ברירה ===== --&gt;
+
+  &lt;question id="Q1" type="multiple_choice" bloom="comprehension" topic="stress_strain"&gt;
+    &lt;text&gt;גוף עשוי מפלדה נתון למאמץ ציר של 200 MPa. מהו העיבור היחסי אם E = 200 GPa?&lt;/text&gt;
+    &lt;options&gt;
+      &lt;option label="A"&gt;0.0001&lt;/option&gt;
+      &lt;option label="B" correct="true"&gt;0.001&lt;/option&gt;
+      &lt;option label="C"&gt;0.01&lt;/option&gt;
+      &lt;option label="D"&gt;1.0&lt;/option&gt;
+    &lt;/options&gt;
+    &lt;explanation&gt;ε = σ/E = 200e6 / 200e9 = 0.001&lt;/explanation&gt;
+  &lt;/question&gt;
+
+  &lt;question id="Q2" type="multiple_choice" bloom="knowledge" topic="material_constants"&gt;
+    &lt;text&gt;מהו היחס בין מודול הגזירה G למודול יאנג E עבור חומר איזוטרופי עם יחס פואסון ν?&lt;/text&gt;
+    &lt;options&gt;
+      &lt;option label="A"&gt;G = E / (1 + ν)&lt;/option&gt;
+      &lt;option label="B" correct="true"&gt;G = E / (2(1 + ν))&lt;/option&gt;
+      &lt;option label="C"&gt;G = E / (1 − 2ν)&lt;/option&gt;
+      &lt;option label="D"&gt;G = 2E(1 + ν)&lt;/option&gt;
+    &lt;/options&gt;
+    &lt;explanation&gt;G = E / [2(1+ν)] – נגזר מתאוריית האלסטיות&lt;/explanation&gt;
+  &lt;/question&gt;
+
+  &lt;question id="Q3" type="multiple_choice" bloom="application" topic="beam_bending"&gt;
+    &lt;text&gt;קורה פשוטה באורך L נושאת עומס מרוזז P במרכזה. מהו גיל הכפיפה המרבי?&lt;/text&gt;
+    &lt;options&gt;
+      &lt;option label="A" correct="true"&gt;M_max = PL/4&lt;/option&gt;
+      &lt;option label="B"&gt;M_max = PL/2&lt;/option&gt;
+      &lt;option label="C"&gt;M_max = PL/8&lt;/option&gt;
+      &lt;option label="D"&gt;M_max = PL&lt;/option&gt;
+    &lt;/options&gt;
+    &lt;explanation&gt;M_max = PL/4 במרכז הקורה לפי דיאגרמת גילות כפיפה&lt;/explanation&gt;
+  &lt;/question&gt;
+
+  &lt;question id="Q4" type="multiple_choice" bloom="analysis" topic="failure_criteria"&gt;
+    &lt;text&gt;איזה ניסוח מתאר נכונה את קריטריון כשל von Mises?&lt;/text&gt;
+    &lt;options&gt;
+      &lt;option label="A"&gt;σ₁ ≥ σ_y&lt;/option&gt;
+      &lt;option label="B" correct="true"&gt;√[(σ₁−σ₂)²+(σ₂−σ₃)²+(σ₃−σ₁)²] / √2 ≥ σ_y&lt;/option&gt;
+      &lt;option label="C"&gt;|σ₁| + |σ₂| ≥ σ_y&lt;/option&gt;
+      &lt;option label="D"&gt;τ_max ≥ σ_y/2&lt;/option&gt;
+    &lt;/options&gt;
+    &lt;explanation&gt;von Mises מבוסס על אנרגיית עיוות גזירה&lt;/explanation&gt;
+  &lt;/question&gt;
+
+  &lt;question id="Q5" type="multiple_choice" bloom="comprehension" topic="mohrs_circle"&gt;
+    &lt;text&gt;מה מייצגות הנקודות הקיצוניות על ציר X של מעגל מור?&lt;/text&gt;
+    &lt;options&gt;
+      &lt;option label="A"&gt;מאמצי הגזירה המרביים&lt;/option&gt;
+      &lt;option label="B" correct="true"&gt;המאמצים הראשיים&lt;/option&gt;
+      &lt;option label="C"&gt;מאמץ ממוצע בלבד&lt;/option&gt;
+      &lt;option label="D"&gt;מאמץ הגזירה הממוצע&lt;/option&gt;
+    &lt;/options&gt;
+    &lt;explanation&gt;נקודות ציר X = מאמצים ראשיים (גזירה = 0)&lt;/explanation&gt;
+  &lt;/question&gt;
+
+  &lt;!-- ===== נכון / לא נכון ===== --&gt;
+
+  &lt;question id="Q6" type="true_false" bloom="comprehension" topic="torsion"&gt;
+    &lt;text&gt;בפיתול של גל עגול, מאמץ הגזירה המרבי פועל על פני שטח חיצוני של החתך.&lt;/text&gt;
+    &lt;correctAnswer&gt;true&lt;/correctAnswer&gt;
+    &lt;explanation&gt;τ = Tr/J – r מרבי על ההיקף החיצוני&lt;/explanation&gt;
+  &lt;/question&gt;
+
+  &lt;question id="Q7" type="true_false" bloom="comprehension" topic="beam_bending"&gt;
+    &lt;text&gt;ציר הניטרלי בכפיפת קורה מקיים תמיד מאמץ אפסי, ללא תלות בצורת החתך.&lt;/text&gt;
+    &lt;correctAnswer&gt;true&lt;/correctAnswer&gt;
+    &lt;explanation&gt;על הציר הניטרלי ε=0 ולכן σ=0 בתחום אלסטי&lt;/explanation&gt;
+  &lt;/question&gt;
+
+  &lt;question id="Q8" type="true_false" bloom="analysis" topic="buckling"&gt;
+    &lt;text&gt;עלייה ביחס הרזות של עמוד כפוף מגדילה את עומס אוילר הקריטי.&lt;/text&gt;
+    &lt;correctAnswer&gt;false&lt;/correctAnswer&gt;
+    &lt;explanation&gt;P_cr = π²EI/L² – עלייה ב-L מקטינה P_cr&lt;/explanation&gt;
+  &lt;/question&gt;
+
+  &lt;!-- ===== תשובה קצרה ===== --&gt;
+
+  &lt;question id="Q9" type="short_answer" bloom="application" topic="torsion"&gt;
+    &lt;text&gt;גל פלדה מוצק בקוטר 40 mm נושא מומנט פיתול T = 500 N·m. חשב את מאמץ הגזירה המרבי. (J = πd⁴/32)&lt;/text&gt;
+    &lt;modelAnswer&gt;J = π(0.04)⁴/32 = 2.51×10⁻⁷ m⁴ | τ_max = T·r/J = 500×0.02 / 2.51×10⁻⁷ ≈ 39.8 MPa&lt;/modelAnswer&gt;
+  &lt;/question&gt;
+
+  &lt;question id="Q10" type="short_answer" bloom="application" topic="principal_stress"&gt;
+    &lt;text&gt;אלמנט מאמץ: σ_x = 80 MPa, σ_y = 20 MPa, τ_xy = 30 MPa. מצא את המאמצים הראשיים σ₁ ו-σ₂.&lt;/text&gt;
+    &lt;modelAnswer&gt;σ_avg = 50 MPa | R = √(30²+30²) = 42.4 MPa | σ₁ ≈ 92.4 MPa, σ₂ ≈ 7.6 MPa&lt;/modelAnswer&gt;
+  &lt;/question&gt;
+
+  &lt;question id="Q11" type="short_answer" bloom="evaluation" topic="safety_factor"&gt;
+    &lt;text&gt;חלק מכני עשוי אלומיניום (σ_y = 270 MPa) עמוד במאמץ עבודה של 90 MPa. מה מקדם הביטחון? נמק.&lt;/text&gt;
+    &lt;modelAnswer&gt;FS = 270/90 = 3 | FS מקובל להנדסה (2–4); לרכיבים קריטיים ייתכן שנדרש FS גבוה יותר&lt;/modelAnswer&gt;
+  &lt;/question&gt;
+
+  &lt;question id="Q12" type="short_answer" bloom="analysis" topic="beam_bending"&gt;
+    &lt;text&gt;מדוע חתך I יעיל יותר בכפיפה מחתך מלבני עם אותו שטח חתך? ענה בשתי-שלוש משפטים.&lt;/text&gt;
+    &lt;modelAnswer&gt;חתך I מרכז חומר רחוק מהציר הניטרלי → מגדיל I → מקטין σ = Mc/I לאותה עוצמת כפיפה&lt;/modelAnswer&gt;
+  &lt;/question&gt;
+
+&lt;/questionBank&gt;</pre>
+</div>
+
+<script>
+function copyXML() {
+  const text = document.getElementById('xml-code').innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = '✓ הועתק!';
+    setTimeout(() => btn.textContent = 'העתק XML', 2000);
+  });
+}
+</script>
+</body>
+</html>
